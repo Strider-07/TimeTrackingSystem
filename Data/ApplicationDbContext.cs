@@ -8,7 +8,7 @@ namespace TimeTrackingSystem.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> contextOptions) : base(contextOptions)
         {
-            
+
         }
     }
 }
