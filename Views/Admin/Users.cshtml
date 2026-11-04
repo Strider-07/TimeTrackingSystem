@@ -13,15 +13,42 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var user in Model)
+        <!-- Dosen't work for now, to fix, just add małpa before "foreach" and "user" in td-->
+        <!--
+        foreach (var user in Model)
         {
             <tr>
-                <td>@user.FirstName</td>
-                <td>@user.LastName</td>
-                <td>@user.Position</td>
-                <td>@user.Department</td>
-                <td>@user.IsActive ? "Aktywny" : "Nieaktywny"</td>
+                <td>user.FirstName</td>
+                <td>user.LastName</td>
+                <td>user.Position</td>
+                <td>user.Department</td>
+                <td>user.IsActive ? "Aktywny" : "Nieaktywny"</td>
             </tr>
         }
+        -->
     </tbody>
 </table>
+
+<!--Adding users-->
+<section class="container d-flex mt-3 mb-3">
+    <h2 class="fw-bold">Dodawanie użytkownika</h2>
+    <label>Imie: <input type="text"/></label>
+    <label>Nazwisko: <input type="text" /></label>
+    <label>
+        Stanowisko: 
+        <select>
+            <option>Pracownik</option>
+            <option>Kierownik</option>
+            <option>Administrator</option>
+        </select>
+    </label>
+    <label>Dział: <input type="text" /></label>
+    <label>
+        Aktywny:
+        <select>
+            <option>Tak</option>
+            <option>Nie</option>
+        </select>
+    </label>
+    <button class="btn btn-primary">Dodaj</button>
+</section>
