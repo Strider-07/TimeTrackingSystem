@@ -1,0 +1,36 @@
+﻿/* LIGHT MODE */
+:root {
+    color-scheme: light;
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --surface-secondary: #F1F5F9;
+    --text-primary: #0F172A;
+    --text-secondary: #64748B;
+    --border: #E2E8F0;
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --primary-text: #FFFFFF;
+    --success: #16A34A;
+    --warning: #D97706;
+    --danger: #DC2626;
+    --info: #2563EB;
+    --radius: 12px;
+}
+
+/* DARK MODE */
+[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0F172A;
+    --surface: #1E293B;
+    --surface-secondary: #334155;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --border: #334155;
+    --primary: #3B82F6;
+    --primary-hover: #60A5FA;
+    --primary-text: #FFFFFF;
+    --success: #4ADE80;
+    --warning: #FBBF24;
+    --danger: #F87171;
+    --info: #60A5FA;
+}
