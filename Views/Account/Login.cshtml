@@ -1,0 +1,12 @@
+﻿@model TimeTrackingSystem.Models.ViewModels.LoginViewModel
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <form asp-controller="Account" asp-action="Login" method="post">
+        <label class="form-label" asp-for="Email">Adres email</label>
+        <input class="form-control"  asp-for="Email" type="email" />
+        <label class="form-label" asp-for="Password">Hasło</label>
+        <input class="form-control" asp-for="Password" type="password" />
+        <button class="btn btn-primary" type="submit">Zaloguj się</button>
+        
+    </form>
+    
+
