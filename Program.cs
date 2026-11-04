@@ -19,7 +19,36 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
-if (app.Environment.IsDevelopment())
+
+using (var scope = app.Services.CreateScope())
+{
+    //var userManager = scope.ServiceProvider.GetRequiredService(UserManager<ApplicationUser>);
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var existingUser = await userManager.FindByEmailAsync("test@example.com");
+    if(existingUser == null)
+    {
+        var testUser = new ApplicationUser
+        {
+            UserName = "test@example.com",
+            Email = "test@example.com"
+        };
+
+        var result = await userManager.CreateAsync(testUser, "Test123!");
+
+        if (!result.Succeeded)
+        {
+            throw new Exception(
+                string.Join("; ", result.Errors.Select(e => e.Description))
+            );
+        }
+        }
+
+}
+
+
+
+
+if (!app.Environment.IsDevelopment()) //AI SLOP START //delete the ! lol
 {
     // Tymczasowo pomijamy inicjalizację ról.
     // Dzięki temu nie próbujemy łączyć się z bazą przy starcie.
@@ -32,14 +61,14 @@ else
         .GetRequiredService<RoleManager<IdentityRole>>();
 
     await DbInitializer.InitializeRolesAsync(roleManager);
-}
+} //AI SLOP END
 /*
 using(var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     await DbInitializer.InitializeRolesAsync(roleManager);
 }
-*/
+*/ //TODO: Uncomment when the database is avaible
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

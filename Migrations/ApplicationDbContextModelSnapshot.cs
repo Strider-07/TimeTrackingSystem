@@ -169,7 +169,7 @@ namespace TimeTrackingSystem.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Departament")
+                    b.Property<string>("Department")
                         .IsRequired()
                         .HasColumnType("text");
 
