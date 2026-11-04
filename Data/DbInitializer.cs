@@ -17,7 +17,7 @@ namespace TimeTrackingSystem.Data
             foreach (var role in nazwy)
             {   
                 bool wynik = await _roleManager.RoleExistsAsync(role);
-                if(wynik) //TODO : Change the argument back to the full thing instead of a variable an check if the result.succeded is still null
+                if(!wynik) //TODO : Change the argument back to the full thing instead of a variable an check if the result.succeded is still null
                 {
                     var newRole = new IdentityRole(role);
                     var result = await _roleManager.CreateAsync(newRole);
