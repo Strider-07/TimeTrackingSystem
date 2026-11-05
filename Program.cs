@@ -69,30 +69,11 @@ using (var scope = app.Services.CreateScope())
 
 }
 
-
-
-
-if (!app.Environment.IsDevelopment()) //AI SLOP START //delete the ! lol
-{
-    // Tymczasowo pomijamy inicjalizację ról.
-    // Dzięki temu nie próbujemy łączyć się z bazą przy starcie.
-}
-else
-{
-    using var scope = app.Services.CreateScope();
-
-    var roleManager = scope.ServiceProvider
-        .GetRequiredService<RoleManager<IdentityRole>>();
-
-    await DbInitializer.InitializeRolesAsync(roleManager);
-} //AI SLOP END
-/*
 using(var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     await DbInitializer.InitializeRolesAsync(roleManager);
 }
-*/ //TODO: Uncomment when the database is avaible
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
