@@ -5,11 +5,22 @@ using TimeTrackingSystem.Models.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    )
-);
+var databaseProvider = builder.Configuration["DatabaseProvider"];
+
+if (databaseProvider == "SQLite")
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(
+            builder.Configuration.GetConnectionString("SQLite")
+        ));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(
+            builder.Configuration.GetConnectionString("PostgreSQL")
+        ));
+}
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()

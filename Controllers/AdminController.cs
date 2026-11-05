@@ -18,13 +18,14 @@ namespace TimeTrackingSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
-            //var users = await _userManager.Users.ToListAsync();
-            return View(); // TODO: add users parameter
+            var users = await _userManager.Users.ToListAsync();
+            return View(users);
         }
 
         public async Task<IActionResult> Users()
         {
-            return View("Users");
+            var users = await _userManager.Users.ToListAsync();
+            return View("Users", users);
         }
     }
 }
