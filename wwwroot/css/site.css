@@ -29,3 +29,68 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+/*------------------------------------------ Custom ---------------------------------------------*/
+
+/* GENERAL */
+body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: Inter, sans-serif;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* HEADINGS */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary);
+}
+
+/* TABLES */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--surface);
+    color: var(--text-primary);
+}
+
+th {
+    background-color: var(--surface-secondary);
+    color: var(--text-primary);
+}
+
+td, th {
+    padding: 12px;
+    border: 1px solid var(--border);
+}
+
+tr:hover td {
+    background-color: var(--surface-secondary);
+}
+
+/* INPUTS AND SELECTS */
+input, select, textarea {
+    background-color: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+    input:focus, select:focus, textarea:focus {
+        outline: 2px solid var(--primary);
+        outline-offset: 1px;
+    }
+
+/* BUTTONS */
+button {
+    background-color: var(--primary);
+    color: var(--primary-text);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+}
+
+    button:hover {
+        background-color: var(--primary-hover);
+    }
