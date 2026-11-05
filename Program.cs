@@ -52,9 +52,17 @@ using (var scope = app.Services.CreateScope())
                 string.Join("; ", result.Errors.Select(e => e.Description))
             );
         }
-        }
+        existingUser = testUser;
+        
+    }
+    var rolesResult = await userManager.GetRolesAsync(existingUser);
+
+    System.Diagnostics.Debug.WriteLine($"Role użytkownika: {string.Join(", ", rolesResult)}");
+
 
 }
+
+
 
 
 
