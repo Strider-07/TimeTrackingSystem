@@ -26,9 +26,20 @@ namespace TimeTrackingSystem.Controllers
         {
             if(!ModelState.IsValid)
             {
-                return View("~/Views/Account/Login.cshtml"); //TODO: Temporary fix
+                ModelState.AddModelError("Login", "Nie poprawne hasło lub / i mail"); //TODO: Change the error message because the error appears after the email or password are not validated(ex. the email lack a '@' character)
+                return View("~/Views/Account/Login.cshtml",model); //TODO: Temporary fix
             }
-            return View("~/Views/Account/Login.cshtml"); //TODO: Temporary fix
+            else
+            {
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, true);
+                if(result.Succeeded)
+                {
+                    return RedirectToAction("~/Views/Admin/Index.cshtml");
+                }
+
+                return View(model);
+                
+            }
 
         }
     }
