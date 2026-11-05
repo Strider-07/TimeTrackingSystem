@@ -31,6 +31,19 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+
+    var userManager = scope.ServiceProvider
+        .GetRequiredService<UserManager<ApplicationUser>>();
+
+    var roleManager = scope.ServiceProvider
+        .GetRequiredService<RoleManager<IdentityRole>>();
+
+    await UserSeeder.SeedAsync(userManager, roleManager);
+}
+
 using (var scope = app.Services.CreateScope())
 {
     //var userManager = scope.ServiceProvider.GetRequiredService(UserManager<ApplicationUser>);
