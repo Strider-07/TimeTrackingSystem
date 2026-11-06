@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TimeTrackingSystem.Models.Entities;
 using TimeTrackingSystem.Models.ViewModels;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TimeTrackingSystem.Controllers
 {
@@ -25,6 +27,8 @@ namespace TimeTrackingSystem.Controllers
             return View(users);
         }
 
+
+        // ---------------------- Users Management ----------------------
         public async Task<IActionResult> Users()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -83,6 +87,77 @@ namespace TimeTrackingSystem.Controllers
                 return View(model);
             }
             return RedirectToAction("Users");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return View(user);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditUser(ApplicationUser model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+            var user = await _userManager.FindByIdAsync(model.Id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            user.Email = model.Email;
+            user.FirstName = model.FirstName;
+            user.LastName = model.LastName;
+            user.Position = model.Position;
+            user.Department = model.Department;
+            user.IsActive = model.IsActive;
+            var result = await _userManager.UpdateAsync(user);
+            // NOTE: beacuse it's copied from above, idk if this is 100% correct way for this.
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                return View(model);
+            }
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var result = await _userManager.DeleteAsync(user);
+            // NOTE: beacuse it's copied from above, idk if this is 100% correct way for this.
+            if (!result.Succeeded)
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                
+                return RedirectToAction("Users");
+            }
+            return RedirectToAction("Users");
+        }
+        // ---------------------- Users Management ----------------------
+
+        // -------------------------- Reports --------------------------
+        public async Task<IActionResult> Reports()
+        {
+            var users = await _userManager.Users.ToListAsync();
+
+            return View("Reports", users);
         }
     }
 }
