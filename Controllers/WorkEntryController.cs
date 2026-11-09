@@ -1,0 +1,89 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TimeTrackingSystem.Data;
+using TimeTrackingSystem.Models.Entities;
+using TimeTrackingSystem.Models.ViewModels;
+
+namespace TimeTrackingSystem.Controllers
+{
+    public class WorkEntryController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        public WorkEntryController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        {
+            _context = context;
+            _userManager = userManager;
+        }
+        public async Task<IActionResult> Index()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
+                x => x.UserId == user.Id && x.StartTime.Date == DateTime.Today);
+            var viewModel = new WorkEntryViewModel();
+            if (todayWorkEntry == null)
+            {
+                viewModel.TodayWorkTime = TimeSpan.Zero;
+                return View(viewModel);
+            }
+            viewModel.TodayWorkTime = (todayWorkEntry.EndTime ?? DateTime.Now) - todayWorkEntry.StartTime;
+            viewModel.StartTime = todayWorkEntry.StartTime;
+            viewModel.EndTime = todayWorkEntry.EndTime;
+            return View(viewModel);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> StartWork()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            var activeEntry = await _context.WorkEntries.FirstOrDefaultAsync(
+                x => x.UserId == user.Id && x.EndTime == null);
+            if (activeEntry != null)
+            {
+                TempData["Error"] = "Masz już rozpoczętą pracę";
+                return View(); 
+            }
+            var workEntry = new WorkEntry
+            {
+                UserId = user.Id,
+                StartTime = DateTime.Now,
+            };
+            _context.WorkEntries.Add(workEntry);
+            await _context.SaveChangesAsync();
+            TempData["Succes"] = "Pomyślnie rozpoczęto pracę";
+
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EndWork()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            var activeEntry = await _context.WorkEntries.FirstOrDefaultAsync(
+                x => x.UserId == user.Id && x.EndTime == null);
+            if (activeEntry == null)
+            {
+                TempData["Error"] = "Nie masz rozpoczętej pracy";
+                return RedirectToAction("Index");
+            }
+            activeEntry.EndTime = DateTime.Now;
+            await _context.SaveChangesAsync();
+            TempData["Succes"] = "Pomyślnie zakończono pracę";
+            return RedirectToAction("Index");
+        }
+        
+    }
+}

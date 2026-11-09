@@ -10,5 +10,7 @@ namespace TimeTrackingSystem.Data
         {
 
         }
+
+        public DbSet<WorkEntry> WorkEntries { get; set; }
     }
 }

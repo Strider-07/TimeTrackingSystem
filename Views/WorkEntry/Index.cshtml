@@ -1,0 +1,293 @@
+﻿@model TimeTrackingSystem.Models.ViewModels.WorkEntryViewModel;
+
+<section>
+    <h1>Witaj Model.FirstName</h1>
+    <form asp-controller="WorkEntry" asp-action="StartWork">
+        <button type="submit">Rozpocznij pracę</button>
+    </form>
+    <form asp-controller="WorkEntry" asp-action="EndWork">
+        <button type="submit">Zakończ pracę</button>
+    </form>
+    <h4>Dzisiejszy czas pracy: <span>@Model.TodayWorkTime</span></h4>
+</section>
+
+<!--https://chatgpt.com/s/t_6aedad70016c8191b9ff2feeb6af5096-->
+<!--
+Tak\! Dokładnie tak to powinno wyglądać. 😊 W punkcie 3 chodzi o stworzenie prostego systemu odbijania karty pracowniczej, tyle że w wersji internetowej.
+Pracownik loguje się do aplikacji, klika „Rozpocznij pracę”, a system zapisuje godzinę rozpoczęcia. Kiedy kończy pracę, klika „Zakończ pracę” i system zapisuje godzinę zakończenia oraz oblicza czas pracy.
+
+Ale cały punkt 3 ma trochę więcej funkcjonalności. Rozbijmy go na części.
+
+# 1. Panel pracownika – rejestrowanie czasu pracy
+
+To główna część funkcjonalności.
+
+Wyobraź sobie, że pracownik loguje się do systemu i przechodzi do zakładki „Ewidencja czasu pracy”.
+
+# Ewidencja czasu pracy
+
+Piątek, 6 listopada 2026
+
+Zalogowany
+
+AKTUALNY STATUS
+
+# Nie rozpoczęto pracy
+
+Dzisiejszy czas pracy: 0 godz. 00 min.
+
+Rozpocznij pracę
+
+Dostępny
+
+Zakończ pracę
+
+Nieaktywny
+
+Dzisiejszy wpis
+
+| Pole | Wartość |
+| --- | --- |
+| Data | 06.11.2026 |
+| Rozpoczęcie | — |
+| Zakończenie | — |
+| Łącznie | 0h 00min |
+
+Przykładowy wygląd panelu – poglądowy.### Jak to działa?
+
+Scenariusz 1 – rozpoczęcie pracy
+
+1. Pracownik loguje się do aplikacji.
+2. Wchodzi w zakładkę „Ewidencja czasu pracy”.
+3. Klika „Rozpocznij pracę”.
+4. System pobiera aktualną datę i godzinę z serwera.
+5. Tworzony jest wpis w tabeli `TimeEntries`.
+
+Przykładowy zapis:
+
+| Pole | Wartość |
+| --- | --- |
+| UserId | 15 |
+| EntryDate | 06.11.2026 |
+| StartTime | 08:00 |
+| EndTime | NULL |
+| TotalHours | NULL |
+
+Scenariusz 2 – zakończenie pracy
+
+Załóżmy, że pracownik kończy o 16:15.
+
+1. Klika „Zakończ pracę”.
+2. System pobiera aktualną godzinę.
+3. Aktualizuje istniejący wpis.
+4. Oblicza przepracowany czas.
+
+Przykładowy zapis:
+
+| Pole | Wartość |
+| --- | --- |
+| UserId | 15 |
+| EntryDate | 06.11.2026 |
+| StartTime | 08:00 |
+| EndTime | 16:15 |
+| TotalHours | 8.25 |
+
+W tym przypadku pracownik przepracował 8 godzin i 15 minut.
+
+Ważne: przycisk „Rozpocznij pracę” powinien być dostępny tylko wtedy, gdy pracownik nie ma otwartego wpisu. Analogicznie „Zakończ pracę” powinien być dostępny dopiero po rozpoczęciu pracy.
+
+# 2. Historia własnych wpisów
+
+Druga część wymagań mówi:
+
+> Historia własnych wpisów z możliwością przeglądania.
+
+Czyli pracownik powinien mieć osobną zakładkę, np. „Moja historia czasu pracy”.
+
+Powinna zawierać tabelę ze wszystkimi jego wpisami.
+
+## Moja historia czasu pracy
+
+Listopad 2026
+
+6 wpisów
+
+| Data | Wejście | Wyjście | Czas |
+| --- | --- | --- | --- |
+| 02.11 | 08:00 | 16:00 | 8h |
+| 03.11 | 08:15 | 16:15 | 8h |
+| 04.11 | 07:55 | 16:00 | 8h 05m |
+| 05.11 | 08:00 | 16:30 | 8h 30m |
+| 06.11 | 08:00 | 16:15 | 8h 15m |
+
+Łącznie w miesiącu
+
+# 40h 50m
+
+Dobrze byłoby dodać:
+
+- Wybór miesiąca i roku.
+- Paginację, jeśli wpisów będzie dużo.
+- Informację o niekompletnych wpisach (np. brak godziny zakończenia).
+
+Pracownik powinien widzieć wyłącznie swoje wpisy, a nie wpisy innych osób.
+
+# 3. Wyświetlanie sumy godzin w danym miesiącu
+
+To właściwie rozszerzenie poprzedniej funkcjonalności.
+
+Pracownik wybiera miesiąc, a system oblicza sumę wszystkich przepracowanych godzin.
+
+Możesz to przedstawić w formie małego dashboardu:
+
+PRZEPRACOWANE GODZINY
+
+# 168h 30m
+
+Listopad 2026
+
+LICZBA DNI PRACY
+
+# 21
+
+Listopad 2026
+
+Nie musisz robić żadnych skomplikowanych wykresów. Wystarczy suma godzin wyliczona z wpisów danego pracownika.
+
+# 4. Panel kierownika – przeglądanie czasu pracy zespołu
+
+To kolejna część punktu 3.
+
+Kierownik powinien mieć dostęp do osobnej zakładki, np. „Czas pracy zespołu”.
+
+W niej widzi wpisy pracowników, którymi zarządza.
+
+## Czas pracy zespołu
+
+Listopad 2026
+
+| Pracownik | Data | Wejście | Wyjście |
+| --- | --- | --- | --- |
+| Jan Kowalski | 06.11 | 08:00 | 16:00 |
+| Anna Nowak | 06.11 | 07:55 | 16:15 |
+| Piotr Wiśniewski | 06.11 | 08:10 | 16:30 |
+
+Dostępne operacje
+
+- Przeglądanie wpisów konkretnego pracownika.
+- Filtrowanie po pracowniku i miesiącu.
+- Przejście do edycji wpisu.
+
+Tutaj ważna rzecz: kierownik nie powinien automatycznie widzieć wszystkich pracowników firmy. Powinien widzieć tylko osoby należące do jego zespołu.
+
+Wymaga to odpowiedniego powiązania kierownika z pracownikami w bazie danych.
+
+# 5. Panel kierownika – ręczna korekta wpisów
+
+Ostatni podpunkt mówi:
+
+> Możliwość ręcznej korekty wpisów z uzasadnieniem.
+
+To oznacza, że kierownik może poprawić godzinę wejścia lub wyjścia pracownika.
+
+Przykład:
+
+Pracownik zapomniał kliknąć „Zakończ pracę”. W rzeczywistości wyszedł o 16:00, ale system nadal pokazuje otwarty wpis.
+
+Kierownik może wejść w ten wpis i go poprawić.
+
+## Korekta wpisu czasu pracy
+
+Pracownik: Jan Kowalski
+
+Data: 06.11.2026
+
+Godzina rozpoczęcia08:00
+
+Godzina zakończenia16:00
+
+Uzasadnienie korekty
+
+Pracownik zapomniał zarejestrować zakończenie pracy. Godzina potwierdzona przez kierownika.
+
+Po zapisaniu system powinien zachować informację, kto dokonał korekty.
+
+Przykład korekty
+
+Tutaj właśnie wykorzystasz kolumnę `ModifiedBy` z tabeli `TimeEntries`.
+
+Dobrze byłoby też przechowywać datę modyfikacji i poprzednie wartości wpisu, żeby można było sprawdzić historię korekt.
+
+# 6. Jak powinna wyglądać baza danych?
+
+Do realizacji tego punktu wystarczy Ci tabela `TimeEntries`, którą masz już opisaną w zadaniu.
+
+Jej zadaniem jest przechowywanie informacji o każdej sesji pracy.
+
+| Kolumna | Do czego służy |
+| --- | --- |
+| Id | Identyfikator wpisu |
+| UserId | Właściciel wpisu |
+| EntryDate | Data pracy |
+| StartTime | Godzina rozpoczęcia |
+| EndTime | Godzina zakończenia |
+| TotalHours | Łączny czas pracy |
+| Note | Uwagi do wpisu |
+| CreatedAt | Data utworzenia |
+| ModifiedBy | Kto zmodyfikował wpis |
+
+Przykładowo jeden pracownik ma 20 dni pracy w miesiącu – w tabeli powinien mieć 20 wpisów.
+
+Warto też pamiętać o wymaganiu: jeden wpis na dzień. Najlepiej zabezpieczyć to nie tylko w kodzie, ale również ograniczeniem unikalności w bazie danych dla pary `UserId` + `EntryDate`.
+
+# 7. Jak ja bym to podzielił w Twojej aplikacji?
+
+Żeby zachować porządek, zrobiłbym następującą strukturę:
+
+Dla pracownika:
+
+- `TimeEntry/Index` – główny panel odbijania wejścia i wyjścia.
+- `TimeEntry/History` – historia własnych wpisów.
+- `TimeEntry/MonthlySummary` – podsumowanie czasu pracy.
+
+Dla kierownika:
+
+- `TimeEntry/Team` – lista wpisów pracowników zespołu.
+- `TimeEntry/Edit` – ręczna korekta wpisu.
+
+Przepływ działania:
+
+Pracownik loguje się
+
+Rozpocznij pracę
+
+Zapis godziny wejścia
+
+Zakończ pracę
+
+Zapis godziny wyjścia i obliczenie czasu
+
+Historia i podsumowanie
+
+Przeglądanie własnych wpisów
+
+Kierownik
+
+Przeglądanie zespołu i ewentualne korekty
+
+## Moja rada – od czego zacząć?
+
+Nie próbuj robić wszystkiego jednocześnie. Zrealizuj punkt 3 w takiej kolejności:
+
+1. Utwórz encję `TimeEntry` i dodaj ją do bazy danych.
+2. Zrób przycisk „Rozpocznij pracę”.
+3. Zrób przycisk „Zakończ pracę”.
+4. Zabezpiecz możliwość wielokrotnego rozpoczęcia pracy tego samego dnia.
+5. Zrób historię wpisów pracownika.
+6. Dodaj miesięczne podsumowanie godzin.
+7. Na końcu zajmij się panelem kierownika i korektami.
+
+Jeszcze jedna ważna uwaga: nie komplikuj tego na początku. Nie potrzebujesz kalendarza, wykresów ani skomplikowanego systemu zmianowego. Dwa przyciski, tabela z wpisami, historia i panel kierownika w zupełności wystarczą do realizacji wymagań punktu 3.
+
+I pamiętaj, że czas pracy powinien być liczony na podstawie czasu zapisanego na serwerze, a nie godziny przesłanej przez przeglądarkę. To ograniczy możliwość manipulowania wpisami przez użytkownika.
+-->
