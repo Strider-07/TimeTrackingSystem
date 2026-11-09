@@ -1,0 +1,27 @@
+﻿<!--Adding users-->
+<form asp-controller="Admin" asp-action="CreateUser" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <h2 class="fw-bold">Dodawanie użytkownika</h2>
+    <label>Email: <input type="text" required name="Email" /></label>
+    <label>Hasło: <input type="password" required name="Password" /></label>
+    <label>Imie: <input type="text" required name="FirstName" /></label>
+    <label>Nazwisko: <input type="text" required name="LastName" /></label>
+    <label>
+        Stanowisko:
+        <select name="Position">
+            <option value="Pracownik">Pracownik</option>
+            <option value="Kierownik">Kierownik</option>
+            <option value="Administrator">Administrator</option>
+        </select>
+    </label>
+    <label>Dział: <input type="text" required name="Department" /></label>
+    <label>
+        Aktywny:
+        <select name="IsActive">
+            <option value="true">Tak</option>
+            <option value="false">Nie</option>
+        </select>
+    </label>
+    <button class="btn btn-primary" type="submit">Dodaj</button>
+</form>

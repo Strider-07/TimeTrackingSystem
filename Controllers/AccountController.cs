@@ -37,7 +37,7 @@ namespace TimeTrackingSystem.Controllers
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, true);
                 if(result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Admin"); //TODO: Check if its supposed to redirect there
+                    return RedirectToAction("Index", "Admin"); //TODO: Check if its supposed to redirect there (Roles)
                 }
                 ModelState.AddModelError("Login", "Nie poprawne hasło lub / i mail");
                 return View(model);
