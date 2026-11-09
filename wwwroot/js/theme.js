@@ -7,7 +7,7 @@
     localStorage.setItem("theme", newTheme);
 }
 
-let savedTheme = localStorage.getAttribute("theme");
+let savedTheme = localStorage.getItem("theme")
 if (savedTheme) {
     document.documentElement.setAttribute("data-theme", savedTheme);
 }
