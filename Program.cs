@@ -31,6 +31,19 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+
+    var userManager = scope.ServiceProvider
+        .GetRequiredService<UserManager<ApplicationUser>>();
+
+    var roleManager = scope.ServiceProvider
+        .GetRequiredService<RoleManager<IdentityRole>>();
+
+    await UserSeeder.SeedAsync(userManager, roleManager);
+}
+
 using (var scope = app.Services.CreateScope())
 {
     //var userManager = scope.ServiceProvider.GetRequiredService(UserManager<ApplicationUser>);
@@ -52,42 +65,16 @@ using (var scope = app.Services.CreateScope())
                 string.Join("; ", result.Errors.Select(e => e.Description))
             );
         }
-        existingUser = testUser;
-        
+
     }
-    var rolesResult = await userManager.GetRolesAsync(existingUser);
-
-    System.Diagnostics.Debug.WriteLine($"Role użytkownika: {string.Join(", ", rolesResult)}");
-
 
 }
 
-
-
-
-
-
-if (!app.Environment.IsDevelopment()) //AI SLOP START //delete the ! lol
-{
-    // Tymczasowo pomijamy inicjalizację ról.
-    // Dzięki temu nie próbujemy łączyć się z bazą przy starcie.
-}
-else
-{
-    using var scope = app.Services.CreateScope();
-
-    var roleManager = scope.ServiceProvider
-        .GetRequiredService<RoleManager<IdentityRole>>();
-
-    await DbInitializer.InitializeRolesAsync(roleManager);
-} //AI SLOP END
-/*
 using(var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     await DbInitializer.InitializeRolesAsync(roleManager);
 }
-*/ //TODO: Uncomment when the database is avaible
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
