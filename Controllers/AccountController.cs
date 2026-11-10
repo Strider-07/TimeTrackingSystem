@@ -53,7 +53,7 @@ namespace TimeTrackingSystem.Controllers
             return View();
         }
 
-        [HttpPost,Authorize]
+        [HttpPost,ValidateAntiForgeryToken]
 
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
@@ -70,6 +70,7 @@ namespace TimeTrackingSystem.Controllers
                     var result = await _userManager.ChangePasswordAsync(selectedUser,model.CurrentPassword,model.NewPassword);
                     if(result.Succeeded)
                     {
+                        await _signInManager.SignOutAsync();
                         TempData["Success"] = "Hasło zmienione pomyślnie!";
                         return RedirectToAction("Login", "Account");
                     }
@@ -89,6 +90,14 @@ namespace TimeTrackingSystem.Controllers
                     return View(model);
                 }
             }
+        }
+
+        [HttpPost,ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            TempData["Success"] = "Wylogowano pomyślnie";
+            return RedirectToAction("Login", "Account");
         }
     }
 }

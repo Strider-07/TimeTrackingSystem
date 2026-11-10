@@ -131,6 +131,7 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpPost,ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
