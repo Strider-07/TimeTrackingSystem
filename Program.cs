@@ -17,6 +17,18 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
+    options.SlidingExpiration = true;
+    options.LoginPath = "/Account/Login";
+    // options.AccessDeniedPath = "/"; TODO: Add after roles
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.HttpOnly = true;
+
+});
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
@@ -38,7 +50,7 @@ if (app.Environment.IsDevelopment())
     var roleManager = scope.ServiceProvider
         .GetRequiredService<RoleManager<IdentityRole>>();
 
-    await UserSeeder.SeedAsync(userManager, roleManager);
+    await UserSeeder.SeedAsync(userManager);
 }
 
 using (var scope = app.Services.CreateScope())
