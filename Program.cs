@@ -7,20 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 var databaseProvider = builder.Configuration["DatabaseProvider"];
 
-if (databaseProvider == "SQLite")
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(
-            builder.Configuration.GetConnectionString("SQLite")
-        ));
-}
-else
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseNpgsql(
             builder.Configuration.GetConnectionString("PostgreSQL")
         ));
-}
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -30,6 +21,12 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await DbInitializer.InitializeRolesAsync(roleManager);
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -70,11 +67,7 @@ using (var scope = app.Services.CreateScope())
 
 }
 
-using(var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    await DbInitializer.InitializeRolesAsync(roleManager);
-}
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
