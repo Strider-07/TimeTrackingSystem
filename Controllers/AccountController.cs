@@ -17,14 +17,14 @@ namespace TimeTrackingSystem.Controllers
         }
 
         
-        [HttpGet]
+        [HttpGet,AllowAnonymous]
         public IActionResult Login()
         {
             //return View();
             return View("~/Views/Account/Login.cshtml"); //TODO: Temporary fix
         }
 
-        [HttpPost]
+        [HttpPost, AllowAnonymous]
         public async Task<IActionResult>Login(LoginViewModel model)
         {
             if(!ModelState.IsValid)

@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,20 +19,24 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.ConfigureApplicationCookie(options =>
+builder.Services.ConfigureApplicationCookie(option =>
 {
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
-    options.SlidingExpiration = true;
-    options.LoginPath = "/Account/Login";
-    // options.AccessDeniedPath = "/"; TODO: Add after roles
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    options.Cookie.HttpOnly = true;
+    option.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+    option.SlidingExpiration = true;
+    option.LoginPath = "/Account/Login";
+    // option.AccessDeniedPath = "/"; TODO: Add after roles
+    option.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    option.Cookie.HttpOnly = true;
 
 });
 
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(option =>
+{
+    var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+    option.Filters.Add(new AuthorizeFilter(policy));
+});
 
 var app = builder.Build();
 
