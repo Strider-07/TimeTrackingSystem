@@ -7,29 +7,38 @@ var builder = WebApplication.CreateBuilder(args);
 
 var databaseProvider = builder.Configuration["DatabaseProvider"];
 
-if (databaseProvider == "SQLite")
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(
-            builder.Configuration.GetConnectionString("SQLite")
-        ));
-}
-else
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseNpgsql(
             builder.Configuration.GetConnectionString("PostgreSQL")
         ));
-}
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(1);
+    options.SlidingExpiration = true;
+    options.LoginPath = "/Account/Login";
+    // options.AccessDeniedPath = "/"; TODO: Add after roles
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.HttpOnly = true;
+
+});
+
+
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    await DbInitializer.InitializeRolesAsync(roleManager);
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -41,7 +50,7 @@ if (app.Environment.IsDevelopment())
     var roleManager = scope.ServiceProvider
         .GetRequiredService<RoleManager<IdentityRole>>();
 
-    await UserSeeder.SeedAsync(userManager, roleManager);
+    await UserSeeder.SeedAsync(userManager);
 }
 
 using (var scope = app.Services.CreateScope())
@@ -70,11 +79,7 @@ using (var scope = app.Services.CreateScope())
 
 }
 
-using(var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-    await DbInitializer.InitializeRolesAsync(roleManager);
-}
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
