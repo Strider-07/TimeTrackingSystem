@@ -124,7 +124,7 @@ namespace TimeTrackingSystem.Controllers
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
-                    ModelState.AddModelError("", error.Description);
+                    ModelState.AddModelError(string.Empty, error.Description);
 
                 return View(model);
             }
@@ -143,7 +143,7 @@ namespace TimeTrackingSystem.Controllers
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
-                    ModelState.AddModelError("", error.Description);
+                    ModelState.AddModelError(string.Empty, error.Description);
 
                 
                 return RedirectToAction("Users");

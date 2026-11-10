@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿
+using Microsoft.AspNetCore.Identity;
 using TimeTrackingSystem.Models.Entities;
 
 namespace TimeTrackingSystem.Data
@@ -6,72 +7,73 @@ namespace TimeTrackingSystem.Data
     public static class UserSeeder
     {
         public static async Task SeedAsync(
-            UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            UserManager<ApplicationUser> userManager)
         {
             var users = new[]
             {
-            new ApplicationUser
-            {
-                FirstName = "Adam",
-                LastName = "Kowalski",
-                UserName = "adam.kowalski@techcorp.local",
-                Email = "adam.kowalski@techcorp.local",
-                Position = "Administrator systemu",
-                Department = "IT",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            },
-            new ApplicationUser
-            {
-                FirstName = "Anna",
-                LastName = "Nowak",
-                UserName = "anna.nowak@techcorp.local",
-                Email = "anna.nowak@techcorp.local",
-                Position = "Team Leader",
-                Department = "IT",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            },
-            new ApplicationUser
-            {
-                FirstName = "Piotr",
-                LastName = "Wiśniewski",
-                UserName = "piotr.wisniewski@techcorp.local",
-                Email = "piotr.wisniewski@techcorp.local",
-                Position = "Backend Developer",
-                Department = "IT",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            },
-            new ApplicationUser
-            {
-                FirstName = "Marta",
-                LastName = "Zielińska",
-                UserName = "marta.zielinska@techcorp.local",
-                Email = "marta.zielinska@techcorp.local",
-                Position = "Frontend Developer",
-                Department = "IT",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            }
-        };
+                new ApplicationUser
+                {
+                    FirstName = "Adam",
+                    LastName = "Kowalski",
+                    UserName = "adam.kowalski@techcorp.local",
+                    Email = "adam.kowalski@techcorp.local",
+                    Position = "Administrator systemu",
+                    Department = "IT",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new ApplicationUser
+                {
+                    FirstName = "Anna",
+                    LastName = "Nowak",
+                    UserName = "anna.nowak@techcorp.local",
+                    Email = "anna.nowak@techcorp.local",
+                    Position = "Team Leader",
+                    Department = "IT",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new ApplicationUser
+                {
+                    FirstName = "Piotr",
+                    LastName = "Wiśniewski",
+                    UserName = "piotr.wisniewski@techcorp.local",
+                    Email = "piotr.wisniewski@techcorp.local",
+                    Position = "Backend Developer",
+                    Department = "IT",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new ApplicationUser
+                {
+                    FirstName = "Marta",
+                    LastName = "Zielińska",
+                    UserName = "marta.zielinska@techcorp.local",
+                    Email = "marta.zielinska@techcorp.local",
+                    Position = "Frontend Developer",
+                    Department = "IT",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                }
+            };
 
             foreach (var user in users)
             {
                 var existingUser = await userManager.FindByEmailAsync(
                     user.Email!);
 
-                if (existingUser != null)
-                    continue;
-
-                var result = await userManager.CreateAsync(
-                    user, "Test123!");
-
-                if (!result.Succeeded)
+                if (existingUser == null)
                 {
-                    throw new Exception(
-                        string.Join(", ", result.Errors.Select(e => e.Description)));
+                    var result = await userManager.CreateAsync(
+                        user, "Test123!");
+
+                    if (!result.Succeeded)
+                    {
+                        throw new Exception(
+                            string.Join(", ", result.Errors.Select(e => e.Description)));
+                    }
+
+                    existingUser = user;
                 }
 
                 string role = user.FirstName switch
@@ -81,7 +83,17 @@ namespace TimeTrackingSystem.Data
                     _ => "Pracownik"
                 };
 
-                await userManager.AddToRoleAsync(user, role);
+                if (!await userManager.IsInRoleAsync(existingUser, role))
+                {
+                    var roleResult = await userManager.AddToRoleAsync(
+                        existingUser, role);
+
+                    if (!roleResult.Succeeded)
+                    {
+                        throw new Exception(
+                            string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+                    }
+                }
             }
         }
     }
