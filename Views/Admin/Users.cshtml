@@ -24,7 +24,11 @@
                 <td>@(user.IsActive ? "Aktywny" : "Nieaktywny")</td>
                 <td>
                     <a asp-controller="Admin" asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-primary">Edytuj</a>
-                    <a asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Id" class="btn btn-primary">Usuń</a>
+                    <form asp-controller="Admin" asp-action="DeleteUser" asp-route-id="@user.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <button type="submit" class="btn btn-primary">Usuń</button>
+                    </form>
                     <a asp-controller="Admin" asp-action="ChangeUserPassword" asp-route-id="@user.Id" class="btn btn-primary">Zmień hasło</a>
                 </td>
             </tr>

@@ -1,0 +1,12 @@
+﻿@model List<TimeTrackingSystem.Models.Entities.WorkEntry>
+
+<section>
+    <h1>Twoje wpisy</h1>
+    <div>
+        @foreach (var entry in Model)
+        {
+            <h3>Data: @entry.StartTime.Date</h3>
+            <h4>Czas pracy: @entry.WorkTime()</h4>
+        }
+    </div>
+</section>

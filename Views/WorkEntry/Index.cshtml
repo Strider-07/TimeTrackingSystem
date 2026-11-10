@@ -1,7 +1,7 @@
 ﻿@model TimeTrackingSystem.Models.ViewModels.WorkEntryViewModel;
 
 <section>
-    <h1>Witaj Model.FirstName</h1>
+    <h1>Witaj @Model.FirstName</h1>
     <form asp-controller="WorkEntry" asp-action="StartWork">
         <button type="submit">Rozpocznij pracę</button>
     </form>
@@ -9,6 +9,10 @@
         <button type="submit">Zakończ pracę</button>
     </form>
     <h4>Dzisiejszy czas pracy: <span>@Model.TodayWorkTime</span></h4>
+    <a asp-controller="WorkEntry" asp-action="EntryHistory" class="btn btn-primary">Sprawdź swoje wpisy</a>
+    <div>
+        <h2>W tym miesiącu: @Model.ThisMonthWorkTime</h2>
+    </div>
 </section>
 
 <!--https://chatgpt.com/s/t_6aedad70016c8191b9ff2feeb6af5096-->

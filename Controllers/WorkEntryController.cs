@@ -24,14 +24,22 @@ namespace TimeTrackingSystem.Controllers
                 return Unauthorized();
             }
             var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
-                x => x.UserId == user.Id && x.StartTime.Date == DateTime.Today);
+                x => x.UserId == user.Id && x.StartTime.Date == DateTime.UtcNow.Date);
             var viewModel = new WorkEntryViewModel();
+            viewModel.FirstName = user.FirstName;
             if (todayWorkEntry == null)
             {
                 viewModel.TodayWorkTime = TimeSpan.Zero;
                 return View(viewModel);
             }
-            viewModel.TodayWorkTime = (todayWorkEntry.EndTime ?? DateTime.Now) - todayWorkEntry.StartTime;
+            viewModel.TodayWorkTime = todayWorkEntry.WorkTime();
+            var allEntries = await _context.WorkEntries.ToListAsync();
+            var thisMonthWorkTime = TimeSpan.Zero;
+            foreach (var entry in allEntries)
+            {
+                thisMonthWorkTime += entry.WorkTime();
+            }
+            viewModel.ThisMonthWorkTime = thisMonthWorkTime;
             viewModel.StartTime = todayWorkEntry.StartTime;
             viewModel.EndTime = todayWorkEntry.EndTime;
             return View(viewModel);
@@ -50,12 +58,12 @@ namespace TimeTrackingSystem.Controllers
             if (activeEntry != null)
             {
                 TempData["Error"] = "Masz już rozpoczętą pracę";
-                return View(); 
+                return RedirectToAction("Index"); 
             }
             var workEntry = new WorkEntry
             {
                 UserId = user.Id,
-                StartTime = DateTime.Now,
+                StartTime = DateTime.UtcNow,
             };
             _context.WorkEntries.Add(workEntry);
             await _context.SaveChangesAsync();
@@ -79,11 +87,24 @@ namespace TimeTrackingSystem.Controllers
                 TempData["Error"] = "Nie masz rozpoczętej pracy";
                 return RedirectToAction("Index");
             }
-            activeEntry.EndTime = DateTime.Now;
+            activeEntry.EndTime = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             TempData["Succes"] = "Pomyślnie zakończono pracę";
             return RedirectToAction("Index");
         }
-        
+
+        public async Task<IActionResult> EntryHistory()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized();
+            }
+            var userEntries = await _context.WorkEntries.ToListAsync();
+
+            return View("EntryHistory", userEntries);
+        }
+
+
     }
 }
