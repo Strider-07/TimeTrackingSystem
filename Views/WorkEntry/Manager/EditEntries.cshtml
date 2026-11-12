@@ -1,0 +1,116 @@
+﻿@model List<TimeTrackingSystem.Models.Entities.WorkEntry>
+
+
+<section>
+    <h1>@Model[0].User.FirstName - wpisy</h1>
+    @if (Model.Any())
+    {
+        @foreach (var entry in Model.OrderByDescending(x => x.StartTime))
+        {
+            <div class="card history-card">
+
+                <div class="card-body">
+
+                    <div class="history-card-main">
+
+                        <div class="history-date-icon">
+                            <i class="bi bi-calendar3"></i>
+                        </div>
+
+                        <div class="history-date">
+                            <h5>
+                                @entry.StartTime.ToLocalTime().ToString("dd MMMM yyyy")
+                            </h5>
+
+                            <span>
+                                @entry.StartTime.ToLocalTime().ToString("dddd")
+                            </span>
+                        </div>
+
+                        <div class="history-duration">
+                            <span class="stats-label">Czas pracy</span>
+                            <h4>
+                                @entry.WorkTime().ToString(@"d\.hh\:mm\:ss")
+                            </h4>
+                        </div>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="history-details">
+
+                        <div>
+                            <span class="detail-label">
+                                <i class="bi bi-play-circle"></i>
+                                Rozpoczęcie
+                            </span>
+
+                            <strong>
+                                @entry.StartTime.ToLocalTime().ToString("HH:mm:ss")
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span class="detail-label">
+                                <i class="bi bi-stop-circle"></i>
+                                Zakończenie
+                            </span>
+
+                            <strong>
+                                @if (entry.EndTime.HasValue)
+                                {
+                                    @entry.EndTime.Value.ToLocalTime().ToString("HH:mm:ss")
+                                }
+                                else
+                                {
+                                    <span class="text-success">W trakcie</span>
+                                }
+                            </strong>
+                        </div>
+
+                        <div class="history-status">
+                            @if (entry.EndTime.HasValue)
+                            {
+                                <span class="badge rounded-pill bg-success-subtle text-success">
+                                    Zakończony
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge rounded-pill bg-warning-subtle text-warning">
+                                    Aktywny
+                                </span>
+                            }
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="card empty-history">
+            <div class="card-body text-center">
+
+                <i class="bi bi-calendar-x"></i>
+
+                <h4>Brak wpisów</h4>
+
+                <p>
+                    Nie masz jeszcze żadnych zarejestrowanych wpisów czasu pracy.
+                </p>
+
+                <a asp-controller="WorkEntry"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    Wróć do panelu
+                </a>
+
+            </div>
+        </div>
+    }
+</section>

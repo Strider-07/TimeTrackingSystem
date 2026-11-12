@@ -17,12 +17,12 @@
             <tr>
                 <td>@user.FirstName</td>
                 <td>@user.LastName</td>
-                <td>@user.Position</td>
                 <td>@user.Department</td>
+                <td>Liczba godzin</td>
                 <td>@(user.IsActive ? "Aktywny" : "Nieaktywny")</td>
                 <td>
                     <a asp-controller="WorkEntry" asp-action="EditEntries" asp-route-id="@user.Id">
-                        Edytuj wpisy
+                        Zobacz wpisy
                     </a>
                 </td>
             </tr>
