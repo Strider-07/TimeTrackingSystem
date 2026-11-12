@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TimeTrackingSystem.Data;
@@ -7,6 +8,7 @@ using TimeTrackingSystem.Models.ViewModels;
 
 namespace TimeTrackingSystem.Controllers
 {
+    [Authorize(Roles = "Pracownik, Kierownik, Administrator")]
     public class WorkEntryController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -18,13 +20,20 @@ namespace TimeTrackingSystem.Controllers
         }
         public async Task<IActionResult> Index()
         {
+            
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
+            if (await _userManager.IsInRoleAsync(user, "Kierownik"))
+            {
+                var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
+                return RedirectToAction("Manager/Index", employees);
+            }
+            var today = DateTime.UtcNow.Date;
             var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
-                x => x.UserId == user.Id && x.StartTime.Date == DateTime.UtcNow.Date);
+                x => x.UserId == user.Id && x.StartTime.Date == today);
             var viewModel = new WorkEntryViewModel();
             viewModel.FirstName = user.FirstName;
             if (todayWorkEntry == null)
@@ -33,7 +42,9 @@ namespace TimeTrackingSystem.Controllers
                 return View(viewModel);
             }
             viewModel.TodayWorkTime = todayWorkEntry.WorkTime();
-            var allEntries = await _context.WorkEntries.ToListAsync();
+            var allEntries = await _context.WorkEntries.Where(
+                x => x.UserId == user.Id && x.StartTime >= new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc))
+                .ToListAsync();
             var thisMonthWorkTime = TimeSpan.Zero;
             foreach (var entry in allEntries)
             {

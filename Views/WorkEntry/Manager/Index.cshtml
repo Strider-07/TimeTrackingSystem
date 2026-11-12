@@ -1,0 +1,31 @@
+﻿@model List<TimeTrackingSystem.Models.Entities.ApplicationUser>
+
+<table>
+    <thead>
+        <tr>
+            <th>Imie</th>
+            <th>Nazwisko</th>
+            <th>Stanowisko</th>
+            <th>Dział</th>
+            <th>Status</th>
+            <th>Opcje</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.FirstName</td>
+                <td>@user.LastName</td>
+                <td>@user.Position</td>
+                <td>@user.Department</td>
+                <td>@(user.IsActive ? "Aktywny" : "Nieaktywny")</td>
+                <td>
+                    <a asp-controller="WorkEntry" asp-action="EditEntries" asp-route-id="@user.Id">
+                        Edytuj wpisy
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

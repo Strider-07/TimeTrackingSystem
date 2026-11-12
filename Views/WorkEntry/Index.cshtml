@@ -1,19 +1,126 @@
 ﻿@model TimeTrackingSystem.Models.ViewModels.WorkEntryViewModel;
 
-<section>
-    <h1>Witaj @Model.FirstName</h1>
-    <form asp-controller="WorkEntry" asp-action="StartWork">
-        <button type="submit">Rozpocznij pracę</button>
-    </form>
-    <form asp-controller="WorkEntry" asp-action="EndWork">
-        <button type="submit">Zakończ pracę</button>
-    </form>
-    <h4>Dzisiejszy czas pracy: <span>@Model.TodayWorkTime</span></h4>
-    <a asp-controller="WorkEntry" asp-action="EntryHistory" class="btn btn-primary">Sprawdź swoje wpisy</a>
-    <div>
-        <h2>W tym miesiącu: @Model.ThisMonthWorkTime</h2>
+@{
+    bool isWorking = Model.StartTime != DateTime.MinValue && Model.EndTime == null;
+}
+
+<section class="work-dashboard">
+    <div class="dashboard-header">
+        <h1>Witaj @Model.FirstName</h1>
+        <p>Oto podsumowanie twojego czasu pracy</p>
     </div>
+    <div class="header-icon">
+        <i class="bi bi-clock-history"></i>
+    </div>
+    <div class="card main-work-card">
+        <div class="card-body text-center">
+            <span class="section-label">Dzisiejszy czas pracy</span>
+            <div class="main-timer" id="todayWorkTime"
+                data-seconds="@((int)Model.TodayWorkTime.TotalSeconds)"
+                data-is-working="@isWorking">
+                @Model.TodayWorkTime.ToString(@"hh\:mm\:ss")
+            </div>
+        </div>
+        <div class="work-status">
+            @if (isWorking)
+            {
+                <span class="badge rounded-pill bg-success-subtle text-success">
+                    <i class="bi bi-circle-fill"></i>
+                    Praca w toku
+                </span>
+            }
+            else
+            {
+                <span class="badge rounded-pill bg-secondary-subtle text-secondary">
+                    <i class="bi bi-circle"></i>
+                    Poza pracą
+                </span>
+            }
+        </div>
+        <div class="work-actions">
+            <form asp-controller="WorkEntry" asp-action="StartWork" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-success btn-lg w-100" disabled="@isWorking">
+                    <i class="bi bi-play-fill"></i>
+                    Rozpocznij pracę
+                </button>
+            </form>
+            <form asp-controller="WorkEntry" asp-action="EndWork" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-danger btn-lg w-100" disabled="@(!isWorking)">
+                    <i class="bi bi-stop-fill"></i>
+                    Zakończ pracę
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-md-6">
+            <div class="card stats-card h-100">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="bi bi-calendar-day"></i>
+                    </div>
+                    <p class="stats-label">Dzisiaj</p>
+                    <h3>
+                        @Model.TodayWorkTime.ToString(@"hh\:mm\:ss")
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card stats-card h-100">
+                <div class="card-body">
+                    <div class="stats-icon">
+                        <i class="bi bi-calendar-range"></i>
+                    </div>
+                    <p class="stats-label">W tym miesiącu</p>
+                    <h3>
+                        @Model.ThisMonthWorkTime.ToString(@"d\.hh\:mm\:ss")
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="history-section">
+        <a asp-controller="WorkEntry" asp-action="EntryHistory" class="btn btn-primary btn-lg">
+            <i class="bi bi-clock-history"></i>
+            Sprawdź swoje wpisy
+            <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+
+    
 </section>
+@section Scripts {
+    <script>
+        const todayWorkTimeSpan = document.querySelector("#todayWorkTime");
+        let totalSeconds = parseInt(todayWorkTimeSpan.getAttribute("data-seconds"));
+        let isWorking = todayWorkTimeSpan.getAttribute("data-is-working") === "true";
+
+        setInterval(() => {
+            if (!isWorking) { 
+                return;
+            }
+            totalSeconds += 1;
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const formatted =
+                String(hours).padStart(2, "0") + ":" +
+                String(minutes).padStart(2, "0") + ":" +
+                String(seconds).padStart(2, "0");
+            if (todayWorkTimeSpan) { 
+                todayWorkTimeSpan.textContent = formatted;
+            }
+        }, 1000);
+    </script>
+}
 
 <!--https://chatgpt.com/s/t_6aedad70016c8191b9ff2feeb6af5096-->
 <!--
