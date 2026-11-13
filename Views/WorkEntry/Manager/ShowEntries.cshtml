@@ -1,0 +1,166 @@
+﻿@model TimeTrackingSystem.Models.ViewModels.UserEntriesViewModel
+
+@{
+    var totalWorkTime = Model.WorkEntries.Aggregate(
+        TimeSpan.Zero,
+        (total, entry) => total + entry.WorkTime()
+    );
+}
+
+<section class="work-dashboard">
+
+    <div class="dashboard-header">
+        <div>
+            <h1>Historia czasu pracy</h1>
+            <p>Przeglądaj swoje dotychczasowe wpisy.</p>
+        </div>
+
+        <div class="header-icon">
+            <i class="bi bi-clock-history"></i>
+        </div>
+    </div>
+
+    <!-- PODSUMOWANIE -->
+
+    <div class="card main-work-card history-summary">
+        <div class="card-body">
+
+            <div class="stats-icon">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+
+            <p class="stats-label">Łączny czas pracy</p>
+
+            <h2>
+                @totalWorkTime.ToString(@"d\.hh\:mm\:ss")
+            </h2>
+
+            <span class="text-secondary">
+                Liczba wpisów: @Model.WorkEntries.Count
+            </span>
+
+        </div>
+    </div>
+
+    <h1>@Model.User.FirstName - wpisy</h1>
+    @if (Model.WorkEntries.Any())
+    {
+        @foreach (var entry in Model.WorkEntries.OrderByDescending(x => x.StartTime))
+        {
+            <div class="card history-card">
+
+                <div class="card-body">
+
+                    <div class="history-card-main">
+
+                        <div class="history-date-icon">
+                            <i class="bi bi-calendar3"></i>
+                        </div>
+
+                        <div class="history-date">
+                            <h5>
+                                @entry.StartTime.ToLocalTime().ToString("dd MMMM yyyy")
+                            </h5>
+
+                            <span>
+                                @entry.StartTime.ToLocalTime().ToString("dddd")
+                            </span>
+                        </div>
+
+                        <div class="history-duration">
+                            <span class="stats-label">Czas pracy</span>
+                            <h4>
+                                @entry.WorkTime().ToString(@"d\.hh\:mm\:ss")
+                            </h4>
+                        </div>
+
+                    </div>
+
+                    <hr />
+
+                    <div class="history-details">
+
+                        <div>
+                            <span class="detail-label">
+                                <i class="bi bi-play-circle"></i>
+                                Rozpoczęcie
+                            </span>
+
+                            <strong>
+                                @entry.StartTime.ToLocalTime().ToString("HH:mm:ss")
+                            </strong>
+                        </div>
+
+                        <div>
+                            <span class="detail-label">
+                                <i class="bi bi-stop-circle"></i>
+                                Zakończenie
+                            </span>
+
+                            <strong>
+                                @if (entry.EndTime.HasValue)
+                                {
+                                    @entry.EndTime.Value.ToLocalTime().ToString("HH:mm:ss")
+                                }
+                                else
+                                {
+                                    <span class="text-success">W trakcie</span>
+                                }
+                            </strong>
+                        </div>
+
+                        <div class="history-status">
+                            @if (entry.EndTime.HasValue)
+                            {
+                                <span class="badge rounded-pill bg-success-subtle text-success">
+                                    Zakończony
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge rounded-pill bg-warning-subtle text-warning">
+                                    Aktywny
+                                </span>
+                            }
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <a asp-controller="WorkEntry" asp-action="EditEntry" asp-route-id="@Model.User.Id"
+                   class="history-edit-overlay">
+
+                    <span>
+                        <i class="bi bi-pencil-square"></i>
+                        Edytuj
+                    </span>
+
+                </a>
+
+            </div>
+        }
+    }
+    else
+    {
+        <div class="card empty-history">
+            <div class="card-body text-center">
+
+                <i class="bi bi-calendar-x"></i>
+
+                <h4>Brak wpisów</h4>
+
+                <p>
+                    Nie masz jeszcze żadnych zarejestrowanych wpisów czasu pracy.
+                </p>
+
+                <a asp-controller="WorkEntry"
+                   asp-action="Index"
+                   class="btn btn-primary">
+                    Wróć do panelu
+                </a>
+
+            </div>
+        </div>
+    }
+</section>

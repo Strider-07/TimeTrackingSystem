@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using TimeTrackingSystem.Models.Entities;
@@ -56,12 +57,14 @@ namespace TimeTrackingSystem.Controllers
 
             if (!await _roleManager.RoleExistsAsync(model.Position))
             {
+                ModelState.AddModelError(nameof(model.Position), "Wybrane stanowisko nie istnieje w systemie.");
                 return View(model);
             }
 
             var user = new ApplicationUser
             {
                 Email = model.Email,
+                EmailConfirmed = true,
                 UserName = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
@@ -75,7 +78,7 @@ namespace TimeTrackingSystem.Controllers
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
-                    ModelState.AddModelError("", error.Description);
+                    ModelState.AddModelError(string.Empty, error.Description);
 
                 return View(model);
             }
@@ -83,14 +86,15 @@ namespace TimeTrackingSystem.Controllers
 
             if (!roleResult.Succeeded)
             {
+                await _userManager.DeleteAsync(user);
                 foreach (var error in roleResult.Errors)
                 {
-                    ModelState.AddModelError("", error.Description);
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
 
                 return View(model);
             }
-            return RedirectToAction("Users");
+            return RedirectToAction(nameof(Users));
         }
 
         [HttpGet]
