@@ -10,5 +10,7 @@ namespace TimeTrackingSystem.Data
         {
 
         }
+
+        public DbSet<EmailLog> EmailLogs { get; set; }
     }
 }
