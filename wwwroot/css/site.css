@@ -466,3 +466,104 @@ button {
         font-size: 1.2rem;
     }
 }
+
+
+/* HISTORY CARD - EDIT OVERLAY */
+
+.history-card {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Warstwa przykrywająca kartę */
+
+.history-edit-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: color-mix(in srgb, var(--primary) 18%, transparent);
+    opacity: 0;
+    visibility: hidden;
+    text-decoration: none;
+    z-index: 2;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+    /* Napis Edytuj */
+
+    .history-edit-overlay span {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: var(--primary);
+        padding: 14px 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        transform: translateY(10px);
+        transition: transform 0.25s ease;
+    }
+
+    /* Ikona */
+
+    .history-edit-overlay i {
+        font-size: 1.5rem;
+    }
+
+/* Hover */
+
+.history-card:hover .history-edit-overlay,
+.history-card:focus-within .history-edit-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+    .history-card:hover .history-edit-overlay span,
+    .history-card:focus-within .history-edit-overlay span {
+        transform: translateY(0);
+    }
+
+/* Karta podczas najechania */
+
+.history-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.12);
+}
+
+/* Obsługa urządzeń dotykowych */
+
+@media (hover: none) {
+    .history-edit-overlay {
+        opacity: 1;
+        visibility: visible;
+        background: transparent;
+        justify-content: flex-end;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+        .history-edit-overlay span {
+            font-size: 0.85rem;
+            padding: 7px 12px;
+            transform: none;
+        }
+
+        .history-edit-overlay i {
+            font-size: 0.9rem;
+        }
+}
+
+/* Dostępność - ograniczenie animacji */
+
+@media (prefers-reduced-motion: reduce) {
+    .history-card,
+    .history-edit-overlay,
+    .history-edit-overlay span {
+        transition: none;
+    }
+}

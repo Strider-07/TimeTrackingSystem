@@ -1,11 +1,51 @@
-﻿@model List<TimeTrackingSystem.Models.Entities.WorkEntry>
+﻿@model TimeTrackingSystem.Models.ViewModels.UserEntriesViewModel
 
+@{
+    var totalWorkTime = Model.WorkEntries.Aggregate(
+        TimeSpan.Zero,
+        (total, entry) => total + entry.WorkTime()
+    );
+}
 
-<section>
-    <h1>@Model[0].User.FirstName - wpisy</h1>
-    @if (Model.Any())
+<section class="work-dashboard">
+
+    <div class="dashboard-header">
+        <div>
+            <h1>Historia czasu pracy</h1>
+            <p>Przeglądaj swoje dotychczasowe wpisy.</p>
+        </div>
+
+        <div class="header-icon">
+            <i class="bi bi-clock-history"></i>
+        </div>
+    </div>
+
+    <!-- PODSUMOWANIE -->
+
+    <div class="card main-work-card history-summary">
+        <div class="card-body">
+
+            <div class="stats-icon">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+
+            <p class="stats-label">Łączny czas pracy</p>
+
+            <h2>
+                @totalWorkTime.ToString(@"d\.hh\:mm\:ss")
+            </h2>
+
+            <span class="text-secondary">
+                Liczba wpisów: @Model.WorkEntries.Count
+            </span>
+
+        </div>
+    </div>
+
+    <h1>@Model.User.FirstName - wpisy</h1>
+    @if (Model.WorkEntries.Any())
     {
-        @foreach (var entry in Model.OrderByDescending(x => x.StartTime))
+        @foreach (var entry in Model.WorkEntries.OrderByDescending(x => x.StartTime))
         {
             <div class="card history-card">
 
@@ -87,6 +127,16 @@
                     </div>
 
                 </div>
+
+                <a asp-controller="WorkEntry" asp-action="EditEntry" asp-route-id="@Model.User.Id"
+                   class="history-edit-overlay">
+
+                    <span>
+                        <i class="bi bi-pencil-square"></i>
+                        Edytuj
+                    </span>
+
+                </a>
 
             </div>
         }

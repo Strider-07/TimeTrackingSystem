@@ -21,7 +21,7 @@
                 <td>Liczba godzin</td>
                 <td>@(user.IsActive ? "Aktywny" : "Nieaktywny")</td>
                 <td>
-                    <a asp-controller="WorkEntry" asp-action="EditEntries" asp-route-id="@user.Id">
+                    <a asp-controller="WorkEntry" asp-action="ShowEntries" asp-route-id="@user.Id">
                         Zobacz wpisy
                     </a>
                 </td>

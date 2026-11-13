@@ -26,11 +26,17 @@ namespace TimeTrackingSystem.Controllers
             {
                 return Unauthorized();
             }
+            // Comented this for testing (leave only this condition body)
+            /*
             if (await _userManager.IsInRoleAsync(user, "Kierownik"))
             {
                 var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
-                return RedirectToAction("Manager/Index", employees);
+                return View("Manager/Index", employees);
             }
+            */
+            var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
+            return View("Manager/Index", employees);
+            // -------
             var today = DateTime.UtcNow.Date;
             var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
                 x => x.UserId == user.Id && x.StartTime.Date == today);
@@ -78,7 +84,7 @@ namespace TimeTrackingSystem.Controllers
             };
             _context.WorkEntries.Add(workEntry);
             await _context.SaveChangesAsync();
-            TempData["Succes"] = "Pomyślnie rozpoczęto pracę";
+            TempData["Success"] = "Pomyślnie rozpoczęto pracę";
 
             return RedirectToAction("Index");
         }
@@ -100,7 +106,7 @@ namespace TimeTrackingSystem.Controllers
             }
             activeEntry.EndTime = DateTime.UtcNow;
             await _context.SaveChangesAsync();
-            TempData["Succes"] = "Pomyślnie zakończono pracę";
+            TempData["Success"] = "Pomyślnie zakończono pracę";
             return RedirectToAction("Index");
         }
 
@@ -111,9 +117,21 @@ namespace TimeTrackingSystem.Controllers
             {
                 return Unauthorized();
             }
-            var userEntries = await _context.WorkEntries.ToListAsync();
+            var userEntries = await _context.WorkEntries.Where(x => x.UserId == user.Id).ToListAsync();
 
             return View("EntryHistory", userEntries);
+        }
+
+        public async Task<IActionResult> ShowEntries(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return RedirectToAction("Index");
+            }
+            var entries = await _context.WorkEntries.Where(x => x.UserId == id).ToListAsync();
+            var userEntriesViewModel = new UserEntriesViewModel(user, entries);
+            return View("Manager/ShowEntries", userEntriesViewModel);
         }
 
 
