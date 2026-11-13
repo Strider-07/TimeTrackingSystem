@@ -134,6 +134,11 @@ namespace TimeTrackingSystem.Controllers
             return View("Manager/ShowEntries", userEntriesViewModel);
         }
 
+        public IActionResult EditEntry(WorkEntry entry)
+        {
+            return View("Manager/EditEntry", entry);
+        }
+
 
     }
 }

@@ -1,2 +1,263 @@
 ﻿@model TimeTrackingSystem.Models.Entities.WorkEntry
 
+@{
+    var startTime = Model.StartTime.ToLocalTime();
+    var endTime = Model.EndTime?.ToLocalTime();
+
+    var workTime = Model.WorkTime();
+}
+
+<section class="work-dashboard edit-entry-page">
+
+    <!-- NAGŁÓWEK -->
+    <div class="dashboard-header">
+        <div>
+            <h1>Edycja wpisu czasu pracy</h1>
+            <p>Dokonaj korekty zarejestrowanego czasu pracy.</p>
+        </div>
+
+        <div class="header-icon">
+            <i class="bi bi-pencil-square"></i>
+        </div>
+    </div>
+
+    <!-- PRACOWNIK -->
+    <div class="card main-work-card edit-employee-card">
+        <div class="card-body">
+
+            <div class="edit-employee-icon">
+                <i class="bi bi-person-circle"></i>
+            </div>
+
+            <div class="edit-employee-info">
+                <span class="section-label">EDYTOWANY PRACOWNIK</span>
+
+                <h3>
+                    @Model.User.FirstName @Model.User.LastName
+                </h3>
+
+                <span class="text-secondary">
+                    Korekta wpisu czasu pracy
+                </span>
+            </div>
+
+            <div class="edit-entry-status">
+                @if (Model.EndTime.HasValue)
+                {
+                    <span class="badge rounded-pill bg-success-subtle text-success">
+                        <i class="bi bi-check-circle"></i>
+                        Zakończony
+                    </span>
+                }
+                else
+                {
+                    <span class="badge rounded-pill bg-warning-subtle text-warning">
+                        <i class="bi bi-clock"></i>
+                        Aktywny
+                    </span>
+                }
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FORMULARZ -->
+    <form asp-controller="WorkEntry"
+          asp-action="EditEntry"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <div class="card main-work-card edit-entry-card">
+            <div class="card-body">
+
+                <!-- ROZPOCZĘCIE -->
+                <div class="edit-section-header">
+
+                    <div class="edit-section-icon start-icon">
+                        <i class="bi bi-play-circle"></i>
+                    </div>
+
+                    <div>
+                        <h4>Rozpoczęcie pracy</h4>
+                        <p>Data i godzina rozpoczęcia pracy.</p>
+                    </div>
+
+                </div>
+
+                <div class="edit-fields">
+
+                    <div class="edit-field">
+                        <label for="StartDate">
+                            <i class="bi bi-calendar-event"></i>
+                            Data rozpoczęcia
+                        </label>
+
+                        <input type="date"
+                               id="StartDate"
+                               name="StartDate"
+                               value="@startTime.ToString("yyyy-MM-dd")"
+                               class="form-control"
+                               required />
+                    </div>
+
+                    <div class="edit-field">
+                        <label for="StartHour">
+                            <i class="bi bi-clock"></i>
+                            Godzina rozpoczęcia
+                        </label>
+
+                        <input type="time"
+                               id="StartHour"
+                               name="StartHour"
+                               value="@startTime.ToString("HH:mm")"
+                               class="form-control"
+                               required />
+                    </div>
+
+                </div>
+
+                <hr class="edit-divider" />
+
+                <!-- ZAKOŃCZENIE -->
+                <div class="edit-section-header">
+
+                    <div class="edit-section-icon end-icon">
+                        <i class="bi bi-stop-circle"></i>
+                    </div>
+
+                    <div>
+                        <h4>Zakończenie pracy</h4>
+                        <p>Data i godzina zakończenia pracy.</p>
+                    </div>
+
+                </div>
+
+                <div class="edit-fields">
+
+                    <div class="edit-field">
+                        <label for="EndDate">
+                            <i class="bi bi-calendar-event"></i>
+                            Data zakończenia
+                        </label>
+
+                        <input type="date"
+                               id="EndDate"
+                               name="EndDate"
+                               value="@(endTime?.ToString("yyyy-MM-dd"))"
+                               class="form-control" />
+                    </div>
+
+                    <div class="edit-field">
+                        <label for="EndHour">
+                            <i class="bi bi-clock"></i>
+                            Godzina zakończenia
+                        </label>
+
+                        <input type="time"
+                               id="EndHour"
+                               name="EndHour"
+                               value="@(endTime?.ToString("HH:mm"))"
+                               class="form-control" />
+                    </div>
+
+                </div>
+
+                <small class="field-hint">
+                    Pozostaw oba pola zakończenia puste, aby wpis pozostał aktywny.
+                </small>
+
+                <hr class="edit-divider" />
+
+                <!-- CZAS PRACY -->
+                <div class="edit-duration-box">
+
+                    <div class="edit-duration-icon">
+                        <i class="bi bi-stopwatch"></i>
+                    </div>
+
+                    <div>
+                        <span class="stats-label">
+                            Aktualny czas pracy
+                        </span>
+
+                        @if (Model.EndTime.HasValue)
+                        {
+                            <h3>
+                                @workTime.ToString(@"d\.hh\:mm\:ss")
+                            </h3>
+                        }
+                        else
+                        {
+                            <h3 class="text-success">
+                                W trakcie
+                            </h3>
+                        }
+                    </div>
+
+                </div>
+
+                <!-- UZASADNIENIE -->
+                <div class="edit-reason-section">
+
+                    <div class="edit-section-header">
+
+                        <div class="edit-section-icon reason-icon">
+                            <i class="bi bi-chat-left-text"></i>
+                        </div>
+
+                        <div>
+                            <h4>Uzasadnienie korekty</h4>
+                            <p>Podaj powód wprowadzenia zmian.</p>
+                        </div>
+
+                    </div>
+
+                    <div class="edit-field">
+
+                        <label for="Reason">
+                            Powód korekty
+                        </label>
+
+                        <textarea id="Reason"
+                                  name="Reason"
+                                  class="form-control"
+                                  rows="4"
+                                  maxlength="500"
+                                  placeholder="Np. Pracownik zapomniał zarejestrować zakończenie pracy."
+                                  required></textarea>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- PRZYCISKI -->
+        <div class="edit-entry-actions">
+
+            <a asp-controller="WorkEntry"
+               asp-action="ShowEntries"
+               asp-route-id="@Model.UserId"
+               class="btn btn-outline-secondary">
+
+                <i class="bi bi-arrow-left"></i>
+                Anuluj
+
+            </a>
+
+            <button type="submit" class="btn btn-primary">
+
+                <i class="bi bi-check-lg"></i>
+                Zapisz zmiany
+
+            </button>
+
+        </div>
+
+    </form>
+
+</section>
