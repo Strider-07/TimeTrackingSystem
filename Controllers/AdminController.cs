@@ -94,7 +94,19 @@ namespace TimeTrackingSystem.Controllers
 
                 return View(model);
             }
-            return RedirectToAction(nameof(Users));
+            var emailBody = $@"
+            <h2>Witamy w systemie ewidencji czasu pracy, {WebUtility.HtmlEncode(user.FirstName)}!</h2>
+            <p>Twoje konto zostało utworzone. Dane do logowania:</p>
+            <ul>
+                <li>Login: {WebUtility.HtmlEncode(model.Email)}</li>
+                <li>Hasło: {WebUtility.HtmlEncode(model.Password)}</li>
+            </ul>
+            <p>Po pierwszym zalogowaniu zmień hasło.</p>";
+
+            await _emailService.SendEmailAsync(model.Email, "Witamy w systemie ewidencji czasu pracy", emailBody);
+
+            TempData["Success"] = "Użytkownik został dodany";
+            return RedirectToAction("Users");
         }
 
         [HttpGet]
@@ -139,7 +151,7 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Index");
         }
 
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -154,7 +166,7 @@ namespace TimeTrackingSystem.Controllers
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
 
-                
+
                 return RedirectToAction("Users");
             }
             return RedirectToAction("Users");

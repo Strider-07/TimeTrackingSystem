@@ -1,7 +1,10 @@
 ﻿@model List<TimeTrackingSystem.Models.Entities.ApplicationUser>
 
 <h1>Lista pracowników</h1>
-
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
 <table>
     <thead>
         <tr>
