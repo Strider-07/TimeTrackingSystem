@@ -1,10 +1,12 @@
-﻿@model TimeTrackingSystem.Models.Entities.WorkEntry
+﻿@model TimeTrackingSystem.Models.ViewModels.EditWorkEntryViewModel
 
 @{
-    var startTime = Model.StartTime.ToLocalTime();
-    var endTime = Model.EndTime?.ToLocalTime();
+    var hasEnd = Model.EndDate.HasValue && Model.EndHour.HasValue;
 
-    var workTime = Model.WorkTime();
+    var workTime = hasEnd && Model.StartDate.HasValue && Model.StartHour.HasValue
+        ? Model.EndDate.Value.ToDateTime(Model.EndHour.Value)
+            - Model.StartDate.Value.ToDateTime(Model.StartHour.Value)
+        : TimeSpan.Zero;
 }
 
 <section class="work-dashboard edit-entry-page">
@@ -33,7 +35,7 @@
                 <span class="section-label">EDYTOWANY PRACOWNIK</span>
 
                 <h3>
-                    @Model.User.FirstName @Model.User.LastName
+                    @ViewBag.EmployeeName
                 </h3>
 
                 <span class="text-secondary">
@@ -42,7 +44,7 @@
             </div>
 
             <div class="edit-entry-status">
-                @if (Model.EndTime.HasValue)
+                @if (hasEnd)
                 {
                     <span class="badge rounded-pill bg-success-subtle text-success">
                         <i class="bi bi-check-circle"></i>
@@ -68,7 +70,10 @@
 
         @Html.AntiForgeryToken()
 
-        <input type="hidden" name="id" value="@Model.Id" />
+        <input type="hidden" asp-for="Id" />
+
+        <!-- BŁĘDY WALIDACJI -->
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
         <div class="card main-work-card edit-entry-card">
             <div class="card-body">
@@ -90,31 +95,33 @@
                 <div class="edit-fields">
 
                     <div class="edit-field">
-                        <label for="StartDate">
+                        <label asp-for="StartDate">
                             <i class="bi bi-calendar-event"></i>
                             Data rozpoczęcia
                         </label>
 
-                        <input type="date"
-                               id="StartDate"
-                               name="StartDate"
-                               value="@startTime.ToString("yyyy-MM-dd")"
+                        <input asp-for="StartDate"
+                               type="date"
                                class="form-control"
                                required />
+
+                        <span asp-validation-for="StartDate"
+                              class="text-danger"></span>
                     </div>
 
                     <div class="edit-field">
-                        <label for="StartHour">
+                        <label asp-for="StartHour">
                             <i class="bi bi-clock"></i>
                             Godzina rozpoczęcia
                         </label>
 
-                        <input type="time"
-                               id="StartHour"
-                               name="StartHour"
-                               value="@startTime.ToString("HH:mm")"
+                        <input asp-for="StartHour"
+                               type="time"
                                class="form-control"
                                required />
+
+                        <span asp-validation-for="StartHour"
+                              class="text-danger"></span>
                     </div>
 
                 </div>
@@ -138,29 +145,31 @@
                 <div class="edit-fields">
 
                     <div class="edit-field">
-                        <label for="EndDate">
+                        <label asp-for="EndDate">
                             <i class="bi bi-calendar-event"></i>
                             Data zakończenia
                         </label>
 
-                        <input type="date"
-                               id="EndDate"
-                               name="EndDate"
-                               value="@(endTime?.ToString("yyyy-MM-dd"))"
+                        <input asp-for="EndDate"
+                               type="date"
                                class="form-control" />
+
+                        <span asp-validation-for="EndDate"
+                              class="text-danger"></span>
                     </div>
 
                     <div class="edit-field">
-                        <label for="EndHour">
+                        <label asp-for="EndHour">
                             <i class="bi bi-clock"></i>
                             Godzina zakończenia
                         </label>
 
-                        <input type="time"
-                               id="EndHour"
-                               name="EndHour"
-                               value="@(endTime?.ToString("HH:mm"))"
+                        <input asp-for="EndHour"
+                               type="time"
                                class="form-control" />
+
+                        <span asp-validation-for="EndHour"
+                              class="text-danger"></span>
                     </div>
 
                 </div>
@@ -183,10 +192,16 @@
                             Aktualny czas pracy
                         </span>
 
-                        @if (Model.EndTime.HasValue)
+                        @if (hasEnd && workTime >= TimeSpan.Zero)
                         {
                             <h3>
                                 @workTime.ToString(@"d\.hh\:mm\:ss")
+                            </h3>
+                        }
+                        else if (hasEnd)
+                        {
+                            <h3 class="text-danger">
+                                Nieprawidłowy zakres czasu
                             </h3>
                         }
                         else
@@ -217,17 +232,19 @@
 
                     <div class="edit-field">
 
-                        <label for="Reason">
+                        <label asp-for="Reason">
                             Powód korekty
                         </label>
 
-                        <textarea id="Reason"
-                                  name="Reason"
+                        <textarea asp-for="Reason"
                                   class="form-control"
                                   rows="4"
                                   maxlength="500"
                                   placeholder="Np. Pracownik zapomniał zarejestrować zakończenie pracy."
                                   required></textarea>
+
+                        <span asp-validation-for="Reason"
+                              class="text-danger"></span>
 
                     </div>
 
@@ -241,7 +258,7 @@
 
             <a asp-controller="WorkEntry"
                asp-action="ShowEntries"
-               asp-route-id="@Model.UserId"
+               asp-route-id="@ViewBag.UserId"
                class="btn btn-outline-secondary">
 
                 <i class="bi bi-arrow-left"></i>

@@ -134,9 +134,117 @@ namespace TimeTrackingSystem.Controllers
             return View("Manager/ShowEntries", userEntriesViewModel);
         }
 
-        public IActionResult EditEntry(WorkEntry entry)
+        [HttpGet]
+        public async Task<IActionResult> EditEntry(int id)
         {
-            return View("Manager/EditEntry", entry);
+            var entry = await _context.WorkEntries.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
+            if (entry == null)
+            {
+                return NotFound();
+            }
+            var localStart = entry.StartTime.ToLocalTime();
+            var localEnd = entry.EndTime?.ToLocalTime();
+            var model = new EditWorkEntryViewModel
+            {
+                Id = entry.Id,
+                StartDate = DateOnly.FromDateTime(localStart),
+                StartHour = TimeOnly.FromDateTime(localStart),
+                EndDate = localEnd.HasValue ? DateOnly.FromDateTime(localEnd.Value) : null,
+                EndHour = localEnd.HasValue ? TimeOnly.FromDateTime(localEnd.Value) : null
+            };
+            ViewBag.EmployeeName = $"{entry.User.FirstName} {entry.User.LastName}";
+            ViewBag.UserId = entry.UserId;
+            return View("Manager/EditEntry", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditEntry(EditWorkEntryViewModel model)
+        {
+            var entry = await _context.WorkEntries
+                .FirstOrDefaultAsync(x => x.Id == model.Id);
+
+            if (entry == null)
+            {
+                return NotFound();
+            }
+
+            // Sprawdzenie rozpoczęcia pracy
+            if (!model.StartDate.HasValue || !model.StartHour.HasValue)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Data i godzina rozpoczęcia są wymagane.");
+            }
+
+            // Sprawdzenie zakończenia pracy
+            if (model.EndDate.HasValue != model.EndHour.HasValue)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Podaj zarówno datę, jak i godzinę zakończenia albo pozostaw oba pola puste.");
+            }
+
+            DateTime? startTime = null;
+            DateTime? endTime = null;
+
+            // Łączenie daty i godziny rozpoczęcia
+            if (model.StartDate.HasValue && model.StartHour.HasValue)
+            {
+                startTime = model.StartDate.Value.ToDateTime(model.StartHour.Value);
+            }
+
+            // Łączenie daty i godziny zakończenia
+            if (model.EndDate.HasValue && model.EndHour.HasValue)
+            {
+                endTime = model.EndDate.Value.ToDateTime(model.EndHour.Value);
+            }
+
+            // Sprawdzenie poprawności zakresu czasu
+            if (startTime.HasValue && endTime.HasValue)
+            {
+                if (endTime.Value <= startTime.Value)
+                {
+                    ModelState.AddModelError(   
+                        string.Empty,
+                        "Data i godzina zakończenia muszą być późniejsze niż rozpoczęcia.");
+                }
+            }
+
+            // Jeżeli występują błędy, ponownie wyświetlamy formularz
+            if (!ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(entry.UserId);
+
+                ViewBag.EmployeeName = user != null
+                    ? $"{user.FirstName} {user.LastName}"
+                    : "Nieznany użytkownik";
+
+                ViewBag.UserId = entry.UserId;
+
+                return View("Manager/EditEntry", model);
+            }
+
+            // Konwersja czasu lokalnego na UTC
+            entry.StartTime = DateTime.SpecifyKind(
+                startTime!.Value,
+                DateTimeKind.Local
+            ).ToUniversalTime();
+
+            entry.EndTime = endTime.HasValue
+                ? DateTime.SpecifyKind(
+                    endTime.Value,
+                    DateTimeKind.Local
+                ).ToUniversalTime()
+                : null;
+
+            entry.Description = model.Reason;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "Zapisano zmiany wpisu";
+
+            return RedirectToAction("ShowEntries", new { id = entry.UserId });
         }
 
 
