@@ -1,0 +1,17 @@
+﻿<section>
+    <form asp-controller="LeaveRequest" asp-action="CreateRequest" method="post">
+        <select name="LeaveType">
+            <option>wypoczynkowy</option>
+            <option>okolicznościowy</option>
+            <option>bezpłatny</option>
+        </select>
+        <label>Data rozpoczęcia: <input type="date" name="StartDate"/></label>
+        <label>Data zakończenia: <input type="date" name="EndDate"/></label>
+        <label>
+            Uzasadnienie/uwagi
+            <input type="text" name="Reason" placeholder="np. Chcę odpocząć" />
+        </label>
+        <button type="submit">Zatwierdź</button>
+    </form>
+    <a asp-controller="LeaveRequest" asp-action="Index">Anuluj</a>
+</section>

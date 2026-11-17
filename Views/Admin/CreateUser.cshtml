@@ -1,6 +1,5 @@
 ﻿<!--Adding users-->
 <form asp-controller="Admin" asp-action="CreateUser" method="post">
-    @Html.AntiForgeryToken()
     <div asp-validation-summary="All" class="text-danger"></div>
     <h2 class="fw-bold">Dodawanie użytkownika</h2>
     <label>Email: <input type="text" required name="Email" /></label>

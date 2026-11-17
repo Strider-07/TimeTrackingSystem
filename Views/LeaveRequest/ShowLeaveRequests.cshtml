@@ -1,0 +1,14 @@
+﻿@model List<TimeTrackingSystem.Models.Entities.LeaveRequest>
+
+<section>
+    @foreach (var request in Model)
+    {
+        <div>
+            <h3>Rodzaj: @request.LeaveType</h3>
+            <p>Data rozpoczęcia: @request.StartDate</p>
+            <p>Data zakończenia: @request.EndDate</p>
+            <p>Uzasadnienia/uwagi: @request.Reason</p>
+        </div>
+    }
+    <a asp-controller="LeaveRequest" asp-action="Index">Wróć</a>
+</section>

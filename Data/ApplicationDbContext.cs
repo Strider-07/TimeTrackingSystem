@@ -11,7 +11,26 @@ namespace TimeTrackingSystem.Data
 
         }
 
+        // This helps with creating propper database tabel
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<LeaveRequest>()
+                .HasOne(lr => lr.User)
+                .WithMany()
+                .HasForeignKey(lr => lr.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<LeaveRequest>()
+                .HasOne(lr => lr.Reviewer)
+                .WithMany()
+                .HasForeignKey(lr => lr.ReviewerId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
         public DbSet<EmailLog> EmailLogs { get; set; }
         public DbSet<WorkEntry> WorkEntries { get; set; }
+        public DbSet<LeaveRequest> LeaveRequests { get; set; }
     }
 }

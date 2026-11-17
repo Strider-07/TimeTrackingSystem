@@ -26,17 +26,12 @@ namespace TimeTrackingSystem.Controllers
             {
                 return Unauthorized();
             }
-            // Comented this for testing (leave only this condition body)
-            /*
             if (await _userManager.IsInRoleAsync(user, "Kierownik"))
             {
                 var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
                 return View("Manager/Index", employees);
             }
-            */
-            var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
-            return View("Manager/Index", employees);
-            // -------
+
             var today = DateTime.UtcNow.Date;
             var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
                 x => x.UserId == user.Id && x.StartTime.Date == today);
