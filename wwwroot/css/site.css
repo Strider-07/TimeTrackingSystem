@@ -567,3 +567,291 @@ button {
         transition: none;
     }
 }
+
+
+/*------------------------------------------ EDIT ENTRY ---------------------------------------------*/
+
+.edit-entry-page {
+    max-width: 850px;
+}
+
+/* EMPLOYEE CARD */
+
+.edit-employee-card {
+    margin-bottom: 20px;
+}
+
+    .edit-employee-card .card-body {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 22px;
+    }
+
+.edit-employee-icon {
+    width: 55px;
+    height: 55px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-secondary);
+    color: var(--primary);
+    border-radius: 14px;
+    font-size: 27px;
+}
+
+.edit-employee-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 5px 0;
+}
+
+.edit-entry-status {
+    margin-left: auto;
+}
+
+/* MAIN FORM CARD */
+
+.edit-entry-card {
+    margin-bottom: 18px;
+}
+
+    .edit-entry-card .card-body {
+        padding: 30px;
+    }
+
+/* SECTION HEADERS */
+
+.edit-section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+    .edit-section-header h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    .edit-section-header p {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin: 0;
+    }
+
+.edit-section-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 21px;
+}
+
+.start-icon {
+    background: rgba(22, 163, 74, 0.12);
+    color: var(--success);
+}
+
+.end-icon {
+    background: rgba(220, 38, 38, 0.10);
+    color: var(--danger);
+}
+
+.reason-icon {
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--primary);
+}
+
+/* INPUT FIELDS */
+
+.edit-fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+}
+
+.edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+    .edit-field label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+        .edit-field label i {
+            color: var(--primary);
+            margin-right: 5px;
+        }
+
+    .edit-field .form-control {
+        width: 100%;
+        min-height: 46px;
+        background-color: var(--surface-secondary);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+        border-radius: 9px;
+        padding: 10px 13px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+        .edit-field .form-control:focus {
+            background-color: var(--surface);
+            color: var(--text-primary);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            outline: none;
+        }
+
+    .edit-field textarea {
+        resize: vertical;
+        min-height: 110px;
+    }
+
+        .edit-field textarea::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+.field-hint {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.edit-field .text-danger {
+    font-size: 0.8rem;
+}
+
+/* DIVIDERS */
+
+.edit-divider {
+    border-color: var(--border);
+    opacity: 1;
+    margin: 28px 0;
+}
+
+/* WORK DURATION */
+
+.edit-duration-box {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: var(--surface-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.edit-duration-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--primary);
+    font-size: 23px;
+}
+
+.edit-duration-box h3 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    margin: 3px 0 0;
+}
+
+/* REASON */
+
+.edit-reason-section {
+    margin-top: 30px;
+}
+
+/* ACTIONS */
+
+.edit-entry-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 40px;
+}
+
+    .edit-entry-actions .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 22px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .edit-entry-actions .btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .edit-entry-actions .btn-primary {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--primary-text);
+    }
+
+        .edit-entry-actions .btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+
+/* MOBILE */
+
+@media (max-width: 576px) {
+
+    .edit-employee-card .card-body {
+        flex-wrap: wrap;
+        padding: 18px;
+    }
+
+    .edit-entry-status {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .edit-entry-card .card-body {
+        padding: 20px 16px;
+    }
+
+    .edit-section-header {
+        gap: 10px;
+    }
+
+        .edit-section-header h4 {
+            font-size: 1rem;
+        }
+
+    .edit-duration-box {
+        padding: 15px;
+    }
+
+        .edit-duration-box h3 {
+            font-size: 1.3rem;
+        }
+
+    .edit-entry-actions {
+        flex-direction: column-reverse;
+    }
+
+        .edit-entry-actions .btn {
+            width: 100%;
+        }
+}

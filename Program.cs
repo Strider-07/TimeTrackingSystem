@@ -66,7 +66,7 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    //var userManager = scope.ServiceProvider.GetRequiredService(UserManager<ApplicationUser>);
+    
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var existingUser = await userManager.FindByEmailAsync("test@example.com");
     if(existingUser == null)
