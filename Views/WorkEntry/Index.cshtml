@@ -40,7 +40,7 @@
         <div class="work-actions">
             <form asp-controller="WorkEntry" asp-action="StartWork" method="post">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-success btn-lg w-100" disabled="@isWorking">
+                <button type="submit" class="btn btn-success btn-lg w-100" disabled="@(isWorking || ViewBag.TodayWorkEntry != null)">
                     <i class="bi bi-play-fill"></i>
                     Rozpocznij pracę
                 </button>
