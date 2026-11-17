@@ -26,16 +26,13 @@ namespace TimeTrackingSystem.Controllers
             {
                 return Unauthorized();
             }
-            // Comented this for testing (leave only this condition body)
-            /*
             if (await _userManager.IsInRoleAsync(user, "Kierownik"))
             {
                 var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
                 return View("Manager/Index", employees);
             }
-            */
-            var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
-            return View("Manager/Index", employees);
+            //var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
+            //return View("Manager/Index", employees);
             // -------
             var today = DateTime.UtcNow.Date;
             var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
@@ -47,6 +44,7 @@ namespace TimeTrackingSystem.Controllers
                 viewModel.TodayWorkTime = TimeSpan.Zero;
                 return View(viewModel);
             }
+            ViewBag.TodayWorkEntry = todayWorkEntry;
             viewModel.TodayWorkTime = todayWorkEntry.WorkTime();
             var allEntries = await _context.WorkEntries.Where(
                 x => x.UserId == user.Id && x.StartTime >= new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc))
@@ -76,6 +74,13 @@ namespace TimeTrackingSystem.Controllers
             {
                 TempData["Error"] = "Masz już rozpoczętą pracę";
                 return RedirectToAction("Index"); 
+            }
+            var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
+                x => x.UserId == user.Id && x.StartTime.Date == DateTime.UtcNow.Date);
+            if (todayWorkEntry != null)
+            {
+                TempData["Error"] = "Dzisiaj nie możesz już tworzyć wpisów";
+                return RedirectToAction("Index");
             }
             var workEntry = new WorkEntry
             {
