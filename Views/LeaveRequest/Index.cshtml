@@ -1,6 +1,79 @@
 ﻿<!--model TimeTrackingSystem.Models.Entities.ApplicationUser-->
 
-<section>
-    <a asp-controller="LeaveRequest" asp-action="ShowLeaveRequests">Twoje wnioski</a>
-    <a asp-controller="LeaveRequest" asp-action="CreateLeaveRequest">Utwórz wniosek</a>
+
+<section class="leave-page">
+
+    <div class="leave-header">
+        <div>
+            <h1>Wnioski urlopowe</h1>
+            <p>Zarządzaj swoimi wnioskami urlopowymi i planuj wolne dni.</p>
+        </div>
+
+        <div class="leave-header-icon">
+            <i class="bi bi-calendar-check"></i>
+        </div>
+    </div>
+
+    <div class="leave-welcome-card card">
+        <div class="card-body">
+            <div class="leave-welcome-icon">
+                <i class="bi bi-sun"></i>
+            </div>
+
+            <div>
+                <h3>Planujesz urlop?</h3>
+                <p>
+                    Możesz tutaj złożyć nowy wniosek urlopowy
+                    oraz sprawdzić status swoich wcześniejszych zgłoszeń.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="leave-options">
+
+        <a asp-controller="LeaveRequest"
+           asp-action="ShowLeaveRequests"
+           class="leave-option-card">
+
+            <div class="leave-option-icon">
+                <i class="bi bi-calendar2-week"></i>
+            </div>
+
+            <div class="leave-option-content">
+                <h3>Moje wnioski</h3>
+                <p>
+                    Przeglądaj swoje wnioski, sprawdzaj ich status
+                    oraz zaplanowane terminy urlopów.
+                </p>
+            </div>
+
+            <div class="leave-option-arrow">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+
+        <a asp-controller="LeaveRequest"
+           asp-action="CreateLeaveRequest"
+           class="leave-option-card">
+
+            <div class="leave-option-icon create-icon">
+                <i class="bi bi-calendar-plus"></i>
+            </div>
+
+            <div class="leave-option-content">
+                <h3>Utwórz wniosek</h3>
+                <p>
+                    Złóż nowy wniosek urlopowy, wybierz jego rodzaj
+                    i określ termin swojej nieobecności.
+                </p>
+            </div>
+
+            <div class="leave-option-arrow">
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+
+    </div>
+
 </section>

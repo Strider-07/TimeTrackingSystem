@@ -38,6 +38,13 @@ namespace TimeTrackingSystem.Controllers
             {
                 return NotFound();
             }
+            if (model.EndDate < model.StartDate)
+            {
+                ModelState.AddModelError(nameof(model.EndDate), 
+                    "Data zakończenia nie może być wcześniejsza od daty rozpoczęcia");
+                return View(model);
+            }
+            //if (model.StartDate < [Dzisiaj])
             var leaveRequest = new LeaveRequest
             {
                 UserId = user.Id,
@@ -46,13 +53,13 @@ namespace TimeTrackingSystem.Controllers
                 LeaveType = model.LeaveType,
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,
-                Reason = model.Reason,
+                Reason = model.Reason != null ? model.Reason : "Brak",
                 RequestDate = DateTime.UtcNow
             };
             _context.LeaveRequests.Add(leaveRequest);
             await _context.SaveChangesAsync();
             TempData["Success"] = "Pomyślnie dodano wniosek";
-            return View();
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> ShowLeaveRequests()
