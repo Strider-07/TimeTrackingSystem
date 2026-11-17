@@ -1,0 +1,1 @@
+Jesli jest sie zalogowanym i wyjdzie z przegladarki to albo ma wylogowywac albo musimy sprawdzac według roli i przekierowywac na odpowiednią strone domyślną

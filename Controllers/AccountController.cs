@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
@@ -14,15 +13,15 @@ namespace TimeTrackingSystem.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
-        public AccountController(SignInManager<ApplicationUser> signInManager,UserManager<ApplicationUser> userManager,IEmailService emailService)
+        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IEmailService emailService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _emailService = emailService;
         }
 
-        
-        [HttpGet,AllowAnonymous]
+
+        [HttpGet, AllowAnonymous]
         public IActionResult Login()
         {
             //return View();
@@ -30,39 +29,39 @@ namespace TimeTrackingSystem.Controllers
         }
 
         [HttpPost, AllowAnonymous]
-        public async Task<IActionResult>Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 //ModelState.AddModelError("Login", "Nie poprawne hasło lub / i mail"); //TODO: Change the error message because the error appears after the email or password are not validated(ex. the email lack a '@' character)
-                return View("~/Views/Account/Login.cshtml",model); //TODO: Temporary fix
+                return View("~/Views/Account/Login.cshtml", model); //TODO: Temporary fix
             }
             else
             {
                 var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, true);
-                if(result.Succeeded)
+                if (result.Succeeded)
                 {
                     return RedirectToAction("Index", "Admin"); //TODO: Check if its supposed to redirect there (Roles)
                 }
                 ModelState.AddModelError("Login", "Nie poprawne hasło lub / i mail");
                 return View(model);
-                
+
             }
 
         }
 
-        [HttpGet,Authorize]
-        
+        [HttpGet, Authorize]
+
         public IActionResult ChangePassword()
         {
             return View();
         }
 
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
 
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return View(model);
 
@@ -70,10 +69,10 @@ namespace TimeTrackingSystem.Controllers
             else
             {
                 var selectedUser = await _userManager.GetUserAsync(User);
-                if(selectedUser != null)
+                if (selectedUser != null)
                 {
-                    var result = await _userManager.ChangePasswordAsync(selectedUser,model.CurrentPassword,model.NewPassword);
-                    if(result.Succeeded)
+                    var result = await _userManager.ChangePasswordAsync(selectedUser, model.CurrentPassword, model.NewPassword);
+                    if (result.Succeeded)
                     {
                         await _signInManager.SignOutAsync();
                         TempData["Success"] = "Hasło zmienione pomyślnie!";
@@ -81,10 +80,10 @@ namespace TimeTrackingSystem.Controllers
                     }
                     else
                     {
-                        foreach(var error in result.Errors)
+                        foreach (var error in result.Errors)
                         {
-                            ModelState.AddModelError(string.Empty,error.Description);
-                            
+                            ModelState.AddModelError(string.Empty, error.Description);
+
                         }
                         return View(model);
                     }
@@ -97,7 +96,7 @@ namespace TimeTrackingSystem.Controllers
             }
         }
 
-        [HttpPost,ValidateAntiForgeryToken]
+        [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
@@ -105,27 +104,32 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        [HttpGet,AllowAnonymous]
+        [HttpGet, AllowAnonymous]
         public IActionResult ForgotPassword()
         {
             return View();
         }
 
-        [HttpPost,AllowAnonymous, ValidateAntiForgeryToken]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email); //TODO: Check the note on the FindByEmailAsync function
-            if(user != null)
+            if (!ModelState.IsValid)
             {
-                var myToken = _userManager.GeneratePasswordResetTokenAsync(user);
+                return View(model);
+            }
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null && user.IsActive)
+            {
+                var myToken = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var resetLink = Url.Action("ResetPassword", "Account", new { token = myToken, email = user.Email }, Request.Scheme);
-                var emailBody = $@"var emailBody = $@""
+                var emailBody = $@"
                                 <h2>Reset hasła</h2>
                                 <p>Cześć {WebUtility.HtmlEncode(user.FirstName)},</p>
                                 <p>Otrzymaliśmy prośbę o zresetowanie hasła do Twojego konta w systemie ewidencji czasu pracy.</p>
-                                <p><a href=""""{{resetLink}}"""">Kliknij tutaj, aby ustawić nowe hasło</a></p>
-                                <p>Link jest jednorazowy i ważny przez ograniczony czas.</p>
-                                <p>Jeśli to nie Ty prosiłeś o reset, zignoruj tę wiadomość.</p>"";";
+                                <p><a href=""{resetLink}"">Kliknij tutaj, aby ustawić nowe hasło</a></p>
+                                <p>Link jest jednorazowy i ważny przez 1 godzinę.</p>
+                                <p>Jeśli to nie Ty prosiłeś o reset, zignoruj tę wiadomość.</p>";
+
 
                 await _emailService.SendEmailAsync(user.Email!, "Reset hasła", emailBody);
                 TempData["Success"] = "Sprawdź swoją skrzynke email";
@@ -135,8 +139,62 @@ namespace TimeTrackingSystem.Controllers
             }
             else
             {
-                return View();
+                TempData["Success"] = "Sprawdź swoją skrzynke email";
+                return RedirectToAction("Login", "Account");
             }
+        }
+
+        [HttpGet, AllowAnonymous]
+        public IActionResult ResetPassword(string token, string email)
+        {
+
+            var model = new ResetPasswordViewModel { Token = token, Email = email };
+            if (model.Token == null || model.Email == null)
+            {
+                return BadRequest();
+            }
+            return View(model);
+        }
+
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (model.Token == null || model.Email == null)
+            {
+                return BadRequest();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            var currentUser = await _userManager.FindByEmailAsync(model.Email);
+
+            if (currentUser != null)
+            {
+                var result = await _userManager.ResetPasswordAsync(currentUser, model.Token, model.NewPassword);
+                if (result.Succeeded)
+                {
+                    TempData["Success"] = "Hasło zmienione pomyślnie";
+                    return RedirectToAction("Login", "Account");
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View(model);
+                }
+            }
+            else
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+
+
         }
     }
 }
