@@ -19,10 +19,23 @@ namespace TimeTrackingSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
-            return View();
+            if (User.IsInRole("Pracownik"))
+            {
+                return View();
+            }
+            // Manager code
+
+            var users = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
+            List<LeaveRequest> allRequests = new List<LeaveRequest>();
+            foreach (var user in users)
+            {
+                var requests = await _context.LeaveRequests.
+                    Where(x => x.UserId == user.Id && x.Status == "Oczekujący").ToListAsync();
+                allRequests.AddRange(requests);
+            }
+            return View("Manager/Index", allRequests);
         }
 
-        //TODO: propably I should make a seperate view for creating request
         [HttpGet]
         public async Task<IActionResult> CreateLeaveRequest()
         {
@@ -53,7 +66,7 @@ namespace TimeTrackingSystem.Controllers
                 LeaveType = model.LeaveType,
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,
-                Reason = model.Reason != null ? model.Reason : "Brak",
+                Reason = model.Reason != null ? model.Reason : "",
                 RequestDate = DateTime.UtcNow
             };
             _context.LeaveRequests.Add(leaveRequest);
@@ -71,6 +84,21 @@ namespace TimeTrackingSystem.Controllers
             }
             var requests = await _context.LeaveRequests.Where(x => x.UserId == user.Id).ToListAsync();
             return View(requests);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeRequestStatus(int id, string status, string? reason)
+        {
+            var request = await _context.LeaveRequests.FirstOrDefaultAsync(x => x.Id == id);
+            if (request == null)
+            {
+                return NotFound();
+            }
+            request.Status = status;
+            request.Reason = reason != null ? reason : "Brak";
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index");
         }
     }
 }

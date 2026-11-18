@@ -73,16 +73,16 @@ namespace TimeTrackingSystem.Controllers
                 IsActive = model.IsActive,
                 CreatedAt = DateTime.UtcNow
             };
+            
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-
                 return View(model);
             }
-            var roleResult = await _userManager.AddToRoleAsync(user, model.Position);
+            var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
 
             if (!roleResult.Succeeded)
             {

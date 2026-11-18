@@ -23,7 +23,6 @@ namespace TimeTrackingSystem.Data
                     var result = await _roleManager.CreateAsync(newRole);
                     if(!result.Succeeded)
                     {
-                          
                          var errors = string.Join(", ", result.Errors.Select(error => error.Description));
                          throw new InvalidOperationException(errors);   
                         

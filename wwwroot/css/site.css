@@ -1482,3 +1482,216 @@ button {
         transition: none;
     }
 }
+
+/* DECISION FORM - HOVER REVEAL */
+
+.leave-decision-reveal {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0 22px;
+    margin-top: 0;
+    border: none;
+    background: var(--surface-secondary);
+    border-radius: 14px;
+    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.4s ease, margin-top 0.4s ease;
+}
+
+/* Show form when hovering over the request card */
+.leave-request-card:hover .leave-decision-reveal,
+.leave-request-card:focus-within .leave-decision-reveal {
+    max-height: 600px;
+    opacity: 1;
+    padding: 22px;
+    margin-top: 25px;
+}
+
+/* Header */
+
+.leave-decision-header {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 20px;
+}
+
+    .leave-decision-header h5 {
+        margin: 0 0 4px;
+        color: var(--text-primary);
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .leave-decision-header p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
+
+.leave-decision-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--primary);
+    font-size: 20px;
+}
+
+/* Accept / Decline options */
+
+.leave-decision-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.leave-decision-option {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: none;
+    border-radius: 11px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+    /* Hide native radio buttons */
+
+    .leave-decision-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+/* Option content */
+
+.decision-option-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+    .decision-option-content > i {
+        font-size: 23px;
+        flex-shrink: 0;
+    }
+
+    .decision-option-content strong {
+        display: block;
+        color: var(--text-primary);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .decision-option-content small {
+        display: block;
+        margin-top: 3px;
+        color: var(--text-secondary);
+        font-size: 12px;
+    }
+
+/* Default icon colors */
+
+.accept-option .decision-option-content > i {
+    color: var(--success);
+}
+
+.decline-option .decision-option-content > i {
+    color: var(--danger);
+}
+
+/* Selected backgrounds */
+
+.accept-option:has(input:checked) {
+    background: color-mix(in srgb, var(--success) 16%, var(--surface));
+}
+
+.decline-option:has(input:checked) {
+    background: color-mix(in srgb, var(--danger) 16%, var(--surface));
+}
+
+/* Keyboard accessibility */
+
+.leave-decision-option:has(input:focus-visible) {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Decline reason */
+
+.leave-decline-reason {
+    margin-top: 20px;
+}
+
+    .leave-decline-reason[hidden] {
+        display: none;
+    }
+
+    .leave-decline-reason label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .leave-decline-reason textarea {
+        background: var(--surface);
+        color: var(--text-primary);
+        border-color: var(--border);
+    }
+
+/* Submit button */
+
+.leave-decision-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+}
+
+.leave-decision-submit {
+    border-radius: 9px;
+    padding: 10px 18px;
+}
+
+/* Mobile */
+
+@media (max-width: 576px) {
+    .leave-decision-options {
+        grid-template-columns: 1fr;
+    }
+
+    .leave-decision-reveal {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .leave-request-card:hover .leave-decision-reveal,
+    .leave-request-card:focus-within .leave-decision-reveal {
+        padding: 16px;
+    }
+
+    .leave-decision-actions {
+        justify-content: stretch;
+    }
+
+    .leave-decision-submit {
+        width: 100%;
+    }
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+    .leave-decision-reveal,
+    .leave-decision-option {
+        transition: none;
+    }
+}
