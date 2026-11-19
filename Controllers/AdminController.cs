@@ -222,5 +222,11 @@ namespace TimeTrackingSystem.Controllers
                 .ToList();
             return View("Reports/WorkTimeReport", report);
         }
+
+        public async Task<IActionResult> LeaveRequestReport()
+        {
+            var requests = await _context.LeaveRequests.ToListAsync();
+            return View("Reports/LeaveRequestReport", requests);
+        }
     }
 }

@@ -1,33 +1,148 @@
 ﻿@model List<TimeTrackingSystem.Models.ViewModels.WorkTimeViewModel>
 
 @{
+    ViewData["Title"] = "Raport czasu pracy";
+
     var totalWorkTime = TimeSpan.Zero;
-    foreach (var workTime in Model)
+
+    if (Model != null)
     {
-        totalWorkTime += workTime.WorkTime;
+        foreach (var workTime in Model)
+        {
+            totalWorkTime += workTime.WorkTime;
+        }
     }
+
+    var totalHours = (int)totalWorkTime.TotalHours;
+    var totalMinutes = totalWorkTime.Minutes;
+    var totalSeconds = totalWorkTime.Seconds;
 }
 
-<table>
-    <thead>
-        <tr>
-            <th>Imie</th>
-            <th>Nazwisko</th>
-            <th>Stanowisko</th>
-            <th>Godziny pracy</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var workTime in Model)
-        {
-            <tr>
-                <td>@workTime.User.FirstName</td>
-                <td>@workTime.User.LastName</td>
-                <td>@workTime.User.Position</td>
-                <td>@workTime.WorkTime</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<section class="admin-page report-page">
 
-<h2>Łącznie: @totalWorkTime</h2>
+    <div class="admin-header">
+        <div>
+            <span class="admin-eyebrow">RAPORTY</span>
+            <h1>Raport czasu pracy</h1>
+            <p>Zestawienie czasu pracy pracowników.</p>
+        </div>
+
+        <div class="admin-header-icon">
+            <i class="bi bi-clock-history"></i>
+        </div>
+    </div>
+
+    <div class="report-summary-grid">
+
+        <div class="report-summary-card">
+            <div class="report-summary-icon total-time-icon">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+
+            <div>
+                <span class="report-summary-label">Łączny czas pracy</span>
+
+                <h2>
+                    @totalHours.ToString("D2"):@totalMinutes.ToString("D2")
+                </h2>
+
+                <span class="report-summary-caption">Godziny : minuty</span>
+            </div>
+        </div>
+
+        <div class="report-summary-card">
+            <div class="report-summary-icon employee-count-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+
+            <div>
+                <span class="report-summary-label">Pracownicy w raporcie</span>
+
+                <h2>@(Model?.Count ?? 0)</h2>
+
+                <span class="report-summary-caption">
+                    Pozycje w zestawieniu
+                </span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="admin-table-card report-table-card">
+
+        <div class="admin-table-header">
+            <div>
+                <h3>Zestawienie pracowników</h3>
+                <p>Indywidualny czas pracy dla każdego pracownika.</p>
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table admin-users-table report-work-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Pracownik</th>
+                            <th>Stanowisko</th>
+                            <th>Czas pracy</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var workTime in Model)
+                        {
+                            var hours = (int)workTime.WorkTime.TotalHours;
+                            var minutes = workTime.WorkTime.Minutes;
+
+                            <tr>
+                                <td>
+                                    <div class="admin-user-cell">
+                                        <div class="admin-user-avatar">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+
+                                        <strong>
+                                            @workTime.User.FirstName
+                                            @workTime.User.LastName
+                                        </strong>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @workTime.User.Position
+                                </td>
+
+                                <td>
+                                    <span class="report-work-time">
+                                        <i class="bi bi-clock-fill"></i>
+                                        @hours.ToString("D2"):@minutes.ToString("D2")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="admin-empty-state">
+                <i class="bi bi-clock"></i>
+                <h4>Brak danych</h4>
+                <p>Nie znaleziono danych dotyczących czasu pracy.</p>
+            </div>
+        }
+
+    </div>
+
+    <div class="report-page-actions">
+        <a asp-controller="Admin"
+           asp-action="Reports"
+           class="btn admin-secondary-btn">
+            <i class="bi bi-arrow-left"></i>
+            Powrót do raportów
+        </a>
+    </div>
+
+</section>

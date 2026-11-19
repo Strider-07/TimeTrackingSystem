@@ -1,5 +1,75 @@
-﻿@model List<TimeTrackingSystem.Models.Entities.ApplicationUser>
+﻿@{
+    ViewData["Title"] = "Raporty";
+}
 
-<h1>Raporty</h1>
-<a asp-controller="Admin" asp-action="WorkTimeReport">Czas pracy pracowników</a>
-<a asp-controller="Admin" asp-action="LeaveRequestReport">Wnioski urlopowe</a>
+<section class="admin-page report-page">
+
+    <div class="admin-header">
+        <div>
+            <span class="admin-eyebrow">ANALIZA DANYCH</span>
+            <h1>Raporty</h1>
+            <p>Analizuj czas pracy i zarządzaj informacjami o wnioskach urlopowych.</p>
+        </div>
+
+        <div class="admin-header-icon">
+            <i class="bi bi-bar-chart-line-fill"></i>
+        </div>
+    </div>
+
+    <div class="report-grid">
+
+        <a asp-controller="Admin"
+           asp-action="WorkTimeReport"
+           class="report-card">
+
+            <div class="report-card-icon work-report-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+
+            <div class="report-card-content">
+                <h3>Raport czasu pracy</h3>
+                <p>
+                    Przeglądaj czas pracy pracowników oraz zestawienie
+                    przepracowanych godzin.
+                </p>
+            </div>
+
+            <div class="report-card-footer">
+                <span>Przeglądaj raport</span>
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+
+        <a asp-controller="Admin"
+           asp-action="LeaveRequestReport"
+           class="report-card">
+
+            <div class="report-card-icon leave-report-icon">
+                <i class="bi bi-calendar2-check-fill"></i>
+            </div>
+
+            <div class="report-card-content">
+                <h3>Raport wniosków urlopowych</h3>
+                <p>
+                    Przeglądaj zestawienia wniosków urlopowych
+                    oraz ich statusy.
+                </p>
+            </div>
+
+            <div class="report-card-footer">
+                <span>Przeglądaj raport</span>
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+
+    </div>
+
+    <div class="report-info">
+        <i class="bi bi-info-circle-fill"></i>
+        <p>
+            Raporty umożliwiają analizę danych dotyczących czasu pracy
+            i absencji pracowników.
+        </p>
+    </div>
+
+</section>
