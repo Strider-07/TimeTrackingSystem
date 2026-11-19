@@ -8,17 +8,20 @@ using TimeTrackingSystem.Services;
 
 namespace TimeTrackingSystem.Controllers
 {
-    public class AccountController : Controller
+    public class AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IEmailService emailService) : Controller
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IEmailService _emailService;
+        private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly IEmailService _emailService = emailService;
+        
+        /*
         public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IEmailService emailService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _emailService = emailService;
         }
+        */
 
 
         [HttpGet, AllowAnonymous]
@@ -28,23 +31,54 @@ namespace TimeTrackingSystem.Controllers
             return View("~/Views/Account/Login.cshtml"); //TODO: Temporary fix
         }
 
-        [HttpPost, AllowAnonymous]
+        [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+
+
             if (!ModelState.IsValid)
             {
-                //ModelState.AddModelError("Login", "Nie poprawne hasło lub / i mail"); //TODO: Change the error message because the error appears after the email or password are not validated(ex. the email lack a '@' character)
+                ModelState.AddModelError("Login", "Nie poprawne hasło lub / i mail");
                 return View("~/Views/Account/Login.cshtml", model); //TODO: Temporary fix
+            }
+            var currentUser = await _userManager.FindByEmailAsync(model.Email);
+            if (currentUser == null || currentUser.IsActive == false)
+            {
+                ModelState.AddModelError("Login", "Nie poprawne hasło lub / i mail");
+                return View("~/Views/Account/Login.cshtml", model);
             }
             else
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, true);
+                var result = await _signInManager.PasswordSignInAsync(currentUser, model.Password, false, true);
+                
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Admin"); //TODO: Check if its supposed to redirect there (Roles)
+                    var role = await _userManager.GetRolesAsync(currentUser);
+                    var roleValue = role.ElementAt(0);
+                    switch(roleValue) //TODO: Add a home website for every role and finish this
+                    {
+                        case "Administrator":
+                            {
+                                return RedirectToAction("Index", "Admin");
+                            }
+                        case "Kierownik":
+                            {
+                                return RedirectToAction("Index", "Admin");
+                            }
+                        case "Pracownik":
+                            {
+                                return RedirectToAction("Index", "Admin");
+                            }
+                    }
+                }
+                else if(result.IsLockedOut)
+                {
+                    ModelState.AddModelError("Login", "Za dużo prób logowania, konto zostało zablokowane na 5 minut");
+                    return View("~/Views/Account/Login.cshtml", model);
+
                 }
                 ModelState.AddModelError("Login", "Nie poprawne hasło lub / i mail");
-                return View(model);
+                return View("~/Views/Account/Login.cshtml", model);
 
             }
 

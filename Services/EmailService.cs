@@ -7,16 +7,18 @@ using MailKit.Security;
 
 namespace TimeTrackingSystem.Services
 {
-    public class EmailService : IEmailService
+    public class EmailService(IOptions<EmailSettings> settings, ApplicationDbContext context) : IEmailService
     {
-        private readonly EmailSettings _settings;
-        private readonly ApplicationDbContext _context;
+        private readonly EmailSettings _settings = settings.Value;
+        private readonly ApplicationDbContext _context = context;
 
+        /*
         public EmailService(IOptions<EmailSettings> settings, ApplicationDbContext context)
         {
             _settings = settings.Value;
             _context = context;
         }
+        */
 
         public async Task SendEmailAsync(string recipientEmail, string subject, string body)
         {

@@ -13,18 +13,20 @@ using TimeTrackingSystem.Services;
 namespace TimeTrackingSystem.Controllers
 {
     //[Authorize(Roles = "Administrator")] // For testing this isn't necessary
-    public class AdminController : Controller
+    public class AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService) : Controller
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IEmailService _emailService;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+        private readonly IEmailService _emailService = emailService;
 
+        /*
         public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _emailService = emailService;
         }
+        */
 
         public async Task<IActionResult> Index()
         {

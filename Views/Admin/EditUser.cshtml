@@ -1,9 +1,8 @@
 ﻿@model TimeTrackingSystem.Models.Entities.ApplicationUser;
 
 <!--Editing users-->
+<div asp-validation-summary="All" class="text-danger"></div>
 <form asp-controller="Admin" asp-action="EditUser" method="post">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="All" class="text-danger"></div>
     <h2 class="fw-bold">Edytowanie użytkownika</h2>
     <label>Email: <input type="text" required name="Email" value="@Model.Email"/></label>
     <label>Imie: <input type="text" required name="FirstName" value="@Model.FirstName"/></label>

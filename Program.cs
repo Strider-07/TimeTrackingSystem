@@ -41,6 +41,8 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+builder.Services.AddHostedService<MissingEntriesReminderService>();
+
 // Add services to the container.
 builder.Services.AddControllersWithViews(option =>
 {
