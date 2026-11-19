@@ -1,27 +1,26 @@
-﻿@model TimeTrackingSystem.Models.Entities.ApplicationUser;
+﻿@model TimeTrackingSystem.Models.ViewModels.EditUserViewModel
 
-<!--Editing users-->
-<div asp-validation-summary="All" class="text-danger"></div>
 <form asp-controller="Admin" asp-action="EditUser" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
     <h2 class="fw-bold">Edytowanie użytkownika</h2>
-    <label>Email: <input type="text" required name="Email" value="@Model.Email"/></label>
-    <label>Imie: <input type="text" required name="FirstName" value="@Model.FirstName"/></label>
-    <label>Nazwisko: <input type="text" required name="LastName" value="@Model.LastName"/></label>
+
+    <input type="hidden" asp-for="UserId" />
+
+    <label>Email: <input asp-for="Email" required /></label>
+    <label>Imię: <input asp-for="FirstName" required /></label>
+    <label>Nazwisko: <input asp-for="LastName" required /></label>
+
     <label>
-        Stanowisko:
-        <select name="Position">
-            <option value="Pracownik" selected="@(Model.Position == "Pracownik" ? true : false )">Pracownik</option>
-            <option value="Kierownik" selected="@(Model.Position == "Kierownik" ? true : false)">Kierownik</option>
-            <option value="Administrator" selected="@(Model.Position == "Administrator" ? true : false)">Administrator</option>
+        Rola:
+        <select asp-for="Role">
+            <option value="Pracownik">Pracownik</option>
+            <option value="Kierownik">Kierownik</option>
+            <option value="Administrator">Administrator</option>
         </select>
     </label>
-    <label>Dział: <input type="text" required name="Department" value="@Model.Department"/></label>
-    <label>
-        Aktywny:
-        <select name="IsActive">
-            <option value="true" selected="@Model.IsActive">Tak</option>
-            <option value="false" selected="@(!Model.IsActive)">Nie</option>
-        </select>
-    </label>
+
+    <label>Stanowisko: <input asp-for="Position" required /></label>
+    <label>Dział: <input asp-for="Department" required /></label>
+
     <button class="btn btn-primary" type="submit">Edytuj</button>
 </form>

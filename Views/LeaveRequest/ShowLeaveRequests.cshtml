@@ -1,0 +1,172 @@
+﻿@model List<TimeTrackingSystem.Models.Entities.LeaveRequest>
+
+<section class="leave-page">
+
+    <div class="leave-header">
+        <div>
+            <h1>Moje wnioski</h1>
+            <p>Historia Twoich wniosków urlopowych.</p>
+        </div>
+
+        <div class="leave-header-icon">
+            <i class="bi bi-calendar2-week"></i>
+        </div>
+    </div>
+
+    <div class="leave-list-header">
+        <div>
+            <h2>
+                <i class="bi bi-list-check"></i>
+                Lista wniosków
+            </h2>
+            <p>Wszystkie Twoje zgłoszenia w jednym miejscu.</p>
+        </div>
+
+        <a asp-controller="LeaveRequest"
+           asp-action="CreateLeaveRequest"
+           class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i>
+            Nowy wniosek
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="leave-list">
+
+            @foreach (var request in Model)
+            {
+                var status = request.Status.ToString().ToLowerInvariant();
+
+                var statusClass =
+                    status.Contains("zaakcept") || status.Contains("approved")
+                    ? "leave-status-success"
+                    : status.Contains("odrzu") || status.Contains("reject")
+                    ? "leave-status-danger"
+                    : "leave-status-warning";
+
+                var statusIcon =
+                    status.Contains("zaakcept") || status.Contains("approved")
+                    ? "bi-check-circle-fill"
+                    : status.Contains("odrzu") || status.Contains("reject")
+                    ? "bi-x-circle-fill"
+                    : "bi-clock-fill";
+
+                <div class="leave-request-card">
+
+                    <div class="leave-request-top">
+
+                        <div class="leave-request-main">
+                            <div class="leave-request-icon">
+                                <i class="bi bi-calendar-event"></i>
+                            </div>
+
+                            <div>
+                                <span class="leave-detail-label">
+                                    Rodzaj urlopu
+                                </span>
+
+                                <h3>@request.LeaveType</h3>
+                            </div>
+                        </div>
+
+                        <span class="leave-status @statusClass">
+                            <i class="bi @statusIcon"></i>
+                            @request.Status
+                        </span>
+
+                    </div>
+
+                    <div class="leave-request-divider"></div>
+
+                    <div class="leave-request-details">
+
+                        <div class="leave-detail">
+                            <span class="leave-detail-label">
+                                <i class="bi bi-calendar-check"></i>
+                                Data rozpoczęcia
+                            </span>
+
+                            <strong>
+                                @request.StartDate.ToString("dd.MM.yyyy")
+                            </strong>
+                        </div>
+
+                        <div class="leave-detail">
+                            <span class="leave-detail-label">
+                                <i class="bi bi-calendar-x"></i>
+                                Data zakończenia
+                            </span>
+
+                            <strong>
+                                @request.EndDate.ToString("dd.MM.yyyy")
+                            </strong>
+                        </div>
+
+                    </div>
+
+                    @if (!string.IsNullOrWhiteSpace(request.Reason))
+                    {
+                        <div class="leave-request-reason">
+                            <span class="leave-detail-label">
+                                <i class="bi bi-chat-left-text"></i>
+                                Uzasadnienie / uwagi
+                            </span>
+
+                            <p>@request.Reason</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="leave-request-reason">
+                            <span class="leave-detail-label">
+                                <i class="bi bi-chat-left-text"></i>
+                                Uzasadnienie / uwagi
+                            </span>
+
+                            <p>Brak dodatkowych uwag.</p>
+                        </div>
+                    }
+
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="leave-empty card">
+            <div class="card-body">
+
+                <div class="leave-empty-icon">
+                    <i class="bi bi-calendar2-x"></i>
+                </div>
+
+                <h3>Brak wniosków urlopowych</h3>
+
+                <p>
+                    Nie masz jeszcze żadnych wniosków.
+                    Możesz utworzyć swój pierwszy wniosek urlopowy.
+                </p>
+
+                <a asp-controller="LeaveRequest"
+                   asp-action="CreateLeaveRequest"
+                   class="btn btn-primary">
+                    <i class="bi bi-plus-lg"></i>
+                    Utwórz wniosek
+                </a>
+
+            </div>
+        </div>
+    }
+
+    <div class="leave-back">
+        <a asp-controller="LeaveRequest"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Powrót
+        </a>
+    </div>
+
+</section>

@@ -1,0 +1,174 @@
+﻿
+<section class="leave-page leave-create-page">
+
+    <div class="leave-header">
+        <div>
+            <h1>Nowy wniosek urlopowy</h1>
+            <p>Uzupełnij poniższe informacje, aby złożyć wniosek.</p>
+        </div>
+
+        <div class="leave-header-icon">
+            <i class="bi bi-calendar-plus"></i>
+        </div>
+    </div>
+
+    <div class="leave-form-card card">
+
+        <div class="card-body">
+
+            <div class="leave-form-heading">
+                <div class="leave-form-icon">
+                    <i class="bi bi-file-earmark-plus"></i>
+                </div>
+
+                <div>
+                    <h3>Szczegóły wniosku</h3>
+                    <p>Podaj informacje dotyczące planowanego urlopu.</p>
+                </div>
+            </div>
+
+            <hr class="leave-divider" />
+
+            <form asp-controller="LeaveRequest"
+                  asp-action="CreateLeaveRequest"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div class="leave-form-section">
+
+                    <div class="leave-form-section-heading">
+                        <i class="bi bi-tag"></i>
+                        <h4>Rodzaj urlopu</h4>
+                    </div>
+
+                    <div class="leave-field">
+
+                        <label for="LeaveType">
+                            Rodzaj wniosku
+                        </label>
+
+                        <select id="LeaveType"
+                                name="LeaveType"
+                                class="form-select">
+
+                            <option value="wypoczynkowy">
+                                Urlop wypoczynkowy
+                            </option>
+
+                            <option value="okolicznościowy">
+                                Urlop okolicznościowy
+                            </option>
+
+                            <option value="bezpłatny">
+                                Urlop bezpłatny
+                            </option>
+
+                        </select>
+
+                        <span class="leave-field-hint">
+                            Wybierz rodzaj urlopu, o który chcesz wnioskować.
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <hr class="leave-divider" />
+
+                <div class="leave-form-section">
+
+                    <div class="leave-form-section-heading">
+                        <i class="bi bi-calendar-range"></i>
+                        <h4>Termin urlopu</h4>
+                    </div>
+
+                    <div class="leave-date-fields">
+
+                        <div class="leave-field">
+
+                            <label for="StartDate">
+                                Data rozpoczęcia
+                            </label>
+
+                            <input type="date"
+                                   id="StartDate"
+                                   name="StartDate"
+                                   class="form-control" />
+
+                        </div>
+
+                        <div class="leave-field">
+
+                            <label for="EndDate">
+                                Data zakończenia
+                            </label>
+
+                            <input type="date"
+                                   id="EndDate"
+                                   name="EndDate"
+                                   class="form-control" />
+
+                        </div>
+
+                    </div>
+
+                    <div class="leave-date-hint">
+                        <i class="bi bi-info-circle"></i>
+                        Wybierz pierwszy i ostatni dzień planowanej nieobecności.
+                    </div>
+
+                </div>
+
+                <hr class="leave-divider" />
+
+                <div class="leave-form-section">
+
+                    <div class="leave-form-section-heading">
+                        <i class="bi bi-chat-left-text"></i>
+                        <h4>Uzasadnienie i uwagi</h4>
+                    </div>
+
+                    <div class="leave-field">
+
+                        <label for="Reason">
+                            Dodatkowe informacje
+                        </label>
+
+                        <textarea id="Reason"
+                                  name="Reason"
+                                  class="form-control"
+                                  rows="4"
+                                  placeholder="Np. Chcę wykorzystać urlop wypoczynkowy..."></textarea>
+
+                        <span class="leave-field-hint">
+                            To pole jest opcjonalne.
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <div class="leave-form-actions">
+
+                    <a asp-controller="LeaveRequest"
+                       asp-action="Index"
+                       class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i>
+                        Anuluj
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        Złóż wniosek
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</section>

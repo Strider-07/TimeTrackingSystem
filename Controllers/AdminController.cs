@@ -9,6 +9,7 @@ using TimeTrackingSystem.Models.ViewModels;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Net;
 using TimeTrackingSystem.Services;
+using System.Security.Claims;
 
 namespace TimeTrackingSystem.Controllers
 {
@@ -75,16 +76,16 @@ namespace TimeTrackingSystem.Controllers
                 IsActive = model.IsActive,
                 CreatedAt = DateTime.UtcNow
             };
+            
 
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-
                 return View(model);
             }
-            var roleResult = await _userManager.AddToRoleAsync(user, model.Position);
+            var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
 
             if (!roleResult.Succeeded)
             {
@@ -119,28 +120,43 @@ namespace TimeTrackingSystem.Controllers
             {
                 return NotFound();
             }
-            return View(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Any() || roles.Count() > 1)
+            {
+                return NotFound(); // TODO: fix to smth better
+            }
+            var viewModel = new EditUserViewModel
+            {
+                UserId = user.Id,
+                Role = roles[0],
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Position = user.Position,
+                Department = user.Department,
+                Email = user.Email != null ? user.Email : user.FirstName + "@example.com" // idk about this
+            };
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditUser(ApplicationUser model)
+        public async Task<IActionResult> EditUser(EditUserViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-            var user = await _userManager.FindByIdAsync(model.Id);
+            var user = await _userManager.FindByIdAsync(model.UserId);
             if (user == null)
             {
                 return NotFound();
             }
             user.Email = model.Email;
+            user.UserName = model.Email;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.Position = model.Position;
             user.Department = model.Department;
-            user.IsActive = model.IsActive;
             var result = await _userManager.UpdateAsync(user);
             // NOTE: beacuse it's copied from above, idk if this is 100% correct way for this.
             if (!result.Succeeded)
@@ -150,27 +166,25 @@ namespace TimeTrackingSystem.Controllers
 
                 return View(model);
             }
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.FirstOrDefault() != model.Role)
+            {
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                await _userManager.AddToRoleAsync(user, model.Role);
+            }
             return RedirectToAction("Index");
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> ChangeUserActivation(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
-            var result = await _userManager.DeleteAsync(user);
-            // NOTE: beacuse it's copied from above, idk if this is 100% correct way for this.
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                    ModelState.AddModelError(string.Empty, error.Description);
-
-
-                return RedirectToAction("Users");
-            }
+            user.IsActive = !user.IsActive;
+            await _userManager.UpdateAsync(user);
             return RedirectToAction("Users");
         }
         // ---------------------- Users Management ----------------------

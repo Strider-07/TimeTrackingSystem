@@ -5,6 +5,8 @@ namespace TimeTrackingSystem.Models.ViewModels
     public class CreateUserViewModel
     {
         [Required]
+        public string Role { get; set; } = "";
+        [Required]
         public string FirstName { get; set; } = "";
         [Required]
         public string LastName { get; set; } = "";
