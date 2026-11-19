@@ -2,30 +2,58 @@
     ViewData["Title"] = "Panel administratora";
 }
 
-<div>
-    <h1>Panel administratora</h1>
-    <p>Witamy w systemie zarządzania pracownikami</p>
-    <div class="row">
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5>Zarządzanie pracownikami</h5>
-                    <a asp-controller="Admin" asp-action="Users" class="btn btn-primary">
-                        Przejdź
-                    </a>
-                </div>
-            </div>
+<section class="admin-page">
+    <div class="admin-header">
+        <div>
+            <span class="admin-eyebrow">ADMINISTRACJA</span>
+            <h1>Panel administratora</h1>
+            <p>Zarządzaj pracownikami i monitoruj dane systemu.</p>
         </div>
-        <div class="col-md-6 col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5>Raporty</h5>
-                    <a asp-controller="Admin" asp-action="Reports" class="btn btn-primary">
-                        Przejdź
-                    </a>
-                </div>
-            </div>
+
+        <div class="admin-header-icon">
+            <i class="bi bi-shield-lock-fill"></i>
         </div>
     </div>
-</div>
-<button onclick="changeTheme()">Theme</button>
+
+    <div class="admin-dashboard-grid">
+
+        <a asp-controller="Admin"
+           asp-action="Users"
+           class="admin-dashboard-card">
+
+            <div class="admin-dashboard-card-icon employees-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+
+            <div class="admin-dashboard-card-content">
+                <h3>Zarządzanie pracownikami</h3>
+                <p>Dodawaj, edytuj, aktywuj i dezaktywuj konta pracowników.</p>
+            </div>
+
+            <div class="admin-dashboard-card-footer">
+                <span>Zarządzaj pracownikami</span>
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+
+        <a asp-controller="Admin"
+           asp-action="Reports"
+           class="admin-dashboard-card">
+
+            <div class="admin-dashboard-card-icon reports-icon">
+                <i class="bi bi-bar-chart-fill"></i>
+            </div>
+
+            <div class="admin-dashboard-card-content">
+                <h3>Raporty</h3>
+                <p>Przeglądaj raporty i informacje dotyczące czasu pracy.</p>
+            </div>
+
+            <div class="admin-dashboard-card-footer">
+                <span>Przejdź do raportów</span>
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+
+    </div>
+</section>

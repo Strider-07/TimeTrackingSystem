@@ -1,42 +1,150 @@
 ﻿@model List<TimeTrackingSystem.Models.Entities.ApplicationUser>
 
-<h1>Lista pracowników</h1>
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">@TempData["Success"]</div>
+@{
+    ViewData["Title"] = "Lista pracowników";
 }
-<table>
-    <thead>
-        <tr>
-            <th>Imie</th>
-            <th>Nazwisko</th>
-            <th>Stanowisko</th>
-            <th>Dział</th>
-            <th>Status</th>
-            <th>Opcje</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.FirstName</td>
-                <td>@user.LastName</td>
-                <td>@user.Position</td>
-                <td>@user.Department</td>
-                <td>@(user.IsActive ? "Aktywny" : "Nieaktywny")</td>
-                <td>
-                    <a asp-controller="Admin" asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-primary">Edytuj</a>
-                    <form asp-controller="Admin" asp-action="ChangeUserActivation" asp-route-id="@user.Id" method="post">
-                        <button type="submit">@(user.IsActive ? "Dezaktywuj" : "Aktywuj")</button>
-                    </form>
-                    <a asp-controller="Admin" asp-action="ChangeUserPassword" asp-route-id="@user.Id" class="btn btn-primary">Zmień hasło</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
 
-<div>
-    <a asp-controller="Admin" asp-action="CreateUser" class="btn btn-primary">Dodaj użytkownika</a>
-</div>
+<section class="admin-page">
+
+    <div class="admin-header">
+        <div>
+            <span class="admin-eyebrow">ADMINISTRACJA</span>
+            <h1>Lista pracowników</h1>
+            <p>Zarządzaj kontami, rolami i dostępem do systemu.</p>
+        </div>
+
+        <div class="admin-header-icon">
+            <i class="bi bi-people-fill"></i>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="admin-alert-success">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    <div class="admin-table-card">
+
+        <div class="admin-table-header">
+            <div>
+                <h3>Pracownicy</h3>
+                <p>Lista kont zarejestrowanych w systemie.</p>
+            </div>
+
+            <a asp-controller="Admin"
+               asp-action="CreateUser"
+               class="btn btn-primary admin-add-user-btn">
+                <i class="bi bi-person-plus-fill"></i>
+                Dodaj użytkownika
+            </a>
+        </div>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table admin-users-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Pracownik</th>
+                            <th>Stanowisko</th>
+                            <th>Dział</th>
+                            <th>Status</th>
+                            <th class="text-end">Opcje</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="admin-user-cell">
+                                        <div class="admin-user-avatar">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+
+                                        <div>
+                                            <strong>
+                                                @user.FirstName @user.LastName
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>@user.Position</td>
+
+                                <td>@user.Department</td>
+
+                                <td>
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="admin-user-status active">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Aktywny
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="admin-user-status inactive">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                            Nieaktywny
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="admin-user-actions">
+
+                                        <a asp-controller="Admin"
+                                           asp-action="EditUser"
+                                           asp-route-id="@user.Id"
+                                           class="admin-action-btn edit-action"
+                                           title="Edytuj użytkownika">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </a>
+
+                                        <a asp-controller="Admin"
+                                           asp-action="ChangeUserPassword"
+                                           asp-route-id="@user.Id"
+                                           class="admin-action-btn password-action"
+                                           title="Zmień hasło">
+                                            <i class="bi bi-key-fill"></i>
+                                        </a>
+
+                                        <form asp-controller="Admin"
+                                              asp-action="ChangeUserActivation"
+                                              asp-route-id="@user.Id"
+                                              method="post"
+                                              onsubmit="return confirm('Czy na pewno chcesz @(user.IsActive ? "dezaktywować" : "aktywować") to konto?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="admin-action-btn @(user.IsActive ? "deactivate-action" : "activate-action")"
+                                                    title="@(user.IsActive ? "Dezaktywuj" : "Aktywuj")">
+                                                <i class="bi @(user.IsActive ? "bi-person-x-fill" : "bi-person-check-fill")"></i>
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="admin-empty-state">
+                <i class="bi bi-people"></i>
+                <h4>Brak pracowników</h4>
+                <p>Nie znaleziono żadnych kont w systemie.</p>
+            </div>
+        }
+
+    </div>
+</section>

@@ -1,27 +1,149 @@
-﻿<!--Adding users-->
-<form asp-controller="Admin" asp-action="CreateUser" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <h2 class="fw-bold">Dodawanie użytkownika</h2>
-    <label>Email: <input type="text" required name="Email" /></label>
-    <label>Hasło: <input type="password" required name="Password" /></label>
-    <label>Imie: <input type="text" required name="FirstName" /></label>
-    <label>Nazwisko: <input type="text" required name="LastName" /></label>
-    <label>
-        Rola:
-        <select name="Role">
-            <option value="Pracownik">Pracownik</option>
-            <option value="Kierownik">Kierownik</option>
-            <option value="Administrator">Administrator</option>
-        </select>
-    </label>
-    <label>Stanowisko: <input type="text" required name="Position" /></label>
-    <label>Dział: <input type="text" required name="Department" /></label>
-    <label>
-        Aktywny:
-        <select name="IsActive">
-            <option value="true">Tak</option>
-            <option value="false">Nie</option>
-        </select>
-    </label>
-    <button class="btn btn-primary" type="submit">Dodaj</button>
-</form>
+﻿@{
+    ViewData["Title"] = "Dodawanie użytkownika";
+}
+
+<section class="admin-page">
+
+    <div class="admin-header">
+        <div>
+            <span class="admin-eyebrow">ADMINISTRACJA</span>
+            <h1>Dodawanie użytkownika</h1>
+            <p>Utwórz nowe konto w systemie ewidencji czasu pracy.</p>
+        </div>
+
+        <div class="admin-header-icon">
+            <i class="bi bi-person-plus-fill"></i>
+        </div>
+    </div>
+
+    <div class="admin-form-card">
+
+        <div class="admin-form-heading">
+            <div class="admin-form-heading-icon">
+                <i class="bi bi-person-plus"></i>
+            </div>
+            <div>
+                <h3>Nowe konto</h3>
+                <p>Wypełnij dane nowego pracownika.</p>
+            </div>
+        </div>
+
+        <form asp-controller="Admin"
+              asp-action="CreateUser"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="All"
+                 class="admin-validation-summary"></div>
+
+            <div class="admin-form-grid">
+
+                <div class="admin-form-group full-width">
+                    <label for="Email">Adres email</label>
+                    <input type="email"
+                           id="Email"
+                           name="Email"
+                           class="form-control"
+                           autocomplete="email"
+                           required />
+                </div>
+
+                <div class="admin-form-group full-width">
+                    <label for="Password">Hasło</label>
+                    <input type="password"
+                           id="Password"
+                           name="Password"
+                           class="form-control"
+                           autocomplete="new-password"
+                           minlength="8"
+                           required />
+                    <small class="admin-form-hint">
+                        Hasło powinno mieć co najmniej 8 znaków.
+                    </small>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="FirstName">Imię</label>
+                    <input type="text"
+                           id="FirstName"
+                           name="FirstName"
+                           class="form-control"
+                           autocomplete="given-name"
+                           required />
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="LastName">Nazwisko</label>
+                    <input type="text"
+                           id="LastName"
+                           name="LastName"
+                           class="form-control"
+                           autocomplete="family-name"
+                           required />
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="Role">Rola</label>
+                    <select id="Role"
+                            name="Role"
+                            class="form-select"
+                            required>
+                        <option value="Pracownik">Pracownik</option>
+                        <option value="Kierownik">Kierownik</option>
+                        <option value="Administrator">Administrator</option>
+                    </select>
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="Position">Stanowisko</label>
+                    <input type="text"
+                           id="Position"
+                           name="Position"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="Department">Dział</label>
+                    <input type="text"
+                           id="Department"
+                           name="Department"
+                           class="form-control"
+                           required />
+                </div>
+
+                <div class="admin-form-group">
+                    <label for="IsActive">Status konta</label>
+                    <select id="IsActive"
+                            name="IsActive"
+                            class="form-select"
+                            required>
+                        <option value="true">Aktywny</option>
+                        <option value="false">Nieaktywny</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="admin-form-actions">
+                <a asp-controller="Admin"
+                   asp-action="Users"
+                   class="btn admin-secondary-btn">
+                    <i class="bi bi-arrow-left"></i>
+                    Powrót
+                </a>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Utwórz konto
+                </button>
+            </div>
+
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

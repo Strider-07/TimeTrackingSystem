@@ -53,8 +53,12 @@ namespace TimeTrackingSystem.Controllers
                 
                 if (result.Succeeded)
                 {
-                    var role = await _userManager.GetRolesAsync(currentUser);
-                    var roleValue = role.ElementAt(0);
+                    var roles = await _userManager.GetRolesAsync(currentUser);
+                    if (!roles.Any())
+                    {
+                        return RedirectToAction("Index", "Admin");
+                    }
+                    var roleValue = roles.ElementAt(0);
                     switch(roleValue) //TODO: Add a home website for every role and finish this
                     {
                         case "Administrator":

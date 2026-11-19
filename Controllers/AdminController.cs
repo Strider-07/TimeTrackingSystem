@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Net;
+using System.Security.Claims;
 using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
 using TimeTrackingSystem.Models.ViewModels;
@@ -14,20 +15,21 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace TimeTrackingSystem.Controllers
 {
     //[Authorize(Roles = "Administrator")] // For testing this isn't necessary
-    public class AdminController : Controller
+    public class AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly IEmailService _emailService;
+        private readonly ApplicationDbContext _context = context;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly RoleManager<IdentityRole> _roleManager = roleManager;
+        private readonly IEmailService _emailService = emailService;
 
-        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService)
+        /*
+        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService)
         {
-            _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _emailService = emailService;
         }
+        */
 
         public async Task<IActionResult> Index()
         {
@@ -77,15 +79,15 @@ namespace TimeTrackingSystem.Controllers
                 CreatedAt = DateTime.UtcNow
             };
 
+
             var result = await _userManager.CreateAsync(user, model.Password);
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
                     ModelState.AddModelError(string.Empty, error.Description);
-
                 return View(model);
             }
-            var roleResult = await _userManager.AddToRoleAsync(user, model.Position);
+            var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
 
             if (!roleResult.Succeeded)
             {
@@ -120,28 +122,43 @@ namespace TimeTrackingSystem.Controllers
             {
                 return NotFound();
             }
-            return View(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Any() || roles.Count() > 1)
+            {
+                return NotFound(); // TODO: fix to smth better
+            }
+            var viewModel = new EditUserViewModel
+            {
+                UserId = user.Id,
+                Role = roles[0],
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Position = user.Position,
+                Department = user.Department,
+                Email = user.Email != null ? user.Email : user.FirstName + "@example.com" // idk about this
+            };
+            return View(viewModel);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditUser(ApplicationUser model)
+        public async Task<IActionResult> EditUser(EditUserViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-            var user = await _userManager.FindByIdAsync(model.Id);
+            var user = await _userManager.FindByIdAsync(model.UserId);
             if (user == null)
             {
                 return NotFound();
             }
             user.Email = model.Email;
+            user.UserName = model.Email;
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
             user.Position = model.Position;
             user.Department = model.Department;
-            user.IsActive = model.IsActive;
             var result = await _userManager.UpdateAsync(user);
             // NOTE: beacuse it's copied from above, idk if this is 100% correct way for this.
             if (!result.Succeeded)
@@ -151,27 +168,25 @@ namespace TimeTrackingSystem.Controllers
 
                 return View(model);
             }
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            if (currentRoles.FirstOrDefault() != model.Role)
+            {
+                await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                await _userManager.AddToRoleAsync(user, model.Role);
+            }
             return RedirectToAction("Index");
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> ChangeUserActivation(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return NotFound();
             }
-            var result = await _userManager.DeleteAsync(user);
-            // NOTE: beacuse it's copied from above, idk if this is 100% correct way for this.
-            if (!result.Succeeded)
-            {
-                foreach (var error in result.Errors)
-                    ModelState.AddModelError(string.Empty, error.Description);
-
-
-                return RedirectToAction("Users");
-            }
+            user.IsActive = !user.IsActive;
+            await _userManager.UpdateAsync(user);
             return RedirectToAction("Users");
         }
         // ---------------------- Users Management ----------------------
@@ -186,23 +201,26 @@ namespace TimeTrackingSystem.Controllers
 
         public async Task<IActionResult> WorkTimeReport()
         {
-            var users = await _userManager.Users.ToListAsync(); // NOTE: maybe check the roles (using "Where")
-            var allEntries = await _context.WorkEntries.ToListAsync();
-            var entriesByUser = allEntries.
-                GroupBy(x => x.UserId).
-                ToDictionary(g => g.Key, g => g.Aggregate(TimeSpan.Zero, (sum, entry) => sum + entry.WorkTime()));
-            var workTimeViewModels = users.Select(user =>
-            {
-                entriesByUser.TryGetValue(user.Id, out var totalWorkTime);
-                return new WorkTimeViewModel(user, totalWorkTime);
-            }).ToList();
-            return View("Reports/WorkTimeReport", workTimeViewModels);
-        }
-
-        public async Task<IActionResult> LeaveRequestReport()
-        {
-            var requests = await _context.WorkEntries.ToListAsync();
-            return View("Reports/LeaveRequestReport", requests);
+            var now = DateTime.UtcNow;
+            var startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, now.Kind);
+            var startOfNextMonth = startOfMonth.AddMonths(1);
+            var users = await _userManager.Users.ToListAsync();
+            var currentMonthEntries = await _context.WorkEntries
+                .Where(x => x.StartTime >= startOfMonth && x.StartTime < startOfNextMonth)
+                .ToListAsync();
+            var workTimeByUser = currentMonthEntries
+                .GroupBy(x => x.UserId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Aggregate(TimeSpan.Zero, (total, entry) => total + entry.WorkTime())
+                );
+            var report = users
+                .Select(user => new WorkTimeViewModel(
+                    user,
+                    workTimeByUser.TryGetValue(user.Id, out var totalTime) ? totalTime : TimeSpan.Zero
+                ))
+                .ToList();
+            return View("Reports/WorkTimeReport", report);
         }
     }
 }

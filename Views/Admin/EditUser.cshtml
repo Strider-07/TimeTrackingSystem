@@ -1,26 +1,128 @@
 ﻿@model TimeTrackingSystem.Models.ViewModels.EditUserViewModel
 
-<form asp-controller="Admin" asp-action="EditUser" method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <h2 class="fw-bold">Edytowanie użytkownika</h2>
+@{
+    ViewData["Title"] = "Edytowanie użytkownika";
+}
 
-    <input type="hidden" asp-for="UserId" />
+<section class="admin-page">
 
-    <label>Email: <input asp-for="Email" required /></label>
-    <label>Imię: <input asp-for="FirstName" required /></label>
-    <label>Nazwisko: <input asp-for="LastName" required /></label>
+    <div class="admin-header">
+        <div>
+            <span class="admin-eyebrow">ADMINISTRACJA</span>
+            <h1>Edytowanie użytkownika</h1>
+            <p>Zmodyfikuj dane i uprawnienia użytkownika.</p>
+        </div>
 
-    <label>
-        Rola:
-        <select asp-for="Role">
-            <option value="Pracownik">Pracownik</option>
-            <option value="Kierownik">Kierownik</option>
-            <option value="Administrator">Administrator</option>
-        </select>
-    </label>
+        <div class="admin-header-icon">
+            <i class="bi bi-person-gear"></i>
+        </div>
+    </div>
 
-    <label>Stanowisko: <input asp-for="Position" required /></label>
-    <label>Dział: <input asp-for="Department" required /></label>
+    <div class="admin-form-card">
 
-    <button class="btn btn-primary" type="submit">Edytuj</button>
-</form>
+        <div class="admin-form-heading">
+            <div class="admin-form-heading-icon">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div>
+                <h3>Dane użytkownika</h3>
+                <p>Wprowadź zmiany w danych konta.</p>
+            </div>
+        </div>
+
+        <form asp-controller="Admin"
+              asp-action="EditUser"
+              method="post">
+
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="All"
+                 class="admin-validation-summary"></div>
+
+            <input type="hidden" asp-for="UserId" />
+
+            <div class="admin-form-grid">
+
+                <div class="admin-form-group full-width">
+                    <label asp-for="Email">Adres email</label>
+                    <input asp-for="Email"
+                           class="form-control"
+                           type="email"
+                           autocomplete="email"
+                           required />
+                    <span asp-validation-for="Email"
+                          class="admin-validation-error"></span>
+                </div>
+
+                <div class="admin-form-group">
+                    <label asp-for="FirstName">Imię</label>
+                    <input asp-for="FirstName"
+                           class="form-control"
+                           autocomplete="given-name"
+                           required />
+                    <span asp-validation-for="FirstName"
+                          class="admin-validation-error"></span>
+                </div>
+
+                <div class="admin-form-group">
+                    <label asp-for="LastName">Nazwisko</label>
+                    <input asp-for="LastName"
+                           class="form-control"
+                           autocomplete="family-name"
+                           required />
+                    <span asp-validation-for="LastName"
+                          class="admin-validation-error"></span>
+                </div>
+
+                <div class="admin-form-group">
+                    <label asp-for="Role">Rola</label>
+                    <select asp-for="Role" class="form-select" required>
+                        <option value="Pracownik">Pracownik</option>
+                        <option value="Kierownik">Kierownik</option>
+                        <option value="Administrator">Administrator</option>
+                    </select>
+                    <span asp-validation-for="Role"
+                          class="admin-validation-error"></span>
+                </div>
+
+                <div class="admin-form-group">
+                    <label asp-for="Position">Stanowisko</label>
+                    <input asp-for="Position"
+                           class="form-control"
+                           required />
+                    <span asp-validation-for="Position"
+                          class="admin-validation-error"></span>
+                </div>
+
+                <div class="admin-form-group full-width">
+                    <label asp-for="Department">Dział</label>
+                    <input asp-for="Department"
+                           class="form-control"
+                           required />
+                    <span asp-validation-for="Department"
+                          class="admin-validation-error"></span>
+                </div>
+
+            </div>
+
+            <div class="admin-form-actions">
+                <a asp-controller="Admin"
+                   asp-action="Users"
+                   class="btn admin-secondary-btn">
+                    <i class="bi bi-arrow-left"></i>
+                    Powrót
+                </a>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i>
+                    Zapisz zmiany
+                </button>
+            </div>
+
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
