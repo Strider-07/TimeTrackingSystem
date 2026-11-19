@@ -1,0 +1,33 @@
+﻿@model List<TimeTrackingSystem.Models.ViewModels.WorkTimeViewModel>
+
+@{
+    var totalWorkTime = TimeSpan.Zero;
+    foreach (var workTime in Model)
+    {
+        totalWorkTime += workTime.WorkTime;
+    }
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>Imie</th>
+            <th>Nazwisko</th>
+            <th>Stanowisko</th>
+            <th>Godziny pracy</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var workTime in Model)
+        {
+            <tr>
+                <td>@workTime.User.FirstName</td>
+                <td>@workTime.User.LastName</td>
+                <td>@workTime.User.Position</td>
+                <td>@workTime.WorkTime</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Łącznie: @totalWorkTime</h2>

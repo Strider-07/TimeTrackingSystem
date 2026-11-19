@@ -4,23 +4,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Net;
+using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
 using TimeTrackingSystem.Models.ViewModels;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Net;
 using TimeTrackingSystem.Services;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TimeTrackingSystem.Controllers
 {
     //[Authorize(Roles = "Administrator")] // For testing this isn't necessary
     public class AdminController : Controller
     {
+        private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IEmailService _emailService;
 
-        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService)
+        public AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService)
         {
+            _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _emailService = emailService;
@@ -178,7 +181,28 @@ namespace TimeTrackingSystem.Controllers
         {
             var users = await _userManager.Users.ToListAsync();
 
-            return View("Reports", users);
+            return View("Reports/Reports", users);
+        }
+
+        public async Task<IActionResult> WorkTimeReport()
+        {
+            var users = await _userManager.Users.ToListAsync(); // NOTE: maybe check the roles (using "Where")
+            var allEntries = await _context.WorkEntries.ToListAsync();
+            var entriesByUser = allEntries.
+                GroupBy(x => x.UserId).
+                ToDictionary(g => g.Key, g => g.Aggregate(TimeSpan.Zero, (sum, entry) => sum + entry.WorkTime()));
+            var workTimeViewModels = users.Select(user =>
+            {
+                entriesByUser.TryGetValue(user.Id, out var totalWorkTime);
+                return new WorkTimeViewModel(user, totalWorkTime);
+            }).ToList();
+            return View("Reports/WorkTimeReport", workTimeViewModels);
+        }
+
+        public async Task<IActionResult> LeaveRequestReport()
+        {
+            var requests = await _context.WorkEntries.ToListAsync();
+            return View("Reports/LeaveRequestReport", requests);
         }
     }
 }
