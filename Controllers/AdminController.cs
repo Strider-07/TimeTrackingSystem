@@ -4,13 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Globalization;
 using System.Net;
 using System.Security.Claims;
+using System.Text;
 using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
 using TimeTrackingSystem.Models.ViewModels;
 using TimeTrackingSystem.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Text;
+using System.Globalization;
 
 namespace TimeTrackingSystem.Controllers
 {
@@ -223,10 +227,75 @@ namespace TimeTrackingSystem.Controllers
             return View("Reports/WorkTimeReport", report);
         }
 
+        public async Task<IActionResult> ExportWorkTimeReport()
+        {
+            var now = DateTime.UtcNow;
+            var startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, now.Kind);
+            var startOfNextMonth = startOfMonth.AddMonths(1);
+            var users = await _userManager.Users.ToListAsync();
+            var currentMonthEntries = await _context.WorkEntries
+                .Where(x => x.StartTime >= startOfMonth && x.StartTime < startOfNextMonth)
+                .ToListAsync();
+            var workTimeByUser = currentMonthEntries
+                .GroupBy(x => x.UserId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Aggregate(TimeSpan.Zero, (total, entry) => total + entry.WorkTime())
+                );
+            var workTimeViewModels = users
+                .Select(user => new WorkTimeViewModel(
+                    user,
+                    workTimeByUser.TryGetValue(user.Id, out var totalTime) ? totalTime : TimeSpan.Zero
+                ))
+                .ToList();
+            var csv = new StringBuilder();
+            csv.AppendLine("Imię;Nazwisko;Stanowisko;Godziny pracy");
+            foreach (var workTime in workTimeViewModels)
+            {
+                var totalHours = workTime.WorkTime.TotalHours.ToString("0.##", CultureInfo.GetCultureInfo("pl-PL"));
+                csv.AppendLine(
+                    $"{EscapeCsv(workTime.User.FirstName)};" + $"{EscapeCsv(workTime.User.LastName)};" + 
+                    $"{EscapeCsv(workTime.User.Position)}" + $"{totalHours}"
+                );
+            }
+            var totalWorkTime = workTimeViewModels.Aggregate(TimeSpan.Zero, (total, item) =>  total + item.WorkTime);
+            csv.AppendLine();
+            csv.AppendLine($"Łącznie;;;{totalWorkTime.TotalHours.ToString("0.##", CultureInfo.GetCultureInfo("pl-PL"))}");
+            var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray();
+            return File(bytes, "text/csv", "RaportCzasuPracy.csv");
+        }
+
         public async Task<IActionResult> LeaveRequestReport()
         {
             var requests = await _context.LeaveRequests.ToListAsync();
             return View("Reports/LeaveRequestReport", requests);
+        }
+
+        public async Task<IActionResult> ExportLeaveRequestReport()
+        {
+            var requests = await _context.LeaveRequests.ToListAsync();
+            var csv = new StringBuilder();
+            csv.AppendLine("Imię;Nazwisko;Stanowisko;Status wniosku;Rodzaj;Data rozpoczęcia;Data zakończenia;Uzasadnienie");
+            foreach (var request in requests)
+            {
+                csv.AppendLine(
+                    $"{EscapeCsv(request.User.FirstName)};" + $"{EscapeCsv(request.User.LastName)};" +
+                    $"{EscapeCsv(request.User.Position)}" + $"{EscapeCsv(request.Status)}" + 
+                    $"{EscapeCsv(request.LeaveType)}" + $"{request.StartDate}" + $"{request.EndDate}" + 
+                    $"{EscapeCsv(request.Reason)}"
+                );
+            }
+            var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray();
+            return File(bytes, "text/csv", "RaportWnioskówUrlopowych.csv");
+        }
+
+        private static string EscapeCsv(string? value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                return string.Empty;
+            }
+            return "\"" + value.Replace("\"", "\"\"") + "\"";
         }
     }
 }
