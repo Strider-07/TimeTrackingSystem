@@ -69,7 +69,6 @@ namespace TimeTrackingSystem.Controllers
             return View("Manager/Users", employees);
         }
 
-        [Authorize(Roles = "Pracownik")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> StartWork()
@@ -105,7 +104,6 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = "Pracownik")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EndWork()
@@ -128,7 +126,6 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = "Pracownik")]
         public async Task<IActionResult> EntryHistory()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -141,7 +138,7 @@ namespace TimeTrackingSystem.Controllers
             return View("EntryHistory", userEntries);
         }
 
-        [Authorize(Roles = "Kierownik")]
+        [Authorize(Roles = "Administrator,Kierownik")]
         public async Task<IActionResult> ShowEntries(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
@@ -154,7 +151,7 @@ namespace TimeTrackingSystem.Controllers
             return View("Manager/ShowEntries", userEntriesViewModel);
         }
 
-        [Authorize(Roles = "Kierownik")]
+        [Authorize(Roles = "Administrator,Kierownik")]
         [HttpGet]
         public async Task<IActionResult> EditEntry(int id)
         {
@@ -178,7 +175,7 @@ namespace TimeTrackingSystem.Controllers
             return View("Manager/EditEntry", model);
         }
 
-        [Authorize(Roles = "Kierownik")]
+        [Authorize(Roles = "Administrator,Kierownik")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditEntry(EditWorkEntryViewModel model)

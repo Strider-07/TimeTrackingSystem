@@ -9,7 +9,7 @@ using TimeTrackingSystem.Models.ViewModels;
 
 namespace TimeTrackingSystem.Controllers
 {
-    [Authorize(Roles = "Kierownik,Pracownik")]
+    [Authorize]
     public class LeaveRequestController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -22,10 +22,12 @@ namespace TimeTrackingSystem.Controllers
 
         public async Task<IActionResult> Index()
         {
-            if (User.IsInRole("Pracownik"))
-            {
-                return View();
-            }
+            return View();
+        }
+
+        [Authorize(Roles = "Administrator,Kierownik")]
+        public async Task<IActionResult> Manage()
+        {
             var users = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
             List<LeaveRequest> allRequests = new List<LeaveRequest>();
             foreach (var user in users)
@@ -34,10 +36,9 @@ namespace TimeTrackingSystem.Controllers
                     Where(x => x.UserId == user.Id && x.Status == "Oczekujący").ToListAsync();
                 allRequests.AddRange(requests);
             }
-            return View("Manager/Index", allRequests);
+            return View("Manager/Manage", allRequests);
         }
 
-        [Authorize(Roles = "Pracownik")]
         [HttpGet]
         public async Task<IActionResult> CreateLeaveRequest()
         {

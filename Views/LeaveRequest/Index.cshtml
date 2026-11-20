@@ -76,4 +76,9 @@
 
     </div>
 
+    @if (User.IsInRole("Administrator") || User.IsInRole("Kierownik"))
+    {
+        <a asp-controller="LeaveRequest" asp-action="Manage">Wnioski pracowników</a>
+    }
+
 </section>
