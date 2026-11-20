@@ -56,13 +56,30 @@ namespace TimeTrackingSystem.Controllers
         [Authorize(Roles = "Administrator,Kierownik")]
         public async Task<IActionResult> Users()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
             {
                 return NotFound();
             }
-            var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
-            return View("Manager/Users", employees);
+            var allowedUsers = new List<ApplicationUser>();
+            if (await _userManager.IsInRoleAsync(currentUser, "Administrator"))
+            {
+                var managers = await _userManager.GetUsersInRoleAsync("Kierownik");
+                var employees = await _userManager.GetUsersInRoleAsync("Pracownik");
+                allowedUsers.AddRange(managers);
+                allowedUsers.AddRange(employees);
+            }
+            else if (await _userManager.IsInRoleAsync(currentUser, "Kierownik"))
+            {
+                var employees = await _userManager.GetUsersInRoleAsync("Pracownik");
+                allowedUsers.AddRange(employees);
+            }
+
+            var users = allowedUsers
+                .Where(x => x.Id != currentUser.Id)
+                .DistinctBy(x => x.Id)
+                .ToList();
+            return View("Manager/Users", users);
         }
 
         [HttpPost]

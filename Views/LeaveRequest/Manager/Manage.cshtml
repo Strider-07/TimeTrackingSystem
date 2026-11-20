@@ -123,59 +123,89 @@
                               class="leave-decision-form leave-decision-reveal">
 
                             @Html.AntiForgeryToken()
+
                             <input type="hidden" name="id" value="@request.Id" />
 
                             <div class="leave-decision-header">
+
                                 <div class="leave-decision-icon">
                                     <i class="bi bi-clipboard-check"></i>
                                 </div>
+
                                 <div>
                                     <h5>Decyzja dotycząca wniosku</h5>
                                     <p>Wybierz, czy chcesz zaakceptować, czy odrzucić wniosek.</p>
                                 </div>
+
                             </div>
 
                             <div class="leave-decision-options">
+
                                 <label class="leave-decision-option accept-option">
-                                    <input type="radio" name="Status" value="Zaakcetpowany" required />
+
+                                    <input type="radio"
+                                           name="Status"
+                                           value="Zaakceptowany"
+                                           required />
 
                                     <span class="decision-option-content">
+
                                         <i class="bi bi-check-circle-fill"></i>
+
                                         <span>
                                             <strong>Zaakceptuj</strong>
                                             <small>Zaakceptuj wniosek urlopowy</small>
                                         </span>
+
                                     </span>
+
                                 </label>
 
                                 <label class="leave-decision-option decline-option">
-                                    <input type="radio" name="Status" value="Odrzucony" required />
+
+                                    <input type="radio"
+                                           name="Status"
+                                           value="Odrzucony"
+                                           required />
 
                                     <span class="decision-option-content">
+
                                         <i class="bi bi-x-circle-fill"></i>
+
                                         <span>
                                             <strong>Odrzuć</strong>
                                             <small>Odrzuć wniosek urlopowy</small>
                                         </span>
+
                                     </span>
+
                                 </label>
+
                             </div>
 
                             <div class="leave-decline-reason" hidden>
-                                <label for="ReviewerComment-@request.Id">Powód odrzucenia</label>
+
+                                <label for="ReviewerComment-@request.Id">
+                                    Powód odrzucenia
+                                </label>
+
                                 <textarea id="ReviewerComment-@request.Id"
                                           name="reason"
                                           class="form-control"
                                           rows="3"
                                           placeholder="Wyjaśnij, dlaczego wniosek został odrzucony..."></textarea>
+
                             </div>
 
                             <div class="leave-decision-actions">
+
                                 <button type="submit" class="btn btn-primary leave-decision-submit">
                                     <i class="bi bi-check-lg"></i>
                                     Potwierdź decyzję
                                 </button>
+
                             </div>
+
                         </form>
                     }
 
@@ -213,14 +243,14 @@
     <script>
         document.querySelectorAll(".leave-decision-form").forEach(form => {
 
-            const radios = form.querySelectorAll('input[name="status"]');
+            const radios = form.querySelectorAll('input[name="Status"]');
             const reasonContainer = form.querySelector(".leave-decline-reason");
 
             function updateReasonVisibility() {
 
-                const selected = form.querySelector('input[name="status"]:checked');
+                const selected = form.querySelector('input[name="Status"]:checked');
 
-                const shouldShow = selected?.value === "Reject";
+                const shouldShow = selected?.value === "Odrzucony";
 
                 reasonContainer.hidden = !shouldShow;
             }
