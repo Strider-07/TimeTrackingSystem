@@ -1,61 +1,160 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="pl" data-theme="light">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TimeTrackingSystem</title>
+
     <script type="importmap"></script>
     <script src="~/js/theme.js" asp-append-version="true"></script>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/colors.css" asp-append-version="true" /> <!--Custom-->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"> <!--Custom-->
+    <link rel="stylesheet" href="~/css/colors.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TimeTrackingSystem.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TimeTrackingSystem</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                </div>
 
-                <button onclick="changeTheme()">Theme</button>
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <form asp-controller="Account" asp-action="Logout" method="post">
-                        <button class="btn btn-primary" type="submit">Wyloguj</button>
-                    </form>
-                }
+<body class="app-layout">
+
+    <header>
+        <nav class="navbar navbar-expand-sm app-navbar mb-3">
+            <div class="container-fluid">
+
+                <!-- Brand -->
+                <a class="navbar-brand app-brand"
+                   asp-controller="Home"
+                   asp-action="Index">
+
+                    <span class="app-brand-icon">
+                        <i class="bi bi-clock-history"></i>
+                    </span>
+
+                    TimeTrackingSystem
+                </a>
+
+                <!-- Mobile toggle -->
+                <button class="navbar-toggler app-navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <!-- Navigation -->
+                <div class="navbar-collapse collapse"
+                     id="navbarSupportedContent">
+
+                    <ul class="navbar-nav me-auto">
+
+                        <li class="nav-item">
+                            <a class="nav-link app-nav-link"
+                               asp-controller="Home"
+                               asp-action="Index">
+
+                                <i class="bi bi-house"></i>
+                                Home
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link app-nav-link"
+                               asp-controller="Home"
+                               asp-action="Privacy">
+
+                                <i class="bi bi-shield-check"></i>
+                                Privacy
+                            </a>
+                        </li>
+
+                    </ul>
+
+                    <!-- Right side -->
+                    <div class="app-navbar-actions">
+
+                        <button type="button"
+                                class="app-theme-button"
+                                onclick="changeTheme(); updateThemeButton();"
+                                id="themeButton">
+
+                            <i class="bi bi-moon-stars" id="themeIcon"></i>
+                            <span id="themeButtonText">Motyw</span>
+                        </button>
+
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <form asp-controller="Account"
+                                  asp-action="Logout"
+                                  method="post"
+                                  class="app-logout-form">
+
+                                <button type="submit" class="app-logout-button">
+                                    <i class="bi bi-box-arrow-right"></i>
+                                    Wyloguj
+                                </button>
+                            </form>
+                        }
+
+                    </div>
+                </div>
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    <!-- Content -->
+    <div class="container app-container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - TimeTrackingSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="container app-footer-content">
+            <span>
+                <i class="bi bi-clock-history"></i>
+                &copy; 2026 TimeTrackingSystem
+            </span>
+
+            <a asp-controller="Home"
+               asp-action="Privacy"
+               class="app-footer-link">
+                Privacy
+            </a>
         </div>
     </footer>
+
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+            function updateThemeButton() {
+                const theme = document.documentElement.getAttribute("data-theme");
+                const icon = document.getElementById("themeIcon");
+                const text = document.getElementById("themeButtonText");
+
+                if (!icon || !text) return;
+
+                if (theme === "dark") {
+                    icon.className = "bi bi-sun";
+                    text.textContent = "Jasny motyw";
+                } else {
+                    icon.className = "bi bi-moon-stars";
+                    text.textContent = "Ciemny motyw";
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", updateThemeButton);
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

@@ -10,7 +10,7 @@ using TimeTrackingSystem.Models.ViewModels;
 
 namespace TimeTrackingSystem.Controllers;
 
-
+[Authorize]
 public class HomeController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -26,15 +26,20 @@ public class HomeController : Controller
             return RedirectToAction("Login", "Account");
         }
         var roles = await _userManager.GetRolesAsync(user);
+        var role = "";
         if (!roles.Any())
         {
-            return RedirectToAction("Login", "Account");
+            role = "Brak";
+        }
+        else
+        {
+            role = roles[0];
         }
         var homeUser = new HomeUserViewModel
         {
             UserId = user.Id,
             User = user,
-            Role = roles[0]
+            Role = role
         };
         return View("Index", homeUser);
     }

@@ -18,7 +18,7 @@ using System.Globalization;
 
 namespace TimeTrackingSystem.Controllers
 {
-    //[Authorize(Roles = "Administrator")] // For testing this isn't necessary
+    [Authorize(Roles = "Administrator")]
     public class AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService) : Controller
     {
         private readonly ApplicationDbContext _context = context;
@@ -64,9 +64,9 @@ namespace TimeTrackingSystem.Controllers
                 return View(model);
             }
 
-            if (!await _roleManager.RoleExistsAsync(model.Position))
+            if (!await _roleManager.RoleExistsAsync(model.Role))
             {
-                ModelState.AddModelError(nameof(model.Position), "Wybrane stanowisko nie istnieje w systemie.");
+                ModelState.AddModelError(nameof(model.Role), "Wybrane stanowisko nie istnieje w systemie.");
                 return View(model);
             }
 

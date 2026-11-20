@@ -95,6 +95,11 @@
         </a>
     </div>
 
+    @if (Model.Role == "Administraotr" || Model.Role == "Kierownik")
+    {
+        <a asp-controller="WorkEntry" asp-action="Users">Sprawdź ewnidencje pracowników</a>
+    }
+
     
 </section>
 @section Scripts {

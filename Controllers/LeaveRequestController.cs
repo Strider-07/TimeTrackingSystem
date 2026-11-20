@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
 using TimeTrackingSystem.Models.ViewModels;
 
+
 namespace TimeTrackingSystem.Controllers
 {
+    [Authorize(Roles = "Kierownik,Pracownik")]
     public class LeaveRequestController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -23,8 +26,6 @@ namespace TimeTrackingSystem.Controllers
             {
                 return View();
             }
-            // Manager code
-
             var users = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
             List<LeaveRequest> allRequests = new List<LeaveRequest>();
             foreach (var user in users)
@@ -36,12 +37,14 @@ namespace TimeTrackingSystem.Controllers
             return View("Manager/Index", allRequests);
         }
 
+        [Authorize(Roles = "Pracownik")]
         [HttpGet]
         public async Task<IActionResult> CreateLeaveRequest()
         {
             return View();
         }
 
+        [Authorize(Roles = "Pracownik")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateLeaveRequest(CreateLeaveRequestViewModel model)
@@ -75,6 +78,7 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Index");
         }
 
+        [Authorize(Roles = "Pracownik")]
         public async Task<IActionResult> ShowLeaveRequests()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -86,6 +90,7 @@ namespace TimeTrackingSystem.Controllers
             return View(requests);
         }
 
+        [Authorize(Roles = "Kierownik")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangeRequestStatus(int id, string status, string? reason)
