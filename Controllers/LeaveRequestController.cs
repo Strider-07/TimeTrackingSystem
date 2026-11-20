@@ -27,7 +27,29 @@ namespace TimeTrackingSystem.Controllers
         [Authorize(Roles = "Administrator,Kierownik")]
         public async Task<IActionResult> Manage()
         {
-            var users = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null)
+            {
+                return NotFound();
+            }
+            var allowedUsers = new List<ApplicationUser>();
+            if (await _userManager.IsInRoleAsync(currentUser, "Administrator"))
+            {
+                var managers = await _userManager.GetUsersInRoleAsync("Kierownik");
+                var employees = await _userManager.GetUsersInRoleAsync("Pracownik");
+                allowedUsers.AddRange(managers);
+                allowedUsers.AddRange(employees);
+            }
+            else if (await _userManager.IsInRoleAsync(currentUser, "Kierownik"))
+            {
+                var employees = await _userManager.GetUsersInRoleAsync("Pracownik");
+                allowedUsers.AddRange(employees);
+            }
+
+            var users = allowedUsers
+                .Where(x => x.Id != currentUser.Id)
+                .DistinctBy(x => x.Id)
+                .ToList();
             List<LeaveRequest> allRequests = new List<LeaveRequest>();
             foreach (var user in users)
             {
@@ -59,7 +81,12 @@ namespace TimeTrackingSystem.Controllers
                     "Data zakończenia nie może być wcześniejsza od daty rozpoczęcia");
                 return View(model);
             }
-            //if (model.StartDate < [Dzisiaj])
+            if (model.StartDate < DateOnly.FromDateTime(DateTime.UtcNow))
+            {
+                ModelState.AddModelError(nameof(model.EndDate),
+                    "Data rozpoczęcia nie może być wcześniejsza od dzisiejszej");
+                return View(model);
+            }
             var leaveRequest = new LeaveRequest
             {
                 UserId = user.Id,
@@ -119,8 +146,8 @@ namespace TimeTrackingSystem.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (status != "Approve" && status != "Reject") return BadRequest();
-            var approved = status == "Approve";
+            if (status != "Zaakceptowany" && status != "Odrzucony") return BadRequest();
+            var approved = status == "Zaakceptowany";
 
             if (!approved && string.IsNullOrWhiteSpace(reason))
             {

@@ -52,66 +52,7 @@
     </div>
 
     <div class="home-navigation-grid">
-
-        @if (Model.Role == "Administrator")
-        {
-            <a asp-controller="Admin" asp-action="Index"
-               class="home-navigation-card">
-
-                <div class="home-navigation-icon admin">
-                    <i class="bi bi-shield-lock"></i>
-                </div>
-
-                <div class="home-navigation-content">
-                    <h3>Panel administratora</h3>
-                    <p>Zarządzaj użytkownikami, ustawieniami i funkcjami administracyjnymi systemu.</p>
-                </div>
-
-                <div class="home-navigation-footer">
-                    <span>Przejdź do panelu</span>
-                    <i class="bi bi-arrow-right"></i>
-                </div>
-            </a>
-        }
-        else if (Model.Role == "Kierownik")
-        {
-            <a asp-controller="LeaveRequest" asp-action="Index"
-               class="home-navigation-card">
-
-                <div class="home-navigation-icon manager">
-                    <i class="bi bi-clipboard-check"></i>
-                </div>
-
-                <div class="home-navigation-content">
-                    <h3>Wnioski urlopowe</h3>
-                    <p>Przeglądaj wnioski pracowników i podejmuj decyzje dotyczące urlopów.</p>
-                </div>
-
-                <div class="home-navigation-footer">
-                    <span>Przejdź do wniosków</span>
-                    <i class="bi bi-arrow-right"></i>
-                </div>
-            </a>
-
-            <a asp-controller="WorkEntry" asp-action="Index"
-               class="home-navigation-card">
-
-                <div class="home-navigation-icon work">
-                    <i class="bi bi-clock-history"></i>
-                </div>
-
-                <div class="home-navigation-content">
-                    <h3>Ewidencja czasu pracy</h3>
-                    <p>Przeglądaj i kontroluj ewidencję czasu pracy.</p>
-                </div>
-
-                <div class="home-navigation-footer">
-                    <span>Przejdź do ewidencji</span>
-                    <i class="bi bi-arrow-right"></i>
-                </div>
-            </a>
-        }
-        else if (Model.Role == "Pracownik")
+        @if (Model.Role == "Administrator" || Model.Role == "Kierownik" || Model.Role == "Pracownik")
         {
             <a asp-controller="WorkEntry" asp-action="Index"
                class="home-navigation-card">
@@ -148,6 +89,26 @@
                     <i class="bi bi-arrow-right"></i>
                 </div>
             </a>
+            @if (Model.Role == "Administrator")
+            {
+                <a asp-controller="Admin" asp-action="Index"
+                   class="home-navigation-card">
+
+                    <div class="home-navigation-icon admin">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+
+                    <div class="home-navigation-content">
+                        <h3>Panel administratora</h3>
+                        <p>Zarządzaj użytkownikami, ustawieniami i funkcjami administracyjnymi systemu.</p>
+                    </div>
+
+                    <div class="home-navigation-footer">
+                        <span>Przejdź do panelu</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+            }
         }
         else
         {
