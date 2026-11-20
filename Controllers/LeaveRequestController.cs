@@ -5,29 +5,26 @@ using Microsoft.EntityFrameworkCore;
 using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
 using TimeTrackingSystem.Models.ViewModels;
+using System.Net;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using TimeTrackingSystem.Services;
 
 
 namespace TimeTrackingSystem.Controllers
 {
-    [Authorize]
-    public class LeaveRequestController : Controller
+    [Authorize(Roles = "Kierownik,Pracownik")]
+    public class LeaveRequestController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IEmailService emailService) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UserManager<ApplicationUser> _userManager;
-        public LeaveRequestController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
-        {
-            _context = context;
-            _userManager = userManager;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
 
+        private readonly IEmailService _emailService = emailService;
         public async Task<IActionResult> Index()
         {
-            return View();
-        }
-
-        [Authorize(Roles = "Administrator,Kierownik")]
-        public async Task<IActionResult> Manage()
-        {
+            if (User.IsInRole("Pracownik"))
+            {
+                return View();
+            }
             var users = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
             List<LeaveRequest> allRequests = new List<LeaveRequest>();
             foreach (var user in users)
@@ -36,9 +33,10 @@ namespace TimeTrackingSystem.Controllers
                     Where(x => x.UserId == user.Id && x.Status == "Oczekujący").ToListAsync();
                 allRequests.AddRange(requests);
             }
-            return View("Manager/Manage", allRequests);
+            return View("Manager/Index", allRequests);
         }
 
+        [Authorize(Roles = "Pracownik")]
         [HttpGet]
         public async Task<IActionResult> CreateLeaveRequest()
         {
@@ -57,7 +55,7 @@ namespace TimeTrackingSystem.Controllers
             }
             if (model.EndDate < model.StartDate)
             {
-                ModelState.AddModelError(nameof(model.EndDate), 
+                ModelState.AddModelError(nameof(model.EndDate),
                     "Data zakończenia nie może być wcześniejsza od daty rozpoczęcia");
                 return View(model);
             }
@@ -75,6 +73,20 @@ namespace TimeTrackingSystem.Controllers
             };
             _context.LeaveRequests.Add(leaveRequest);
             await _context.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(user.Email))
+            {
+                var body = $@"
+                <h2>Potwierdzenie złożenia wniosku urlopowego</h2>
+                <p>Cześć {WebUtility.HtmlEncode(user.FirstName)},</p>
+                <p>Twój wniosek został złożony i oczekuje na rozpatrzenie.</p>
+                <ul>
+                <li>Rodzaj: {WebUtility.HtmlEncode(leaveRequest.LeaveType)}</li>
+                <li>Od: {leaveRequest.StartDate:dd.MM.yyyy}</li>
+                <li>Do: {leaveRequest.EndDate:dd.MM.yyyy}</li>
+                </ul>";
+                await _emailService.SendEmailAsync(user.Email,
+                    "Potwierdzenie złożenia wniosku urlopowego", body);
+            }
             TempData["Success"] = "Pomyślnie dodano wniosek";
             return RedirectToAction("Index");
         }
@@ -91,19 +103,53 @@ namespace TimeTrackingSystem.Controllers
             return View(requests);
         }
 
-        [Authorize(Roles = "Kierownik")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        
+        
+        [HttpPost, Authorize(Roles = "Kierownik,Administrator"), ValidateAntiForgeryToken]
+        
         public async Task<IActionResult> ChangeRequestStatus(int id, string status, string? reason)
         {
-            var request = await _context.LeaveRequests.FirstOrDefaultAsync(x => x.Id == id);
-            if (request == null)
+            var request = await _context.LeaveRequests
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (request == null) return NotFound();
+
+            if (request.Status != "Oczekujący")
             {
-                return NotFound();
+                TempData["Error"] = "Ten wniosek został już rozpatrzony.";
+                return RedirectToAction("Index");
             }
-            request.Status = status;
-            request.Reason = reason != null ? reason : "Brak";
+
+            if (status != "Approve" && status != "Reject") return BadRequest();
+            var approved = status == "Approve";
+
+            if (!approved && string.IsNullOrWhiteSpace(reason))
+            {
+                TempData["Error"] = "Podaj powód odrzucenia.";
+                return RedirectToAction("Index");
+            }
+
+            var reviewer = await _userManager.GetUserAsync(User);
+            request.Status = approved ? "Zaakceptowany" : "Odrzucony";
+            request.ReviewerId = reviewer?.Id;
+            request.ReviewerComment = approved ? null : reason!.Trim();
+            request.DecisionDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
+
+            if (!string.IsNullOrEmpty(request.User.Email))
+            {
+                var comment = approved ? "" :
+                $"<p>Komentarz kierownika: {WebUtility.HtmlEncode(request.ReviewerComment)}</p>";
+                var body = $@"
+                <h2>Decyzja w sprawie wniosku urlopowego</h2>
+                <p>Cześć {WebUtility.HtmlEncode(request.User.FirstName)},</p>
+                <p>Twój wniosek ({WebUtility.HtmlEncode(request.LeaveType)}, {request.StartDate:dd.MM.yyyy} – {request.EndDate:dd.MM.yyyy}) został <strong>{(approved ? "zaakceptowany" : "odrzucony")}</strong>.</p>
+                {comment}";
+                await _emailService.SendEmailAsync(request.User.Email,
+                $"Wniosek urlopowy – {(approved ? "zaakceptowany" : "odrzucony")}", body);
+            }
+
+            TempData["Success"] = "Decyzja została zapisana";
             return RedirectToAction("Index");
         }
     }
