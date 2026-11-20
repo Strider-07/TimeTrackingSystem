@@ -26,11 +26,7 @@ namespace TimeTrackingSystem.Controllers
             {
                 return NotFound();
             }
-            if (await _userManager.IsInRoleAsync(user, "Kierownik"))
-            {
-                var employees = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
-                return View("Manager/Index", employees);
-            }
+            
             var today = DateTime.UtcNow.Date;
             var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
                 x => x.UserId == user.Id && x.StartTime.Date == today);

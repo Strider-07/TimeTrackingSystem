@@ -13,8 +13,7 @@ using TimeTrackingSystem.Models.Entities;
 using TimeTrackingSystem.Models.ViewModels;
 using TimeTrackingSystem.Services;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using System.Text;
-using System.Globalization;
+
 
 namespace TimeTrackingSystem.Controllers
 {
