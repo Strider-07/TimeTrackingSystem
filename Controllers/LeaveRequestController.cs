@@ -12,7 +12,7 @@ using TimeTrackingSystem.Services;
 
 namespace TimeTrackingSystem.Controllers
 {
-    [Authorize(Roles = "Kierownik,Pracownik")]
+    [Authorize]
     public class LeaveRequestController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IEmailService emailService) : Controller
     {
         private readonly ApplicationDbContext _context = context;
@@ -38,14 +38,12 @@ namespace TimeTrackingSystem.Controllers
             return View("Manager/Manage", allRequests);
         }
 
-        [Authorize(Roles = "Pracownik")]
         [HttpGet]
         public async Task<IActionResult> CreateLeaveRequest()
         {
             return View();
         }
 
-        [Authorize(Roles = "Pracownik")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateLeaveRequest(CreateLeaveRequestViewModel model)
@@ -93,7 +91,6 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Roles = "Pracownik")]
         public async Task<IActionResult> ShowLeaveRequests()
         {
             var user = await _userManager.GetUserAsync(User);
