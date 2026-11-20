@@ -21,10 +21,12 @@ namespace TimeTrackingSystem.Controllers
         private readonly IEmailService _emailService = emailService;
         public async Task<IActionResult> Index()
         {
-            if (User.IsInRole("Pracownik"))
-            {
-                return View();
-            }
+            return View();
+        }
+
+        [Authorize(Roles = "Administrator,Kierownik")]
+        public async Task<IActionResult> Manage()
+        {
             var users = await _userManager.Users.Where(x => x.Position == "Pracownik").ToListAsync();
             List<LeaveRequest> allRequests = new List<LeaveRequest>();
             foreach (var user in users)
@@ -33,7 +35,7 @@ namespace TimeTrackingSystem.Controllers
                     Where(x => x.UserId == user.Id && x.Status == "Oczekujący").ToListAsync();
                 allRequests.AddRange(requests);
             }
-            return View("Manager/Index", allRequests);
+            return View("Manager/Manage", allRequests);
         }
 
         [Authorize(Roles = "Pracownik")]
