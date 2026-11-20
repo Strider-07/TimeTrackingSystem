@@ -137,7 +137,7 @@
 
                             <div class="leave-decision-options">
                                 <label class="leave-decision-option accept-option">
-                                    <input type="radio" name="Status" value="Approve" required />
+                                    <input type="radio" name="Status" value="Zaakcetpowany" required />
 
                                     <span class="decision-option-content">
                                         <i class="bi bi-check-circle-fill"></i>
@@ -149,7 +149,7 @@
                                 </label>
 
                                 <label class="leave-decision-option decline-option">
-                                    <input type="radio" name="Status" value="Reject" required />
+                                    <input type="radio" name="Status" value="Odrzucony" required />
 
                                     <span class="decision-option-content">
                                         <i class="bi bi-x-circle-fill"></i>
@@ -162,8 +162,8 @@
                             </div>
 
                             <div class="leave-decline-reason" hidden>
-                                <label for="Reason-@request.Id">Powód odrzucenia</label>
-                                <textarea id="Reason-@request.Id"
+                                <label for="ReviewerComment-@request.Id">Powód odrzucenia</label>
+                                <textarea id="ReviewerComment-@request.Id"
                                           name="reason"
                                           class="form-control"
                                           rows="3"

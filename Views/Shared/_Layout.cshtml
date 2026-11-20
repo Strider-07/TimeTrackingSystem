@@ -32,6 +32,7 @@
                     </ul>
                 </div>
 
+                <button onclick="changeTheme()">Theme</button>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     <form asp-controller="Account" asp-action="Logout" method="post">

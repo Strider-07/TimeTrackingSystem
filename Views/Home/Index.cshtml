@@ -1,9 +1,182 @@
-﻿@{
+﻿@model TimeTrackingSystem.Models.ViewModels.HomeUserViewModel
+
+@{
+    string roleIcon = Model.Role switch
+    {
+        "Administrator" => "bi-shield-lock",
+        "Kierownik" => "bi-people",
+        "Pracownik" => "bi-person-workspace",
+        _ => "bi-person"
+    };
+
+    string roleDescription = Model.Role switch
+    {
+        "Administrator" => "Zarządzaj użytkownikami, systemem i raportami.",
+        "Kierownik" => "Zarządzaj zespołem i obsługuj wnioski pracowników.",
+        "Pracownik" => "Kontroluj swój czas pracy i zarządzaj wnioskami urlopowymi.",
+        _ => "Witaj w systemie ewidencji czasu pracy."
+    };
+}
+
+<section class="home-page">
+
+    <div class="home-welcome-card">
+        <div class="home-welcome-content">
+            <span class="home-eyebrow">
+                <i class="bi bi-grid-1x2"></i>
+                Panel główny
+            </span>
+
+            <h1>Witaj, @Model.User.FirstName!</h1>
+
+            <p class="home-welcome-description">
+                @roleDescription
+            </p>
+
+            <div class="home-role-badge">
+                <i class="bi @roleIcon"></i>
+                @Model.Role
+            </div>
+        </div>
+
+        <div class="home-welcome-decoration">
+            <i class="bi @roleIcon"></i>
+        </div>
+    </div>
+
+    <div class="home-section-heading">
+        <div>
+            <h2>Szybki dostęp</h2>
+            <p>Wybierz funkcję, z której chcesz skorzystać.</p>
+        </div>
+    </div>
+
+    <div class="home-navigation-grid">
+
+        @if (Model.Role == "Administrator")
+        {
+            <a asp-controller="Admin" asp-action="Index"
+               class="home-navigation-card">
+
+                <div class="home-navigation-icon admin">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+
+                <div class="home-navigation-content">
+                    <h3>Panel administratora</h3>
+                    <p>Zarządzaj użytkownikami, ustawieniami i funkcjami administracyjnymi systemu.</p>
+                </div>
+
+                <div class="home-navigation-footer">
+                    <span>Przejdź do panelu</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+        }
+        else if (Model.Role == "Kierownik")
+        {
+            <a asp-controller="LeaveRequest" asp-action="Index"
+               class="home-navigation-card">
+
+                <div class="home-navigation-icon manager">
+                    <i class="bi bi-clipboard-check"></i>
+                </div>
+
+                <div class="home-navigation-content">
+                    <h3>Wnioski urlopowe</h3>
+                    <p>Przeglądaj wnioski pracowników i podejmuj decyzje dotyczące urlopów.</p>
+                </div>
+
+                <div class="home-navigation-footer">
+                    <span>Przejdź do wniosków</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+
+            <a asp-controller="WorkEntry" asp-action="Index"
+               class="home-navigation-card">
+
+                <div class="home-navigation-icon work">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+
+                <div class="home-navigation-content">
+                    <h3>Ewidencja czasu pracy</h3>
+                    <p>Przeglądaj i kontroluj ewidencję czasu pracy.</p>
+                </div>
+
+                <div class="home-navigation-footer">
+                    <span>Przejdź do ewidencji</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+        }
+        else if (Model.Role == "Pracownik")
+        {
+            <a asp-controller="WorkEntry" asp-action="Index"
+               class="home-navigation-card">
+
+                <div class="home-navigation-icon work">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+
+                <div class="home-navigation-content">
+                    <h3>Ewidencja czasu pracy</h3>
+                    <p>Rozpocznij lub zakończ pracę i sprawdź swoje zarejestrowane godziny.</p>
+                </div>
+
+                <div class="home-navigation-footer">
+                    <span>Przejdź do ewidencji</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+
+            <a asp-controller="LeaveRequest" asp-action="Index"
+               class="home-navigation-card">
+
+                <div class="home-navigation-icon leave">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+
+                <div class="home-navigation-content">
+                    <h3>Wnioski urlopowe</h3>
+                    <p>Składaj wnioski urlopowe i sprawdzaj ich status.</p>
+                </div>
+
+                <div class="home-navigation-footer">
+                    <span>Przejdź do wniosków</span>
+                    <i class="bi bi-arrow-right"></i>
+                </div>
+            </a>
+        }
+        else
+        {
+            <div class="home-navigation-card">
+                <div class="home-navigation-icon work">
+                    <i class="bi bi-info-circle"></i>
+                </div>
+
+                <div class="home-navigation-content">
+                    <h3>Brak dostępnych funkcji</h3>
+                    <p>Twoje konto nie ma przypisanej obsługiwanej roli.</p>
+                </div>
+            </div>
+        }
+
+    </div>
+
+</section>
+
+
+<!--
+
+{
     ViewData["Title"] = "Home Page";
 }
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <button onclick="changeTheme()">Theme</button>
+    
 </div>
+-->
