@@ -143,6 +143,37 @@ namespace TimeTrackingSystem.Controllers
             return View(viewModel);
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangeUserPassword(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            if (string.IsNullOrEmpty(user.Email))
+            {
+                TempData["Error"] = "Użytkownik nie ma adresu e-mail.";
+                return RedirectToAction("Users");
+            }
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var resetLink = Url.Action("ResetPassword", "Account",
+                new { token, email = user.Email }, Request.Scheme);
+
+            var body = $@"
+            <h2>Reset hasła</h2>
+            <p>Cześć {WebUtility.HtmlEncode(user.FirstName)},</p>
+            <p>Administrator zainicjował reset Twojego hasła.</p>
+            <p><a href=""{resetLink}"">Kliknij tutaj, aby ustawić nowe hasło</a></p>
+            <p>Link jest jednorazowy i ważny przez 1 godzinę.</p>";
+
+            await _emailService.SendEmailAsync(user.Email!, "Reset hasła", body);
+            TempData["Success"] = "Wysłano link do resetu hasła";
+            return RedirectToAction("Users");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(EditUserViewModel model)
@@ -202,87 +233,80 @@ namespace TimeTrackingSystem.Controllers
             return View("Reports/Reports", users);
         }
 
-        public async Task<IActionResult> WorkTimeReport()
+        private async Task<(List<WorkTimeViewModel> Report, DateTime Month)> BuildWorkTimeReport(string? month)
         {
-            var now = DateTime.UtcNow;
-            var startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, now.Kind);
-            var startOfNextMonth = startOfMonth.AddMonths(1);
+            var selected = DateTime.TryParseExact(month, "yyyy-MM", CultureInfo.InvariantCulture,
+                DateTimeStyles.None, out var parsed) ? parsed : DateTime.UtcNow;
+
+            var start = new DateTime(selected.Year, selected.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var end = start.AddMonths(1);
+
             var users = await _userManager.Users.ToListAsync();
-            var currentMonthEntries = await _context.WorkEntries
-                .Where(x => x.StartTime >= startOfMonth && x.StartTime < startOfNextMonth)
+            var entries = await _context.WorkEntries
+                .Where(x => x.StartTime >= start && x.StartTime < end)
                 .ToListAsync();
-            var workTimeByUser = currentMonthEntries
-                .GroupBy(x => x.UserId)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Aggregate(TimeSpan.Zero, (total, entry) => total + entry.WorkTime())
-                );
+
+            var byUser = entries.GroupBy(x => x.UserId).ToDictionary(
+                g => g.Key,
+                g => g.Aggregate(TimeSpan.Zero, (t, e) => t + e.WorkTime()));
+
             var report = users
-                .Select(user => new WorkTimeViewModel(
-                    user,
-                    workTimeByUser.TryGetValue(user.Id, out var totalTime) ? totalTime : TimeSpan.Zero
-                ))
+                .Select(u => new WorkTimeViewModel(u, byUser.TryGetValue(u.Id, out var t) ? t : TimeSpan.Zero))
                 .ToList();
+            return (report, start);
+        }
+
+        public async Task<IActionResult> WorkTimeReport(string? month)
+        {
+            var (report, selected) = await BuildWorkTimeReport(month);
+            ViewBag.Month = selected.ToString("yyyy-MM");
             return View("Reports/WorkTimeReport", report);
         }
 
-        public async Task<IActionResult> ExportWorkTimeReport()
+        public async Task<IActionResult> ExportWorkTimeReport(string? month)
         {
-            var now = DateTime.UtcNow;
-            var startOfMonth = new DateTime(now.Year, now.Month, 1, 0, 0, 0, now.Kind);
-            var startOfNextMonth = startOfMonth.AddMonths(1);
-            var users = await _userManager.Users.ToListAsync();
-            var currentMonthEntries = await _context.WorkEntries
-                .Where(x => x.StartTime >= startOfMonth && x.StartTime < startOfNextMonth)
-                .ToListAsync();
-            var workTimeByUser = currentMonthEntries
-                .GroupBy(x => x.UserId)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Aggregate(TimeSpan.Zero, (total, entry) => total + entry.WorkTime())
-                );
-            var workTimeViewModels = users
-                .Select(user => new WorkTimeViewModel(
-                    user,
-                    workTimeByUser.TryGetValue(user.Id, out var totalTime) ? totalTime : TimeSpan.Zero
-                ))
-                .ToList();
+            static string Fmt(TimeSpan t) => $"{(int)t.TotalHours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
+            var (report, selected) = await BuildWorkTimeReport(month);
+            var pl = CultureInfo.GetCultureInfo("pl-PL");
             var csv = new StringBuilder();
             csv.AppendLine("Imię;Nazwisko;Stanowisko;Godziny pracy");
-            foreach (var workTime in workTimeViewModels)
+            foreach (var item in report)
             {
-                var totalHours = workTime.WorkTime.TotalHours.ToString("0.##", CultureInfo.GetCultureInfo("pl-PL"));
-                csv.AppendLine(
-                    $"{EscapeCsv(workTime.User.FirstName)};" + $"{EscapeCsv(workTime.User.LastName)};" + 
-                    $"{EscapeCsv(workTime.User.Position)}" + $"{totalHours}"
-                );
+                csv.AppendLine(string.Join(";",
+                    EscapeCsv(item.User.FirstName),
+                    EscapeCsv(item.User.LastName),
+                    EscapeCsv(item.User.Position),
+                    Fmt(item.WorkTime)));
             }
-            var totalWorkTime = workTimeViewModels.Aggregate(TimeSpan.Zero, (total, item) =>  total + item.WorkTime);
+            var total = report.Aggregate(TimeSpan.Zero, (t, i) => t + i.WorkTime);
             csv.AppendLine();
-            csv.AppendLine($"Łącznie;;;{totalWorkTime.TotalHours.ToString("0.##", CultureInfo.GetCultureInfo("pl-PL"))}");
+            csv.AppendLine($"Łącznie;;;{Fmt(total)}");
             var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray();
-            return File(bytes, "text/csv", "RaportCzasuPracy.csv");
+            return File(bytes, "text/csv", $"RaportCzasuPracy_{selected:yyyy-MM}.csv");
         }
 
         public async Task<IActionResult> LeaveRequestReport()
         {
-            var requests = await _context.LeaveRequests.ToListAsync();
+            var requests = await _context.LeaveRequests.Include(x => x.User).OrderByDescending(x => x.RequestDate).ToListAsync();
             return View("Reports/LeaveRequestReport", requests);
         }
 
         public async Task<IActionResult> ExportLeaveRequestReport()
         {
-            var requests = await _context.LeaveRequests.ToListAsync();
+            var requests = await _context.LeaveRequests.Include(x => x.User).ToListAsync();
             var csv = new StringBuilder();
             csv.AppendLine("Imię;Nazwisko;Stanowisko;Status wniosku;Rodzaj;Data rozpoczęcia;Data zakończenia;Uzasadnienie");
             foreach (var request in requests)
             {
-                csv.AppendLine(
-                    $"{EscapeCsv(request.User.FirstName)};" + $"{EscapeCsv(request.User.LastName)};" +
-                    $"{EscapeCsv(request.User.Position)}" + $"{EscapeCsv(request.Status)}" + 
-                    $"{EscapeCsv(request.LeaveType)}" + $"{request.StartDate}" + $"{request.EndDate}" + 
-                    $"{EscapeCsv(request.Reason)}"
-                );
+                csv.AppendLine(string.Join(";",
+                    EscapeCsv(request.User.FirstName),
+                    EscapeCsv(request.User.LastName),
+                    EscapeCsv(request.User.Position),
+                    EscapeCsv(request.Status),
+                    EscapeCsv(request.LeaveType),
+                    request.StartDate.ToString("dd.MM.yyyy"),
+                    request.EndDate.ToString("dd.MM.yyyy"),
+                    EscapeCsv(request.Reason)));
             }
             var bytes = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray();
             return File(bytes, "text/csv", "RaportWnioskówUrlopowych.csv");

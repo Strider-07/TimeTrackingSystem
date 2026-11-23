@@ -75,7 +75,7 @@ namespace TimeTrackingSystem.Controllers
             return View();
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
 
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {

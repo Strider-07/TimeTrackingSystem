@@ -106,13 +106,20 @@
                                             <i class="bi bi-pencil-fill"></i>
                                         </a>
 
-                                        <a asp-controller="Admin"
-                                           asp-action="ChangeUserPassword"
-                                           asp-route-id="@user.Id"
-                                           class="admin-action-btn password-action"
-                                           title="Zmień hasło">
-                                            <i class="bi bi-key-fill"></i>
-                                        </a>
+                                        <form asp-controller="Admin"
+                                              asp-action="ChangeUserPassword"
+                                              asp-route-id="@user.Id"
+                                              method="post"
+                                              onsubmit="return confirm('Wysłać użytkownikowi link do resetu hasła?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit"
+                                                    class="admin-action-btn password-action"
+                                                    title="Wyślij link do resetu hasła">
+                                                <i class="bi bi-key-fill"></i>
+                                            </button>
+                                        </form>
 
                                         <form asp-controller="Admin"
                                               asp-action="ChangeUserActivation"
