@@ -1,0 +1,327 @@
+﻿@{
+    ViewData["Title"] = "Kalendarz urlopów";
+}
+
+<div class="container-fluid py-4 leave-calendar-page">
+
+    <div class="calendar-page-header mb-4">
+        <div>
+            <h1 class="mb-1">Kalendarz urlopów</h1>
+            <p class="text-muted mb-0">
+                Przegląd zaplanowanych nieobecności.
+            </p>
+        </div>
+    </div>
+
+    <div class="calendar-toolbar mb-3">
+        <div class="calendar-filter">
+
+            <label for="statusFilter" class="form-label">
+                Filtr statusu
+            </label>
+
+            <select id="statusFilter" class="form-select">
+                <option value="all">Wszystkie widoczne</option>
+                <option value="Zaakceptowany">Zaakceptowane</option>
+
+                @if (User.IsInRole("Administrator") ||
+                     User.IsInRole("Kierownik"))
+                {
+                    <option value="Oczekujący">Oczekujące</option>
+                }
+            </select>
+
+        </div>
+    </div>
+
+    <div id="calendarError"
+         class="alert alert-danger d-none"
+         role="alert">
+    </div>
+
+    <div class="calendar-card">
+        <div id="calendar"></div>
+    </div>
+
+</div>
+
+
+<div class="modal fade"
+     id="leaveDetailsModal"
+     tabindex="-1"
+     aria-labelledby="leaveDetailsModalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="leaveDetailsModalLabel">
+                    Szczegóły urlopu
+                </h5>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Zamknij">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="mb-3">
+                    <div class="detail-label">Pracownik</div>
+                    <div id="modalEmployee" class="detail-value"></div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="detail-label">Typ urlopu</div>
+                    <div id="modalLeaveType" class="detail-value"></div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="detail-label">Termin</div>
+                    <div id="modalDates" class="detail-value"></div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="detail-label">Status</div>
+                    <div id="modalStatus" class="detail-value"></div>
+                </div>
+
+                
+                <div id="reasonContainer" class="mb-3 d-none">
+                    <div class="detail-label">Powód</div>
+                    <div id="modalReason" class="detail-value"></div>
+                </div>
+
+                
+                <div id="reviewerCommentContainer" class="mb-3 d-none">
+                    <div class="detail-label">Komentarz kierownika</div>
+                    <div id="modalReviewerComment" class="detail-value"></div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Zamknij
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet"
+          href="~/css/leave-calendar.css"
+          asp-append-version="true" />
+}
+
+@section Scripts {
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales-all.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const calendarElement =
+                document.getElementById('calendar');
+
+            const statusFilter =
+                document.getElementById('statusFilter');
+
+            const calendarError =
+                document.getElementById('calendarError');
+
+            
+            const eventsUrl = @Html.Raw(
+                            System.Text.Json.JsonSerializer.Serialize(
+                            Url.Action("GetEvents", "LeaveCalendar")
+                            ?? "/LeaveCalendar/GetEvents"
+                            )
+                            );
+
+            const calendar = new FullCalendar.Calendar(
+                calendarElement,
+                {
+                    initialView: 'dayGridMonth',
+
+                    locale: 'pl',
+                    timeZone: 'local',
+
+                    firstDay: 1,
+                    height: 'auto',
+                    expandRows: true,
+                    navLinks: true,
+                    nowIndicator: true,
+                    dayMaxEvents: true,
+
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,listMonth'
+                    },
+
+                    buttonText: {
+                        today: 'Dzisiaj',
+                        month: 'Miesiąc',
+                        week: 'Tydzień',
+                        list: 'Lista'
+                    },
+
+                    
+                    events: async function (
+                        fetchInfo,
+                        successCallback,
+                        failureCallback
+                    ) {
+
+                        try {
+
+                            const url = new URL(
+                                eventsUrl,
+                                document.baseURI
+                            );
+
+                            url.searchParams.set(
+                                'start',
+                                fetchInfo.startStr
+                            );
+
+                            url.searchParams.set(
+                                'end',
+                                fetchInfo.endStr
+                            );
+
+                            url.searchParams.set(
+                                'status',
+                                statusFilter.value
+                            );
+
+                            const response = await fetch(url, {
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            });
+
+                            if (!response.ok) {
+                                throw new Error(
+                                    `Błąd HTTP: ${response.status}`
+                                );
+                            }
+
+                            const events = await response.json();
+
+                            calendarError.textContent = '';
+                            calendarError.classList.add('d-none');
+
+                            successCallback(events);
+
+                        } catch (error) {
+
+                            console.error(
+                                'Błąd pobierania kalendarza:',
+                                error
+                            );
+
+                            calendarError.textContent =
+                                'Nie udało się pobrać kalendarza urlopów. ' +
+                                'Spróbuj odświeżyć stronę.';
+
+                            calendarError.classList.remove('d-none');
+
+                            failureCallback(error);
+                        }
+                    },
+
+                    
+                    eventClick: function (info) {
+
+                        const props = info.event.extendedProps;
+
+                        document.getElementById('modalEmployee').textContent =
+                            props.employeeName ?? 'Brak danych';
+
+                        document.getElementById('modalLeaveType').textContent =
+                            props.leaveType ?? 'Brak danych';
+
+                        document.getElementById('modalDates').textContent =
+                            `${props.startDate} – ${props.endDate}`;
+
+                        document.getElementById('modalStatus').textContent =
+                            props.status ?? 'Brak danych';
+
+                        
+                        const reasonContainer =
+                            document.getElementById('reasonContainer');
+
+                        const reasonElement =
+                            document.getElementById('modalReason');
+
+                        if (props.reason) {
+
+                            reasonElement.textContent = props.reason;
+                            reasonContainer.classList.remove('d-none');
+
+                        } else {
+
+                            reasonElement.textContent = '';
+                            reasonContainer.classList.add('d-none');
+                        }
+
+                        
+                        const commentContainer =
+                            document.getElementById(
+                                'reviewerCommentContainer'
+                            );
+
+                        const commentElement =
+                            document.getElementById(
+                                'modalReviewerComment'
+                            );
+
+                        if (props.reviewerComment) {
+
+                            commentElement.textContent =
+                                props.reviewerComment;
+
+                            commentContainer.classList.remove('d-none');
+
+                        } else {
+
+                            commentElement.textContent = '';
+
+                            commentContainer.classList.add('d-none');
+                        }
+
+                        const modalElement =
+                            document.getElementById('leaveDetailsModal');
+
+                        const modal =
+                            bootstrap.Modal.getOrCreateInstance(
+                                modalElement
+                            );
+
+                        modal.show();
+                    },
+
+                    eventDisplay: 'block'
+                }
+            );
+
+            calendar.render();
+
+            
+            statusFilter.addEventListener('change', function () {
+                calendar.refetchEvents();
+            });
+
+        });
+    </script>
+}
