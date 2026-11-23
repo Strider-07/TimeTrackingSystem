@@ -22,7 +22,7 @@
 
 <section class="home-page">
 
-    
+    <!-- Welcome -->
     <div class="home-welcome-card">
         <div class="home-welcome-content">
             <span class="home-eyebrow">
@@ -69,7 +69,7 @@
         </a>
     }
 
-    
+    <!-- Personal functions -->
     <div class="home-section-heading">
         <div>
             <h2>Twoje funkcje</h2>
@@ -136,7 +136,7 @@
 
     </div>
 
-    
+    <!-- Employee management -->
     @if (isManagementRole)
     {
         <div class="home-management-section">
@@ -154,7 +154,7 @@
 
             <div class="home-navigation-grid">
 
-                
+                <!-- Employee work entries -->
                 <a asp-controller="WorkEntry" asp-action="Users"
                    class="home-navigation-card">
 
@@ -173,7 +173,7 @@
                     </div>
                 </a>
 
-                
+                <!-- Employee leave requests -->
                 <a asp-controller="LeaveRequest" asp-action="Manage"
                    class="home-navigation-card">
 

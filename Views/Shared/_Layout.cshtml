@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="pl" data-theme="light">
 <head>
     <meta charset="utf-8" />
@@ -13,14 +14,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TimeTrackingSystem.styles.css" asp-append-version="true" />
-    @await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body class="app-layout">
+
     <header>
         <nav class="navbar navbar-expand-sm app-navbar mb-3">
             <div class="container-fluid">
 
-                
+                <!-- Brand -->
                 <a class="navbar-brand app-brand"
                    asp-controller="Home"
                    asp-action="Index">
@@ -32,7 +34,7 @@
                     TimeTrackingSystem
                 </a>
 
-                
+                <!-- Mobile toggle -->
                 <button class="navbar-toggler app-navbar-toggler"
                         type="button"
                         data-bs-toggle="collapse"
@@ -44,7 +46,7 @@
                     <i class="bi bi-list"></i>
                 </button>
 
-                
+                <!-- Navigation -->
                 <div class="navbar-collapse collapse"
                      id="navbarSupportedContent">
 
@@ -70,22 +72,9 @@
                             </a>
                         </li>
 
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link app-nav-link"
-                                   asp-controller="LeaveCalendar"
-                                   asp-action="Index">
-
-                                    <i class="bi bi-calendar3"></i>
-                                    Kalendarz urlopów
-                                </a>
-                            </li>
-                        }
-
                     </ul>
 
-                    
+                    <!-- Right side -->
                     <div class="app-navbar-actions">
 
                         <button type="button"
@@ -102,11 +91,9 @@
                             <a asp-controller="Account"
                                asp-action="ChangePassword"
                                class="app-logout-button text-decoration-none">
-
                                 <i class="bi bi-key"></i>
                                 Zmień hasło
                             </a>
-
                             <form asp-controller="Account"
                                   asp-action="Logout"
                                   method="post"
@@ -125,14 +112,14 @@
         </nav>
     </header>
 
-    
+    <!-- Content -->
     <div class="container app-container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    
+    <!-- Footer -->
     <footer class="app-footer">
         <div class="container app-footer-content">
             <span>
@@ -148,7 +135,7 @@
         </div>
     </footer>
 
-    
+    <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
