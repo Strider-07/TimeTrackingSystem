@@ -1,5 +1,7 @@
 ﻿@model List<TimeTrackingSystem.Models.ViewModels.WorkTimeViewModel>
-
+@{
+    string Fmt(TimeSpan t) => $"{(int)t.TotalHours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
+}
 @{
     ViewData["Title"] = "Raport czasu pracy";
 
@@ -43,10 +45,10 @@
                 <span class="report-summary-label">Łączny czas pracy</span>
 
                 <h2>
-                    @totalHours.ToString("D2"):@totalMinutes.ToString("D2")
+                    @Fmt(totalWorkTime)
                 </h2>
 
-                <span class="report-summary-caption">Godziny : minuty</span>
+                <span class="report-summary-caption">Godziny : minuty : sekudny</span>
             </div>
         </div>
 
@@ -67,6 +69,11 @@
         </div>
 
     </div>
+
+    <form method="get" class="mb-3 d-flex gap-2">
+        <input type="month" name="month" value="@ViewBag.Month" class="form-control w-auto" />
+        <button type="submit" class="btn btn-primary">Pokaż</button>
+    </form>
 
     <div class="admin-table-card report-table-card">
 
@@ -92,8 +99,7 @@
                     <tbody>
                         @foreach (var workTime in Model)
                         {
-                            var hours = (int)workTime.WorkTime.TotalHours;
-                            var minutes = workTime.WorkTime.Minutes;
+                            
 
                             <tr>
                                 <td>
@@ -116,7 +122,7 @@
                                 <td>
                                     <span class="report-work-time">
                                         <i class="bi bi-clock-fill"></i>
-                                        @hours.ToString("D2"):@minutes.ToString("D2")
+                                        @Fmt(workTime.WorkTime)
                                     </span>
                                 </td>
                             </tr>
@@ -146,8 +152,8 @@
     </div>
 
     <div class="report-page-actions">
-        <a asp-controller="Admin"
-           asp-action="ExportWorkTimeReport"
+        <a asp-action="ExportWorkTimeReport"
+           asp-route-month="@ViewBag.Month"
            class="btn admin-secondary-btn">
             Wyeksportuj do csv
         </a>

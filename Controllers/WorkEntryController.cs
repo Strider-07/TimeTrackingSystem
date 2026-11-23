@@ -20,36 +20,36 @@ namespace TimeTrackingSystem.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return NotFound();
             }
-            
+
             var today = DateTime.UtcNow.Date;
+            var monthStart = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+
             var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
-                x => x.UserId == user.Id && x.StartTime.Date == today);
-            var viewModel = new WorkEntryViewModel();
-            viewModel.FirstName = user.FirstName;
-            if (todayWorkEntry == null)
-            {
-                viewModel.TodayWorkTime = TimeSpan.Zero;
-                return View(viewModel);
-            }
-            ViewBag.TodayWorkEntry = todayWorkEntry;
-            viewModel.TodayWorkTime = todayWorkEntry.WorkTime();
-            var allEntries = await _context.WorkEntries.Where(
-                x => x.UserId == user.Id && x.StartTime >= new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc))
+                x => x.UserId == user.Id && x.StartTime >= today && x.StartTime < today.AddDays(1));
+
+            var monthEntries = await _context.WorkEntries
+                .Where(x => x.UserId == user.Id && x.StartTime >= monthStart)
                 .ToListAsync();
-            var thisMonthWorkTime = TimeSpan.Zero;
-            foreach (var entry in allEntries)
+
+            var viewModel = new WorkEntryViewModel
             {
-                thisMonthWorkTime += entry.WorkTime();
+                FirstName = user.FirstName,
+                TodayWorkTime = todayWorkEntry?.WorkTime() ?? TimeSpan.Zero,
+                ThisMonthWorkTime = monthEntries.Aggregate(TimeSpan.Zero, (t, e) => t + e.WorkTime())
+            };
+
+            if (todayWorkEntry != null)
+            {
+                ViewBag.TodayWorkEntry = todayWorkEntry;
+                viewModel.StartTime = todayWorkEntry.StartTime;
+                viewModel.EndTime = todayWorkEntry.EndTime;
             }
-            viewModel.ThisMonthWorkTime = thisMonthWorkTime;
-            viewModel.StartTime = todayWorkEntry.StartTime;
-            viewModel.EndTime = todayWorkEntry.EndTime;
+
             return View(viewModel);
         }
 

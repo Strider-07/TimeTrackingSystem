@@ -88,6 +88,12 @@
 
                         @if (User.Identity?.IsAuthenticated == true)
                         {
+                            <a asp-controller="Account"
+                               asp-action="ChangePassword"
+                               class="app-logout-button text-decoration-none">
+                                <i class="bi bi-key"></i>
+                                Zmień hasło
+                            </a>
                             <form asp-controller="Account"
                                   asp-action="Logout"
                                   method="post"
