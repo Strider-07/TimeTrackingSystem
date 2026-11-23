@@ -16,10 +16,13 @@
         "Pracownik" => "Kontroluj swój czas pracy i zarządzaj wnioskami urlopowymi.",
         _ => "Witaj w systemie ewidencji czasu pracy."
     };
+
+    bool isManagementRole = Model.Role == "Administrator" || Model.Role == "Kierownik";
 }
 
 <section class="home-page">
 
+    <!-- Welcome -->
     <div class="home-welcome-card">
         <div class="home-welcome-content">
             <span class="home-eyebrow">
@@ -44,17 +47,43 @@
         </div>
     </div>
 
+    @if (Model.Role == "Administrator")
+    {
+        <a asp-controller="Admin"
+           asp-action="Index"
+           class="home-navigation-card">
+
+            <div class="home-navigation-icon admin">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+
+            <div class="home-navigation-content">
+                <h3>Panel administratora</h3>
+                <p>Zarządzaj użytkownikami, ustawieniami i funkcjami administracyjnymi systemu.</p>
+            </div>
+
+            <div class="home-navigation-footer">
+                <span>Przejdź do panelu</span>
+                <i class="bi bi-arrow-right"></i>
+            </div>
+        </a>
+    }
+
+    <!-- Personal functions -->
     <div class="home-section-heading">
         <div>
-            <h2>Szybki dostęp</h2>
-            <p>Wybierz funkcję, z której chcesz skorzystać.</p>
+            <h2>Twoje funkcje</h2>
+            <p>Twój czas pracy i osobiste wnioski.</p>
         </div>
     </div>
 
     <div class="home-navigation-grid">
+
         @if (Model.Role == "Administrator" || Model.Role == "Kierownik" || Model.Role == "Pracownik")
         {
-            <a asp-controller="WorkEntry" asp-action="Index"
+
+            <a asp-controller="WorkEntry"
+               asp-action="Index"
                class="home-navigation-card">
 
                 <div class="home-navigation-icon work">
@@ -72,7 +101,8 @@
                 </div>
             </a>
 
-            <a asp-controller="LeaveRequest" asp-action="Index"
+            <a asp-controller="LeaveRequest"
+               asp-action="Index"
                class="home-navigation-card">
 
                 <div class="home-navigation-icon leave">
@@ -89,26 +119,6 @@
                     <i class="bi bi-arrow-right"></i>
                 </div>
             </a>
-            @if (Model.Role == "Administrator")
-            {
-                <a asp-controller="Admin" asp-action="Index"
-                   class="home-navigation-card">
-
-                    <div class="home-navigation-icon admin">
-                        <i class="bi bi-shield-lock"></i>
-                    </div>
-
-                    <div class="home-navigation-content">
-                        <h3>Panel administratora</h3>
-                        <p>Zarządzaj użytkownikami, ustawieniami i funkcjami administracyjnymi systemu.</p>
-                    </div>
-
-                    <div class="home-navigation-footer">
-                        <span>Przejdź do panelu</span>
-                        <i class="bi bi-arrow-right"></i>
-                    </div>
-                </a>
-            }
         }
         else
         {
@@ -126,18 +136,65 @@
 
     </div>
 
+    <!-- Employee management -->
+    @if (isManagementRole)
+    {
+        <div class="home-management-section">
+
+            <div class="home-section-heading home-management-heading">
+                <div>
+                    <h2>Zarządzanie pracownikami</h2>
+                    <p>Ewidencja czasu pracy zespołu i obsługa wniosków pracowników.</p>
+                </div>
+
+                <div class="home-management-heading-icon">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+
+            <div class="home-navigation-grid">
+
+                <!-- Employee work entries -->
+                <a asp-controller="WorkEntry" asp-action="Users"
+                   class="home-navigation-card">
+
+                    <div class="home-navigation-icon employee-records">
+                        <i class="bi bi-clipboard-data"></i>
+                    </div>
+
+                    <div class="home-navigation-content">
+                        <h3>Ewidencja pracowników</h3>
+                        <p>Przeglądaj i zarządzaj ewidencją czasu pracy pracowników.</p>
+                    </div>
+
+                    <div class="home-navigation-footer">
+                        <span>Przejdź do ewidencji</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+
+                <!-- Employee leave requests -->
+                <a asp-controller="LeaveRequest" asp-action="Manage"
+                   class="home-navigation-card">
+
+                    <div class="home-navigation-icon employee-requests">
+                        <i class="bi bi-calendar2-check"></i>
+                    </div>
+
+                    <div class="home-navigation-content">
+                        <h3>Wnioski pracowników</h3>
+                        <p>Przeglądaj, rozpatruj i zarządzaj wnioskami urlopowymi zespołu.</p>
+                    </div>
+
+                    <div class="home-navigation-footer">
+                        <span>Przejdź do wniosków</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                </a>
+
+
+            </div>
+        </div>
+    }
+
 </section>
-
-
-<!--
-
-{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    
-</div>
--->

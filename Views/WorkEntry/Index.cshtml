@@ -95,10 +95,14 @@
         </a>
     </div>
 
-    @if (User.IsInRole("Administrator") || User.IsInRole("Kierownik"))
-    {
-        <a asp-controller="WorkEntry" asp-action="Users">Sprawdź ewnidencje pracowników</a>
-    }
+    <div class="leave-back">
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Powrót
+        </a>
+    </div>
 
     
 </section>

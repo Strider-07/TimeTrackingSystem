@@ -1,31 +1,126 @@
-﻿@model List<TimeTrackingSystem.Models.Entities.ApplicationUser>
+﻿@model List<TimeTrackingSystem.Models.ViewModels.AdminPanelUserViewModel>
 
-<table>
-    <thead>
-        <tr>
-            <th>Imie</th>
-            <th>Nazwisko</th>
-            <th>Stanowisko</th>
-            <th>Dział</th>
-            <th>Status</th>
-            <th>Opcje</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
+@{
+    ViewData["Title"] = "Pracownicy";
+}
+
+<section class="admin-page">
+
+    <div class="admin-header">
+        <div>
+            <span class="admin-eyebrow">EWIDENCJA CZASU</span>
+            <h1>Pracownicy</h1>
+            <p>Wybierz pracownika, aby przejrzeć jego ewidencję czasu pracy.</p>
+        </div>
+
+        <div class="admin-header-icon">
+            <i class="bi bi-person-lines-fill"></i>
+        </div>
+    </div>
+
+    <div class="employee-list-card">
+
+        <div class="employee-list-header">
+            <div>
+                <h3>Lista pracowników</h3>
+                <p>Pracownicy dostępni w systemie.</p>
+            </div>
+
+            <div class="employee-list-count">
+                <i class="bi bi-people-fill"></i>
+                @Model.Count
+            </div>
+        </div>
+
+        @if (Model != null && Model.Any())
         {
-            <tr>
-                <td>@user.FirstName</td>
-                <td>@user.LastName</td>
-                <td>@user.Department</td>
-                <td>Liczba godzin</td>
-                <td>@(user.IsActive ? "Aktywny" : "Nieaktywny")</td>
-                <td>
-                    <a asp-controller="WorkEntry" asp-action="ShowEntries" asp-route-id="@user.Id">
-                        Zobacz wpisy
-                    </a>
-                </td>
-            </tr>
+            <div class="table-responsive">
+                <table class="table employee-list-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Pracownik</th>
+                            <th>Stanowisko</th>
+                            <th>Dział</th>
+                            <th>Status</th>
+                            <th class="text-end">Opcje</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="employee-list-user">
+                                        <div class="employee-list-avatar">
+                                            <i class="bi bi-person-fill"></i>
+                                        </div>
+
+                                        <div class="employee-list-name">
+                                            <strong>@user.FirstName @user.LastName</strong>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(user.Position) ? "—" : user.Position)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(user.Department) ? "—" : user.Department)
+                                </td>
+
+                                <td>
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="employee-list-status active">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                            Aktywny
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="employee-list-status inactive">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                            Nieaktywny
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="employee-list-actions">
+                                        <a asp-controller="WorkEntry"
+                                           asp-action="ShowEntries"
+                                           asp-route-id="@user.Id"
+                                           class="employee-list-view-btn">
+                                            <i class="bi bi-clock-history"></i>
+                                            Zobacz wpisy
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         }
-    </tbody>
-</table>
+        else
+        {
+            <div class="admin-empty-state">
+                <i class="bi bi-people"></i>
+                <h4>Brak pracowników</h4>
+                <p>Nie znaleziono użytkowników do wyświetlenia.</p>
+            </div>
+        }
+    </div>
+
+    <div class="employee-list-back">
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Powrót
+        </a>
+    </div>
+
+</section>

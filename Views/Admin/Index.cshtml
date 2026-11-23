@@ -54,8 +54,14 @@
                 <i class="bi bi-arrow-right"></i>
             </div>
         </a>
-        <a asp-controller="WorkEntry" asp-action="Index">Ewidencja czasu pracy</a>
-        <a asp-controller="LeaveRequest" asp-action="Index">Wnioski urlopowe</a>
+        <div class="leave-back">
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Powrót
+            </a>
+        </div>
 
     </div>
 </section>

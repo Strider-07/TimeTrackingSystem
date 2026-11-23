@@ -79,7 +79,28 @@ namespace TimeTrackingSystem.Controllers
                 .Where(x => x.Id != currentUser.Id)
                 .DistinctBy(x => x.Id)
                 .ToList();
-            return View("Manager/Users", users);
+            var adminPanelUsers = new List<AdminPanelUserViewModel>(); // NOTE maybe change the name of ViewModel beacuse it's universal
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (!roles.Any() || roles.Count > 1)
+                {
+                    continue;
+                }
+                var role = roles[0];
+                var adminPanelUser = new AdminPanelUserViewModel
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = role,
+                    Position = user.Position,
+                    Department = user.Department,
+                    IsActive = user.IsActive
+                };
+                adminPanelUsers.Add(adminPanelUser);
+            }
+            return View("Manager/Users", adminPanelUsers);
         }
 
         [HttpPost]

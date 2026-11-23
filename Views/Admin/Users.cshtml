@@ -1,4 +1,4 @@
-﻿@model List<TimeTrackingSystem.Models.Entities.ApplicationUser>
+﻿@model List<TimeTrackingSystem.Models.ViewModels.AdminPanelUserViewModel>
 
 @{
     ViewData["Title"] = "Lista pracowników";
@@ -51,6 +51,7 @@
                             <th>Pracownik</th>
                             <th>Stanowisko</th>
                             <th>Dział</th>
+                            <th>Rola</th>
                             <th>Status</th>
                             <th class="text-end">Opcje</th>
                         </tr>
@@ -77,6 +78,25 @@
                                 <td>@user.Position</td>
 
                                 <td>@user.Department</td>
+
+
+                                <td>
+                                    <span class="admin-user-role @(
+                                          user.Role == "Administrator" ? "role-admin" :
+                                          user.Role == "Kierownik" ? "role-manager" :
+                                          user.Role == "Pracownik" ? "role-employee" :
+                                          "role-unknown")">
+
+                                        <i class="bi @(
+                                           user.Role == "Administrator" ? "bi-shield-fill" :
+                                           user.Role == "Kierownik" ? "bi-people-fill" :
+                                           user.Role == "Pracownik" ? "bi-person-fill" :
+                                           "bi-question-circle-fill")"></i>
+
+                                        @user.Role
+                                    </span>
+                                </td>
+
 
                                 <td>
                                     @if (user.IsActive)
@@ -147,4 +167,13 @@
         }
 
     </div>
+    <div class="leave-back">
+        <a asp-controller="Admin"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Powrót
+        </a>
+    </div>
+
 </section>

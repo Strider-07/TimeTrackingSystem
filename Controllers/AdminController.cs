@@ -45,7 +45,28 @@ namespace TimeTrackingSystem.Controllers
         public async Task<IActionResult> Users()
         {
             var users = await _userManager.Users.ToListAsync();
-            return View("Users", users);
+            var adminPanelUsers = new List<AdminPanelUserViewModel>();
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (!roles.Any() || roles.Count > 1)
+                {
+                    continue;
+                }
+                var role = roles[0];
+                var adminPanelUser = new AdminPanelUserViewModel
+                {
+                    Id = user.Id,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    Role = role,
+                    Position = user.Position,
+                    Department = user.Department,
+                    IsActive = user.IsActive
+                };
+                adminPanelUsers.Add(adminPanelUser);
+            }
+            return View("Users", adminPanelUsers);
         }
 
         [HttpGet]
