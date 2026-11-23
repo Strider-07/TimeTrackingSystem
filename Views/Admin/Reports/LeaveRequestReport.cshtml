@@ -50,10 +50,20 @@
                     <div class="leave-request-top">
 
                         <div class="leave-request-main">
+
                             <div class="leave-request-icon">
-                                <span class="leave-detail-label">Pracownik</span>
-                                <h4>@request.User.FirstName @request.User.LastName</h4>
                                 <i class="bi bi-calendar-event"></i>
+                            </div>
+
+                            <div class="leave-request-employee">
+                                <span class="leave-detail-label">
+                                    <i class="bi bi-person"></i>
+                                    Pracownik
+                                </span>
+
+                                <h4>
+                                    @request.User.FirstName @request.User.LastName
+                                </h4>
                             </div>
 
                             <div>
@@ -63,6 +73,7 @@
 
                                 <h3>@request.LeaveType</h3>
                             </div>
+
                         </div>
 
                         <span class="leave-status @statusClass">

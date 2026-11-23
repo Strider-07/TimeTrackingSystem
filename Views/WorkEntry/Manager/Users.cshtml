@@ -1,7 +1,7 @@
 ﻿@model List<TimeTrackingSystem.Models.ViewModels.AdminPanelUserViewModel>
 
 @{
-    ViewData["Title"] = "Pracownicy";
+    ViewData["Title"] = "Lista pracowników";
 }
 
 <section class="admin-page">
@@ -9,38 +9,39 @@
     <div class="admin-header">
         <div>
             <span class="admin-eyebrow">EWIDENCJA CZASU</span>
-            <h1>Pracownicy</h1>
-            <p>Wybierz pracownika, aby przejrzeć jego ewidencję czasu pracy.</p>
+            <h1>Lista pracowników</h1>
+            <p>Przeglądaj pracowników i ich zarejestrowany czas pracy.</p>
         </div>
 
         <div class="admin-header-icon">
-            <i class="bi bi-person-lines-fill"></i>
+            <i class="bi bi-people-fill"></i>
         </div>
     </div>
 
-    <div class="employee-list-card">
+    <div class="admin-table-card">
 
-        <div class="employee-list-header">
+        <div class="admin-table-header">
             <div>
-                <h3>Lista pracowników</h3>
-                <p>Pracownicy dostępni w systemie.</p>
+                <h3>Pracownicy</h3>
+                <p>Lista pracowników dostępnych w systemie.</p>
             </div>
 
-            <div class="employee-list-count">
+            <div class="employee-count-badge">
                 <i class="bi bi-people-fill"></i>
-                @Model.Count
+                <span>@(Model?.Count ?? 0) pracowników</span>
             </div>
         </div>
 
         @if (Model != null && Model.Any())
         {
             <div class="table-responsive">
-                <table class="table employee-list-table align-middle">
+                <table class="table admin-users-table align-middle">
                     <thead>
                         <tr>
                             <th>Pracownik</th>
                             <th>Stanowisko</th>
                             <th>Dział</th>
+                            <th>Rola</th>
                             <th>Status</th>
                             <th class="text-end">Opcje</th>
                         </tr>
@@ -51,13 +52,15 @@
                         {
                             <tr>
                                 <td>
-                                    <div class="employee-list-user">
-                                        <div class="employee-list-avatar">
+                                    <div class="admin-user-cell">
+                                        <div class="admin-user-avatar">
                                             <i class="bi bi-person-fill"></i>
                                         </div>
 
-                                        <div class="employee-list-name">
-                                            <strong>@user.FirstName @user.LastName</strong>
+                                        <div>
+                                            <strong>
+                                                @user.FirstName @user.LastName
+                                            </strong>
                                         </div>
                                     </div>
                                 </td>
@@ -71,16 +74,33 @@
                                 </td>
 
                                 <td>
+                                    <span class="admin-user-role @(
+                                          user.Role == "Administrator" ? "role-admin" :
+                                          user.Role == "Kierownik" ? "role-manager" :
+                                          user.Role == "Pracownik" ? "role-employee" :
+                                          "role-unknown")">
+
+                                        <i class="bi @(
+                                           user.Role == "Administrator" ? "bi-shield-fill" :
+                                           user.Role == "Kierownik" ? "bi-people-fill" :
+                                           user.Role == "Pracownik" ? "bi-person-fill" :
+                                           "bi-question-circle-fill")"></i>
+
+                                        @user.Role
+                                    </span>
+                                </td>
+
+                                <td>
                                     @if (user.IsActive)
                                     {
-                                        <span class="employee-list-status active">
+                                        <span class="admin-user-status active">
                                             <i class="bi bi-check-circle-fill"></i>
                                             Aktywny
                                         </span>
                                     }
                                     else
                                     {
-                                        <span class="employee-list-status inactive">
+                                        <span class="admin-user-status inactive">
                                             <i class="bi bi-x-circle-fill"></i>
                                             Nieaktywny
                                         </span>
@@ -88,13 +108,15 @@
                                 </td>
 
                                 <td>
-                                    <div class="employee-list-actions">
+                                    <div class="employee-entries-actions">
                                         <a asp-controller="WorkEntry"
                                            asp-action="ShowEntries"
                                            asp-route-id="@user.Id"
-                                           class="employee-list-view-btn">
+                                           class="employee-view-entries-btn">
+
                                             <i class="bi bi-clock-history"></i>
-                                            Zobacz wpisy
+                                            <span>Zobacz wpisy</span>
+                                            <i class="bi bi-arrow-right"></i>
                                         </a>
                                     </div>
                                 </td>
@@ -109,12 +131,12 @@
             <div class="admin-empty-state">
                 <i class="bi bi-people"></i>
                 <h4>Brak pracowników</h4>
-                <p>Nie znaleziono użytkowników do wyświetlenia.</p>
+                <p>Nie znaleziono żadnych pracowników w systemie.</p>
             </div>
         }
-    </div>
 
-    <div class="employee-list-back">
+    </div>
+    <div class="leave-back">
         <a asp-controller="Home"
            asp-action="Index"
            class="btn btn-outline-secondary">
