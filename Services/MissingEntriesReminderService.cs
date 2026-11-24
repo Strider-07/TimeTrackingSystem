@@ -83,7 +83,7 @@ namespace TimeTrackingSystem.Services
                 .Where(u => u.IsActive && !string.IsNullOrWhiteSpace(u.Email))
                 .ToList();
 
-            var usersWithEntries = (await db.WorkEntries
+            var usersWithEntries = (await db.TimeEntries
                 .Where(x => x.StartTime >= fromUtc && x.StartTime < toUtc)
                 .Select(x => x.UserId)
                 .Distinct()

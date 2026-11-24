@@ -1,7 +1,7 @@
 ﻿@model TimeTrackingSystem.Models.ViewModels.UserEntriesViewModel
 
 @{
-    var totalWorkTime = Model.WorkEntries.Aggregate(
+    var totalWorkTime = Model.TimeEntries.Aggregate(
         TimeSpan.Zero,
         (total, entry) => total + entry.WorkTime()
     );
@@ -39,16 +39,16 @@
             </h2>
 
             <span class="text-secondary">
-                Liczba wpisów: @Model.WorkEntries.Count
+                Liczba wpisów: @Model.TimeEntries.Count
             </span>
 
         </div>
     </div>
 
     <h1>@Model.User.FirstName - wpisy</h1>
-    @if (Model.WorkEntries.Any())
+    @if (Model.TimeEntries.Any())
     {
-        @foreach (var entry in Model.WorkEntries.OrderByDescending(x => x.StartTime))
+        @foreach (var entry in Model.TimeEntries.OrderByDescending(x => x.StartTime))
         {
             <div class="card history-card">
 
@@ -129,17 +129,19 @@
 
                     </div>
 
+                    @if (entry.ModifiedBy != null)
+                    {
+                        <div class="history-edited-info">
+                            <i class="bi bi-pencil-square"></i>
+
+                            <span>
+                                Wpis został zmodyfikowany przez
+                                <strong>@entry.ModifiedBy</strong>
+                            </span>
+                        </div>
+                    }
+
                 </div>
-
-                <a asp-controller="WorkEntry" asp-action="EditEntry" asp-route-id="@entry.Id"
-                   class="history-edit-overlay">
-
-                    <span>
-                        <i class="bi bi-pencil-square"></i>
-                        Edytuj
-                    </span>
-
-                </a>
 
             </div>
         }
@@ -161,7 +163,7 @@
         </div>
     }
     <div class="leave-back">
-        <a asp-controller="WorkEntry"
+        <a asp-controller="TimeEntry"
            asp-action="Users"
            class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i>

@@ -8,12 +8,12 @@ namespace TimeTrackingSystem.Models.ViewModels
         [Required]
         public ApplicationUser User { get; set; }
         [Required]
-        public List<WorkEntry> WorkEntries { get; set; }
+        public List<TimeEntry> TimeEntries { get; set; }
 
-        public UserEntriesViewModel(ApplicationUser user,  List<WorkEntry> workEntries)
+        public UserEntriesViewModel(ApplicationUser user,  List<TimeEntry> timeEntries)
         {
             User = user;
-            WorkEntries = workEntries;
+            TimeEntries = timeEntries;
         }
     }
 }

@@ -263,7 +263,7 @@ namespace TimeTrackingSystem.Controllers
             var end = start.AddMonths(1);
 
             var users = await _userManager.Users.ToListAsync();
-            var entries = await _context.WorkEntries
+            var entries = await _context.TimeEntries
                 .Where(x => x.StartTime >= start && x.StartTime < end)
                 .ToListAsync();
 

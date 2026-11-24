@@ -2,7 +2,7 @@
 
 namespace TimeTrackingSystem.Models.ViewModels
 {
-    public class EditWorkEntryViewModel
+    public class EditTimeEntryViewModel
     {
         public int Id { get; set; }
 

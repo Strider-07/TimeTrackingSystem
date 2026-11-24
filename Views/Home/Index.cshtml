@@ -82,7 +82,7 @@
         @if (Model.Role == "Administrator" || Model.Role == "Kierownik" || Model.Role == "Pracownik")
         {
 
-            <a asp-controller="WorkEntry"
+            <a asp-controller="TimeEntry"
                asp-action="Index"
                class="home-navigation-card">
 
@@ -155,7 +155,7 @@
             <div class="home-navigation-grid">
 
                 
-                <a asp-controller="WorkEntry" asp-action="Users"
+                <a asp-controller="TimeEntry" asp-action="Users"
                    class="home-navigation-card">
 
                     <div class="home-navigation-icon employee-records">

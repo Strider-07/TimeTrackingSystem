@@ -1,6 +1,6 @@
 ﻿namespace TimeTrackingSystem.Models.ViewModels
 {
-    public class WorkEntryViewModel
+    public class TimeEntryViewModel
     {
         public string FirstName { get; set; } = string.Empty;
         public TimeSpan TodayWorkTime { get; set; }

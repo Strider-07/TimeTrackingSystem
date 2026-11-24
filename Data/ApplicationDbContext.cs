@@ -30,7 +30,7 @@ namespace TimeTrackingSystem.Data
         }
 
         public DbSet<EmailLog> EmailLogs { get; set; }
-        public DbSet<WorkEntry> WorkEntries { get; set; }
+        public DbSet<TimeEntry> TimeEntries { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
     }
 }

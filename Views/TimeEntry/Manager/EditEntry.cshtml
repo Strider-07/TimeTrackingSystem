@@ -1,12 +1,16 @@
-﻿@model TimeTrackingSystem.Models.ViewModels.EditWorkEntryViewModel
+﻿@model TimeTrackingSystem.Models.ViewModels.EditTimeEntryViewModel
 
 @{
     var hasEnd = Model.EndDate.HasValue && Model.EndHour.HasValue;
 
-    var workTime = hasEnd && Model.StartDate.HasValue && Model.StartHour.HasValue
-        ? Model.EndDate.Value.ToDateTime(Model.EndHour.Value)
-            - Model.StartDate.Value.ToDateTime(Model.StartHour.Value)
-        : TimeSpan.Zero;
+    var workTime = hasEnd
+        && Model.StartDate.HasValue
+        && Model.StartHour.HasValue
+        && Model.EndDate.HasValue
+        && Model.EndHour.HasValue
+            ? Model.EndDate.Value.ToDateTime(Model.EndHour.Value)
+                - Model.StartDate.Value.ToDateTime(Model.StartHour.Value)
+            : TimeSpan.Zero;
 }
 
 <section class="work-dashboard edit-entry-page">
@@ -64,7 +68,7 @@
     </div>
 
     <!-- FORMULARZ -->
-    <form asp-controller="WorkEntry"
+    <form asp-controller="TimeEntry"
           asp-action="EditEntry"
           method="post">
 
@@ -256,7 +260,7 @@
         <!-- PRZYCISKI -->
         <div class="edit-entry-actions">
 
-            <a asp-controller="WorkEntry"
+            <a asp-controller="TimeEntry"
                asp-action="ShowEntries"
                asp-route-id="@ViewBag.UserId"
                class="btn btn-outline-secondary">

@@ -4017,3 +4017,44 @@ button {
     }
 }
 
+/* WORK ENTRY EDITED INFORMATION */
+
+.history-edited-info {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    margin-top: 1.25rem;
+    padding: .8rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--surface-secondary);
+    color: var(--text-secondary);
+    font-size: .85rem;
+    line-height: 1.5;
+}
+
+    .history-edited-info > i {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 9px;
+        background-color: rgba(59, 130, 246, .1);
+        color: var(--primary);
+        font-size: 1rem;
+    }
+
+    .history-edited-info strong {
+        color: var(--text-primary);
+        font-weight: 600;
+    }
+
+@media (max-width: 576px) {
+    .history-edited-info {
+        align-items: flex-start;
+        padding: .7rem .8rem;
+        font-size: .8rem;
+    }
+}

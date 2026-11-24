@@ -1,4 +1,4 @@
-﻿@model TimeTrackingSystem.Models.ViewModels.WorkEntryViewModel
+﻿@model TimeTrackingSystem.Models.ViewModels.TimeEntryViewModel
 
 @{
     bool isWorking = Model.StartTime != DateTime.MinValue && Model.EndTime == null;
@@ -45,17 +45,17 @@
         </div>
 
         <div class="work-actions">
-            <form asp-controller="WorkEntry" asp-action="StartWork" method="post">
+            <form asp-controller="TimeEntry" asp-action="StartWork" method="post">
                 @Html.AntiForgeryToken()
 
                 <button type="submit" class="btn btn-success btn-lg w-100"
-                        disabled="@(isWorking || ViewBag.TodayWorkEntry != null)">
+                        disabled="@(isWorking || ViewBag.TodayTimeEntry != null)">
                     <i class="bi bi-play-fill"></i>
                     Rozpocznij pracę
                 </button>
             </form>
 
-            <form asp-controller="WorkEntry" asp-action="EndWork" method="post">
+            <form asp-controller="TimeEntry" asp-action="EndWork" method="post">
                 @Html.AntiForgeryToken()
 
                 <button type="submit" class="btn btn-danger btn-lg w-100"
@@ -106,7 +106,7 @@
     </div>
 
     <div class="history-section">
-        <a asp-controller="WorkEntry"
+        <a asp-controller="TimeEntry"
            asp-action="EntryHistory"
            class="btn btn-primary btn-lg">
             <i class="bi bi-clock-history"></i>

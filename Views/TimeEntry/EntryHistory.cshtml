@@ -1,4 +1,4 @@
-﻿@model List<TimeTrackingSystem.Models.Entities.WorkEntry>
+﻿@model List<TimeTrackingSystem.Models.Entities.TimeEntry>
 
 @{
     var totalWorkTime = Model.Aggregate(
@@ -55,6 +55,7 @@
 
         @if (Model.Any())
         {
+
             @foreach (var entry in Model.OrderByDescending(x => x.StartTime))
             {
                 <div class="card history-card">
@@ -136,10 +137,23 @@
 
                         </div>
 
+                        @if (entry.ModifiedBy != null)
+                        {
+                            <div class="history-edited-info">
+                                <i class="bi bi-pencil-square"></i>
+
+                                <span>
+                                    Wpis został zmodyfikowany przez
+                                    <strong>@entry.ModifiedBy</strong>
+                                </span>
+                            </div>
+                        }
+
                     </div>
 
                 </div>
             }
+
         }
         else
         {
@@ -154,7 +168,7 @@
                         Nie masz jeszcze żadnych zarejestrowanych wpisów czasu pracy.
                     </p>
 
-                    <a asp-controller="WorkEntry"
+                    <a asp-controller="TimeEntry"
                        asp-action="Index"
                        class="btn btn-primary">
                         Wróć do panelu
@@ -167,7 +181,7 @@
     </div>
 
     <div class="history-section">
-        <a asp-controller="WorkEntry"
+        <a asp-controller="TimeEntry"
            asp-action="Index"
            class="btn btn-primary btn-lg">
 

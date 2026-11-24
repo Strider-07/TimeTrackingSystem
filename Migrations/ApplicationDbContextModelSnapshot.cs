@@ -325,7 +325,7 @@ namespace TimeTrackingSystem.Migrations
                     b.ToTable("LeaveRequests");
                 });
 
-            modelBuilder.Entity("TimeTrackingSystem.Models.Entities.WorkEntry", b =>
+            modelBuilder.Entity("TimeTrackingSystem.Models.Entities.TimeEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -351,7 +351,7 @@ namespace TimeTrackingSystem.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("WorkEntries");
+                    b.ToTable("TimeEntries");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -423,7 +423,7 @@ namespace TimeTrackingSystem.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TimeTrackingSystem.Models.Entities.WorkEntry", b =>
+            modelBuilder.Entity("TimeTrackingSystem.Models.Entities.TimeEntry", b =>
                 {
                     b.HasOne("TimeTrackingSystem.Models.Entities.ApplicationUser", "User")
                         .WithMany()

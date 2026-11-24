@@ -9,11 +9,11 @@ using TimeTrackingSystem.Models.ViewModels;
 namespace TimeTrackingSystem.Controllers
 {
     [Authorize]
-    public class WorkEntryController : Controller
+    public class TimeEntryController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
-        public WorkEntryController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public TimeEntryController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -25,31 +25,26 @@ namespace TimeTrackingSystem.Controllers
             {
                 return NotFound();
             }
-
             var today = DateTime.UtcNow.Date;
             var monthStart = new DateTime(today.Year, today.Month, 1, 0, 0, 0, DateTimeKind.Utc);
-
-            var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
+            var todayTimeEntry = await _context.TimeEntries.FirstOrDefaultAsync(
                 x => x.UserId == user.Id && x.StartTime >= today && x.StartTime < today.AddDays(1));
-
-            var monthEntries = await _context.WorkEntries
+            var monthEntries = await _context.TimeEntries
                 .Where(x => x.UserId == user.Id && x.StartTime >= monthStart)
                 .ToListAsync();
-
-            var viewModel = new WorkEntryViewModel
+            var viewModel = new TimeEntryViewModel
             {
                 FirstName = user.FirstName,
-                TodayWorkTime = todayWorkEntry?.WorkTime() ?? TimeSpan.Zero,
+                TodayWorkTime = todayTimeEntry?.WorkTime() ?? TimeSpan.Zero,
                 ThisMonthWorkTime = monthEntries.Aggregate(TimeSpan.Zero, (t, e) => t + e.WorkTime())
             };
 
-            if (todayWorkEntry != null)
+            if (todayTimeEntry != null)
             {
-                ViewBag.TodayWorkEntry = todayWorkEntry;
-                viewModel.StartTime = todayWorkEntry.StartTime;
-                viewModel.EndTime = todayWorkEntry.EndTime;
+                ViewBag.TodayTimeEntry = todayTimeEntry;
+                viewModel.StartTime = todayTimeEntry.StartTime;
+                viewModel.EndTime = todayTimeEntry.EndTime;
             }
-
             return View(viewModel);
         }
 
@@ -112,31 +107,32 @@ namespace TimeTrackingSystem.Controllers
             {
                 return Unauthorized();
             }
-            var activeEntry = await _context.WorkEntries.FirstOrDefaultAsync(
+            var activeEntry = await _context.TimeEntries.FirstOrDefaultAsync(
                 x => x.UserId == user.Id && x.EndTime == null);
             if (activeEntry != null)
             {
                 TempData["Error"] = "Masz już rozpoczętą pracę";
                 return RedirectToAction("Index"); 
             }
-            var todayWorkEntry = await _context.WorkEntries.FirstOrDefaultAsync(
+            var todayTimeEntry = await _context.TimeEntries.FirstOrDefaultAsync(
                 x => x.UserId == user.Id && x.StartTime.Date == DateTime.UtcNow.Date);
-            if (todayWorkEntry != null)
+            if (todayTimeEntry != null)
             {
 
-                //TempData["Error"] = "Dzisiaj nie możesz już tworzyć wpisów";
+                TempData["Error"] = "Dzisiaj nie możesz już tworzyć wpisów";
 
                 return RedirectToAction("Index");
             }
-            var workEntry = new WorkEntry
+            var TimeEntry = new TimeEntry
             {
                 UserId = user.Id,
                 StartTime = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
+                EntryDate = DateOnly.FromDateTime(DateTime.UtcNow)
             };
-            _context.WorkEntries.Add(workEntry);
+            _context.TimeEntries.Add(TimeEntry);
             await _context.SaveChangesAsync();
             TempData["Success"] = "Pomyślnie rozpoczęto pracę";
-
             return RedirectToAction("Index");
         }
 
@@ -149,7 +145,7 @@ namespace TimeTrackingSystem.Controllers
             {
                 return Unauthorized();
             }
-            var activeEntry = await _context.WorkEntries.FirstOrDefaultAsync(
+            var activeEntry = await _context.TimeEntries.FirstOrDefaultAsync(
                 x => x.UserId == user.Id && x.EndTime == null);
             if (activeEntry == null)
             {
@@ -169,8 +165,7 @@ namespace TimeTrackingSystem.Controllers
             {
                 return Unauthorized();
             }
-            var userEntries = await _context.WorkEntries.Where(x => x.UserId == user.Id).ToListAsync();
-
+            var userEntries = await _context.TimeEntries.Where(x => x.UserId == user.Id).ToListAsync();
             return View("EntryHistory", userEntries);
         }
 
@@ -182,7 +177,7 @@ namespace TimeTrackingSystem.Controllers
             {
                 return RedirectToAction("Index");
             }
-            var entries = await _context.WorkEntries.Where(x => x.UserId == id).ToListAsync();
+            var entries = await _context.TimeEntries.Where(x => x.UserId == id).ToListAsync();
             var userEntriesViewModel = new UserEntriesViewModel(user, entries);
             return View("Manager/ShowEntries", userEntriesViewModel);
         }
@@ -191,7 +186,7 @@ namespace TimeTrackingSystem.Controllers
         [HttpGet]
         public async Task<IActionResult> EditEntry(int id)
         {
-            var entry = await _context.WorkEntries.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
+            var entry = await _context.TimeEntries.Include(x => x.User).FirstOrDefaultAsync(x => x.Id == id);
             if (entry == null)
             {
                 return NotFound();
@@ -204,7 +199,7 @@ namespace TimeTrackingSystem.Controllers
                     "Data zakończenia nie może być wcześniejsza od daty rozpoczęcia");
                 return View(id);
             }
-            var model = new EditWorkEntryViewModel
+            var model = new EditTimeEntryViewModel
             {
                 Id = entry.Id,
                 StartDate = DateOnly.FromDateTime(localStart),
@@ -220,48 +215,36 @@ namespace TimeTrackingSystem.Controllers
         [Authorize(Roles = "Administrator,Kierownik")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditEntry(EditWorkEntryViewModel model)
+        public async Task<IActionResult> EditEntry(EditTimeEntryViewModel model)
         {
-            var entry = await _context.WorkEntries
+            var entry = await _context.TimeEntries
                 .FirstOrDefaultAsync(x => x.Id == model.Id);
-
             if (entry == null)
             {
                 return NotFound();
             }
-
-            // Sprawdzenie rozpoczęcia pracy
             if (!model.StartDate.HasValue || !model.StartHour.HasValue)
             {
                 ModelState.AddModelError(
                     string.Empty,
                     "Data i godzina rozpoczęcia są wymagane.");
             }
-
-            // Sprawdzenie zakończenia pracy
             if (model.EndDate.HasValue != model.EndHour.HasValue)
             {
                 ModelState.AddModelError(
                     string.Empty,
                     "Podaj zarówno datę, jak i godzinę zakończenia albo pozostaw oba pola puste.");
             }
-
             DateTime? startTime = null;
             DateTime? endTime = null;
-
-            // Łączenie daty i godziny rozpoczęcia
             if (model.StartDate.HasValue && model.StartHour.HasValue)
             {
                 startTime = model.StartDate.Value.ToDateTime(model.StartHour.Value);
             }
-
-            // Łączenie daty i godziny zakończenia
             if (model.EndDate.HasValue && model.EndHour.HasValue)
             {
                 endTime = model.EndDate.Value.ToDateTime(model.EndHour.Value);
             }
-
-            // Sprawdzenie poprawności zakresu czasu
             if (startTime.HasValue && endTime.HasValue)
             {
                 if (endTime.Value <= startTime.Value)
@@ -271,8 +254,6 @@ namespace TimeTrackingSystem.Controllers
                         "Data i godzina zakończenia muszą być późniejsze niż rozpoczęcia.");
                 }
             }
-
-            // Jeżeli występują błędy, ponownie wyświetlamy formularz
             if (!ModelState.IsValid)
             {
                 var user = await _userManager.FindByIdAsync(entry.UserId);
@@ -285,29 +266,21 @@ namespace TimeTrackingSystem.Controllers
 
                 return View("Manager/EditEntry", model);
             }
-
-            // Konwersja czasu lokalnego na UTC
             entry.StartTime = DateTime.SpecifyKind(
                 startTime!.Value,
                 DateTimeKind.Local
             ).ToUniversalTime();
-
             entry.EndTime = endTime.HasValue
                 ? DateTime.SpecifyKind(
                     endTime.Value,
                     DateTimeKind.Local
                 ).ToUniversalTime()
                 : null;
-
-            entry.Description = model.Reason;
-
+            entry.Note = model.Reason;
+            entry.ModifiedBy = await _userManager.GetUserAsync(User);
             await _context.SaveChangesAsync();
-
             TempData["Success"] = "Zapisano zmiany wpisu";
-
             return RedirectToAction("ShowEntries", new { id = entry.UserId });
         }
-
-
     }
 }
