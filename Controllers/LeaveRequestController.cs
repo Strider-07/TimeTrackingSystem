@@ -35,8 +35,10 @@ namespace TimeTrackingSystem.Controllers
             var allowedUsers = new List<ApplicationUser>();
             if (await _userManager.IsInRoleAsync(currentUser, "Administrator"))
             {
+                var admins = await _userManager.GetUsersInRoleAsync("Administrator");
                 var managers = await _userManager.GetUsersInRoleAsync("Kierownik");
                 var employees = await _userManager.GetUsersInRoleAsync("Pracownik");
+                allowedUsers.AddRange(admins);
                 allowedUsers.AddRange(managers);
                 allowedUsers.AddRange(employees);
             }
@@ -143,7 +145,7 @@ namespace TimeTrackingSystem.Controllers
             if (request.Status != "Oczekujący")
             {
                 TempData["Error"] = "Ten wniosek został już rozpatrzony.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Manage");
             }
 
             if (status != "Zaakceptowany" && status != "Odrzucony") return BadRequest();
@@ -152,7 +154,7 @@ namespace TimeTrackingSystem.Controllers
             if (!approved && string.IsNullOrWhiteSpace(reason))
             {
                 TempData["Error"] = "Podaj powód odrzucenia.";
-                return RedirectToAction("Index");
+                return RedirectToAction("Manage");
             }
 
             var reviewer = await _userManager.GetUserAsync(User);
@@ -176,7 +178,7 @@ namespace TimeTrackingSystem.Controllers
             }
 
             TempData["Success"] = "Decyzja została zapisana";
-            return RedirectToAction("Index");
+            return RedirectToAction("Manage");
         }
     }
 }

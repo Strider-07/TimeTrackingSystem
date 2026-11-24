@@ -3715,3 +3715,102 @@ button {
         font-size: 1.1rem;
     }
 }
+
+
+/* EMPLOYEE LIST - ADMIN TABLE STYLE */
+
+/* Employee count */
+.employee-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-secondary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+    .employee-count-badge i {
+        color: var(--primary);
+        font-size: 1rem;
+    }
+
+/* Action container */
+.employee-entries-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* View work entries button */
+.employee-view-entries-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+    .employee-view-entries-btn:hover {
+        background: var(--primary-hover);
+        border-color: var(--primary-hover);
+        color: #fff;
+        transform: translateY(-1px);
+    }
+
+    .employee-view-entries-btn:active {
+        transform: scale(0.98);
+    }
+
+    .employee-view-entries-btn > i:first-child {
+        font-size: 1.05rem;
+    }
+
+    .employee-view-entries-btn > i:last-child {
+        font-size: 0.85rem;
+        transition: transform 0.2s ease;
+    }
+
+    .employee-view-entries-btn:hover > i:last-child {
+        transform: translateX(3px);
+    }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .employee-count-badge {
+        padding: 0.55rem 0.75rem;
+        font-size: 0.85rem;
+    }
+
+    .employee-view-entries-btn {
+        padding: 0.55rem 0.75rem;
+        font-size: 0.85rem;
+    }
+}
+
+.leave-request-employee {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+    .leave-request-employee h4 {
+        margin: 4px 0 0;
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }

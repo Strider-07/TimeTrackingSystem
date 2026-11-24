@@ -1,4 +1,4 @@
-﻿@model TimeTrackingSystem.Models.ViewModels.WorkEntryViewModel;
+﻿@model TimeTrackingSystem.Models.ViewModels.WorkEntryViewModel
 
 @{
     bool isWorking = Model.StartTime != DateTime.MinValue && Model.EndTime == null;
@@ -9,18 +9,24 @@
         <h1>Witaj @Model.FirstName</h1>
         <p>Oto podsumowanie twojego czasu pracy</p>
     </div>
+
     <div class="header-icon">
         <i class="bi bi-clock-history"></i>
     </div>
+
     <div class="card main-work-card">
         <div class="card-body text-center">
             <span class="section-label">Dzisiejszy czas pracy</span>
-            <div class="main-timer" id="todayWorkTime"
-                data-seconds="@((int)Model.TodayWorkTime.TotalSeconds)"
-                data-is-working="@isWorking">
+
+            <div class="main-timer timer-display"
+                 data-seconds="@((int)Model.TodayWorkTime.TotalSeconds)"
+                 data-time-format="daily"
+                 data-is-working="@isWorking.ToString().ToLowerInvariant()"
+                 id="todayWorkTime">
                 @Model.TodayWorkTime.ToString(@"hh\:mm\:ss")
             </div>
         </div>
+
         <div class="work-status">
             @if (isWorking)
             {
@@ -37,17 +43,23 @@
                 </span>
             }
         </div>
+
         <div class="work-actions">
             <form asp-controller="WorkEntry" asp-action="StartWork" method="post">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-success btn-lg w-100" disabled="@(isWorking || ViewBag.TodayWorkEntry != null)">
+
+                <button type="submit" class="btn btn-success btn-lg w-100"
+                        disabled="@(isWorking || ViewBag.TodayWorkEntry != null)">
                     <i class="bi bi-play-fill"></i>
                     Rozpocznij pracę
                 </button>
             </form>
+
             <form asp-controller="WorkEntry" asp-action="EndWork" method="post">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-danger btn-lg w-100" disabled="@(!isWorking)">
+
+                <button type="submit" class="btn btn-danger btn-lg w-100"
+                        disabled="@(!isWorking)">
                     <i class="bi bi-stop-fill"></i>
                     Zakończ pracę
                 </button>
@@ -62,8 +74,12 @@
                     <div class="stats-icon">
                         <i class="bi bi-calendar-day"></i>
                     </div>
+
                     <p class="stats-label">Dzisiaj</p>
-                    <h3>
+
+                    <h3 class="timer-display"
+                        data-seconds="@((int)Model.TodayWorkTime.TotalSeconds)"
+                        data-time-format="daily">
                         @Model.TodayWorkTime.ToString(@"hh\:mm\:ss")
                     </h3>
                 </div>
@@ -76,8 +92,12 @@
                     <div class="stats-icon">
                         <i class="bi bi-calendar-range"></i>
                     </div>
+
                     <p class="stats-label">W tym miesiącu</p>
-                    <h3>
+
+                    <h3 class="timer-display"
+                        data-seconds="@((int)Model.ThisMonthWorkTime.TotalSeconds)"
+                        data-time-format="monthly">
                         @Model.ThisMonthWorkTime.ToString(@"d\.hh\:mm\:ss")
                     </h3>
                 </div>
@@ -85,10 +105,10 @@
         </div>
     </div>
 
-
-
     <div class="history-section">
-        <a asp-controller="WorkEntry" asp-action="EntryHistory" class="btn btn-primary btn-lg">
+        <a asp-controller="WorkEntry"
+           asp-action="EntryHistory"
+           class="btn btn-primary btn-lg">
             <i class="bi bi-clock-history"></i>
             Sprawdź swoje wpisy
             <i class="bi bi-arrow-right"></i>
@@ -103,30 +123,54 @@
             Powrót
         </a>
     </div>
-
-    
 </section>
+
 @section Scripts {
     <script>
-        const todayWorkTimeSpan = document.querySelector("#todayWorkTime");
-        let totalSeconds = parseInt(todayWorkTimeSpan.getAttribute("data-seconds"));
-        let isWorking = todayWorkTimeSpan.getAttribute("data-is-working") === "true";
+        const timerDisplays = document.querySelectorAll(".timer-display");
 
-        setInterval(() => {
-            if (!isWorking) { 
+        const mainTimer = document.querySelector("#todayWorkTime");
+
+        let isWorking = mainTimer?.dataset.isWorking === "true";
+
+        // Pobieramy aktualne wartości początkowe
+        const timers = Array.from(timerDisplays).map(element => ({
+            element: element,
+            seconds: parseInt(element.dataset.seconds, 10) || 0,
+            format: element.dataset.timeFormat
+        }));
+
+        function formatTime(seconds, format) {
+            const days = Math.floor(seconds / 86400);
+            const totalHours = Math.floor(seconds / 3600);
+            const hours = totalHours % 24;
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const remainingSeconds = seconds % 60;
+
+            const paddedHours = String(hours).padStart(2, "0");
+            const paddedMinutes = String(minutes).padStart(2, "0");
+            const paddedSeconds = String(remainingSeconds).padStart(2, "0");
+
+            if (format === "monthly") {
+                return `${days}.${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+            }
+
+            // Format dzienny: godziny mogą przekraczać 24
+            return `${String(totalHours).padStart(2, "0")}:${paddedMinutes}:${paddedSeconds}`;
+        }
+
+        function updateTimers() {
+            if (!isWorking) {
                 return;
             }
-            totalSeconds += 1;
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            const formatted =
-                String(hours).padStart(2, "0") + ":" +
-                String(minutes).padStart(2, "0") + ":" +
-                String(seconds).padStart(2, "0");
-            if (todayWorkTimeSpan) { 
-                todayWorkTimeSpan.textContent = formatted;
-            }
-        }, 1000);
+
+            timers.forEach(timer => {
+                timer.seconds++;
+
+                timer.element.textContent = formatTime(timer.seconds, timer.format);
+            });
+        }
+
+        setInterval(updateTimers, 1000);
     </script>
 }

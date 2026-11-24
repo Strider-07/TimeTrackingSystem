@@ -123,7 +123,9 @@ namespace TimeTrackingSystem.Controllers
                 x => x.UserId == user.Id && x.StartTime.Date == DateTime.UtcNow.Date);
             if (todayWorkEntry != null)
             {
-                TempData["Error"] = "Dzisiaj nie możesz już tworzyć wpisów";
+
+                //TempData["Error"] = "Dzisiaj nie możesz już tworzyć wpisów";
+
                 return RedirectToAction("Index");
             }
             var workEntry = new WorkEntry
@@ -196,6 +198,12 @@ namespace TimeTrackingSystem.Controllers
             }
             var localStart = entry.StartTime.ToLocalTime();
             var localEnd = entry.EndTime?.ToLocalTime();
+            if (localEnd < localStart)
+            {
+                ModelState.AddModelError(nameof(localEnd),
+                    "Data zakończenia nie może być wcześniejsza od daty rozpoczęcia");
+                return View(id);
+            }
             var model = new EditWorkEntryViewModel
             {
                 Id = entry.Id,
