@@ -18,6 +18,8 @@ namespace TimeTrackingSystem.Services
         {
             _scopeFactory = scopeFactory;
             _logger = logger;
+            
+
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -34,7 +36,7 @@ namespace TimeTrackingSystem.Services
                 try
                 {
                     await Task.Delay(next - now, stoppingToken);
-                    
+
                 }
                 catch (OperationCanceledException)
                 {
@@ -88,7 +90,19 @@ namespace TimeTrackingSystem.Services
                 .ToListAsync(ct))
                 .ToHashSet();
 
-            foreach (var user in workers.Where(u => !usersWithEntries.Contains(u.Id)))
+            var checkedDate = DateOnly.FromDateTime(checkedDay);
+
+            var usersOnLeave = (await db.LeaveRequests
+                .Where(x => x.Status == "Zaakceptowany"
+                         && x.StartDate <= checkedDate
+                         && x.EndDate >= checkedDate)
+                .Select(x => x.UserId)
+                .Distinct()
+                .ToListAsync(ct))
+                .ToHashSet();
+
+            foreach (var user in workers.Where(u =>
+                    !usersWithEntries.Contains(u.Id) && !usersOnLeave.Contains(u.Id)))
             {
                 ct.ThrowIfCancellationRequested();
 
