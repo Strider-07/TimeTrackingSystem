@@ -85,9 +85,95 @@
 
                     </ul>
 
-                    
-                    <div class="app-navbar-actions">
 
+                    
+
+
+
+                    
+
+                    <div class="app-navbar-actions">
+                        <div class="quick-nav dropdown">
+                            <button class="quick-nav-toggle"
+                                    type="button"
+                                    aria-expanded="false">
+                                <i class="bi bi-grid-fill"></i>
+                                <span>Nawigacja</span>
+                                <i class="bi bi-chevron-down quick-nav-chevron"></i>
+                            </button>
+
+                            <ul class="dropdown-menu quick-nav-menu">
+
+                                <li>
+                                    <a class="dropdown-item quick-nav-item"
+                                       asp-controller="Home"
+                                       asp-action="Index">
+                                        <i class="bi bi-house-fill"></i>
+                                        <span>Home</span>
+                                    </a>
+                                </li>
+
+                                @if (User.IsInRole("Administrator"))
+                                {
+                                    <li>
+                                        <a class="dropdown-item quick-nav-item"
+                                           asp-controller="Admin"
+                                           asp-action="Index">
+                                            <i class="bi bi-shield-lock-fill"></i>
+                                            <span>Panel administratora</span>
+                                        </a>
+                                    </li>
+                                }
+
+                                @if (User.IsInRole("Administrator") || User.IsInRole("Kierownik"))
+                                {
+                                    <li>
+                                        <hr class="dropdown-divider quick-nav-divider">
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item quick-nav-item management-item"
+                                           asp-controller="WorkEntry"
+                                           asp-action="Users">
+                                            <i class="bi bi-people-fill"></i>
+                                            <span>Ewidencja pracowników</span>
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item quick-nav-item management-item"
+                                           asp-controller="LeaveRequest"
+                                           asp-action="Manage">
+                                            <i class="bi bi-calendar2-check"></i>
+                                            <span>Wnioski pracowników</span>
+                                        </a>
+                                    </li>
+                                }
+
+                                <li>
+                                    <hr class="dropdown-divider quick-nav-divider">
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item quick-nav-item"
+                                       asp-controller="WorkEntry"
+                                       asp-action="Index">
+                                        <i class="bi bi-clock-fill"></i>
+                                        <span>Ewidencja czasu pracy</span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a class="dropdown-item quick-nav-item"
+                                       asp-controller="LeaveRequest"
+                                       asp-action="Index">
+                                        <i class="bi bi-calendar-event-fill"></i>
+                                        <span>Wnioski urlopowe</span>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
                         <button type="button"
                                 class="app-theme-button"
                                 onclick="changeTheme(); updateThemeButton();"
