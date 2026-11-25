@@ -129,19 +129,17 @@
 
                     </div>
 
-                    @if (entry.ModifiedBy != null)
-                    {
-                        <div class="history-edited-info">
-                            <i class="bi bi-pencil-square"></i>
-
-                            <span>
-                                Wpis został zmodyfikowany przez
-                                <strong>@entry.ModifiedBy</strong>
-                            </span>
-                        </div>
-                    }
-
                 </div>
+
+                <a asp-controller="TimeEntry" asp-action="EditEntry" asp-route-id="@entry.Id"
+                   class="history-edit-overlay">
+
+                    <span>
+                        <i class="bi bi-pencil-square"></i>
+                        Edytuj
+                    </span>
+
+                </a>
 
             </div>
         }
