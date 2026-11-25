@@ -8,7 +8,7 @@ using TimeTrackingSystem.Models.ViewModels;
 
 namespace TimeTrackingSystem.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrator,Kierownik,Pracownik")]
     public class TimeEntryController : Controller
     {
         private readonly ApplicationDbContext _context;

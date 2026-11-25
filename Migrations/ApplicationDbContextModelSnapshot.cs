@@ -333,12 +333,21 @@ namespace TimeTrackingSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("EntryDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("ModifiedById")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
@@ -348,6 +357,8 @@ namespace TimeTrackingSystem.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("UserId");
 
@@ -425,11 +436,17 @@ namespace TimeTrackingSystem.Migrations
 
             modelBuilder.Entity("TimeTrackingSystem.Models.Entities.TimeEntry", b =>
                 {
+                    b.HasOne("TimeTrackingSystem.Models.Entities.ApplicationUser", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById");
+
                     b.HasOne("TimeTrackingSystem.Models.Entities.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ModifiedBy");
 
                     b.Navigation("User");
                 });

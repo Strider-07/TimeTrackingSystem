@@ -12,7 +12,7 @@ using TimeTrackingSystem.Services;
 
 namespace TimeTrackingSystem.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Administrator,Kierownik,Pracownik")]
     public class LeaveRequestController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IEmailService emailService) : Controller
     {
         private readonly ApplicationDbContext _context = context;

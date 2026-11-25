@@ -12,8 +12,8 @@ using TimeTrackingSystem.Data;
 namespace TimeTrackingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261117091937_AddLeaveRequests")]
-    partial class AddLeaveRequests
+    [Migration("20261125082652_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -288,8 +288,8 @@ namespace TimeTrackingSystem.Migrations
                     b.Property<DateTime?>("DecisionDate")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("EndDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("LeaveType")
                         .IsRequired()
@@ -308,8 +308,8 @@ namespace TimeTrackingSystem.Migrations
                     b.Property<string>("ReviewerId")
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<DateOnly>("StartDate")
+                        .HasColumnType("date");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -336,12 +336,21 @@ namespace TimeTrackingSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly>("EntryDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("ModifiedById")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
@@ -351,6 +360,8 @@ namespace TimeTrackingSystem.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ModifiedById");
 
                     b.HasIndex("UserId");
 
@@ -428,11 +439,17 @@ namespace TimeTrackingSystem.Migrations
 
             modelBuilder.Entity("TimeTrackingSystem.Models.Entities.TimeEntry", b =>
                 {
+                    b.HasOne("TimeTrackingSystem.Models.Entities.ApplicationUser", "ModifiedBy")
+                        .WithMany()
+                        .HasForeignKey("ModifiedById");
+
                     b.HasOne("TimeTrackingSystem.Models.Entities.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("ModifiedBy");
 
                     b.Navigation("User");
                 });

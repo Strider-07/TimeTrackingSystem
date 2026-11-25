@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TimeTrackingSystem.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreatePostgres : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -55,6 +55,24 @@ namespace TimeTrackingSystem.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "EmailLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RecipientEmail = table.Column<string>(type: "text", nullable: false),
+                    Subject = table.Column<string>(type: "text", nullable: false),
+                    Body = table.Column<string>(type: "text", nullable: false),
+                    SentAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsSuccess = table.Column<bool>(type: "boolean", nullable: false),
+                    ErrorMessage = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmailLogs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -163,6 +181,70 @@ namespace TimeTrackingSystem.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "LeaveRequests",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    LeaveType = table.Column<string>(type: "text", nullable: false),
+                    StartDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    EndDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    Reason = table.Column<string>(type: "text", nullable: false),
+                    ReviewerId = table.Column<string>(type: "text", nullable: true),
+                    ReviewerComment = table.Column<string>(type: "text", nullable: true),
+                    RequestDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    DecisionDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LeaveRequests", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LeaveRequests_AspNetUsers_ReviewerId",
+                        column: x => x.ReviewerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_LeaveRequests_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TimeEntries",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EntryDate = table.Column<DateOnly>(type: "date", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Note = table.Column<string>(type: "text", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ModifiedById = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TimeEntries", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TimeEntries_AspNetUsers_ModifiedById",
+                        column: x => x.ModifiedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TimeEntries_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -199,6 +281,26 @@ namespace TimeTrackingSystem.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_ReviewerId",
+                table: "LeaveRequests",
+                column: "ReviewerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LeaveRequests_UserId",
+                table: "LeaveRequests",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeEntries_ModifiedById",
+                table: "TimeEntries",
+                column: "ModifiedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeEntries_UserId",
+                table: "TimeEntries",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -218,6 +320,15 @@ namespace TimeTrackingSystem.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "EmailLogs");
+
+            migrationBuilder.DropTable(
+                name: "LeaveRequests");
+
+            migrationBuilder.DropTable(
+                name: "TimeEntries");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
