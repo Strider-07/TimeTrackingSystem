@@ -159,4 +159,12 @@
         </a>
     </div>
 
+    <div class="report-page-actions">
+        <a asp-action="ExportWorkTimeReportPdf"
+           asp-route-month="@ViewBag.Month"
+           class="btn admin-secondary-btn">
+            <i class="bi bi-file-earmark-pdf"></i> Wyeksportuj do PDF
+        </a>
+    </div>
+
 </section>

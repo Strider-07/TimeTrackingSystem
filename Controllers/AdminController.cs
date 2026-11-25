@@ -18,12 +18,13 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace TimeTrackingSystem.Controllers
 {
     [Authorize(Roles = "Administrator")]
-    public class AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService) : Controller
+    public class AdminController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService, IWebHostEnvironment env) : Controller
     {
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly RoleManager<IdentityRole> _roleManager = roleManager;
         private readonly IEmailService _emailService = emailService;
+        private readonly IWebHostEnvironment _env = env;
 
         /*
         public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService)
@@ -340,6 +341,23 @@ namespace TimeTrackingSystem.Controllers
                 return string.Empty;
             }
             return "\"" + value.Replace("\"", "\"\"") + "\"";
+        }
+
+        public async Task<IActionResult> ExportWorkTimeReportPdf(string? month)
+        {
+            var (report, selected) = await BuildWorkTimeReport(month);
+            var bytes = PdfReportBuilder.WorkTimeReport(report, selected, _env.WebRootPath);
+            return File(bytes, "application/pdf", $"RaportCzasuPracy_{selected:yyyy-MM}.pdf");
+        }
+
+        public async Task<IActionResult> ExportLeaveRequestReportPdf()
+        {
+            var requests = await _context.LeaveRequests
+                .Include(x => x.User)
+                .OrderByDescending(x => x.RequestDate)
+                .ToListAsync();
+            var bytes = PdfReportBuilder.LeaveRequestReport(requests, _env.WebRootPath);
+            return File(bytes, "application/pdf", "RaportWnioskowUrlopowych.pdf");
         }
     }
 }
