@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
@@ -161,27 +162,63 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> EntryHistory()
+        public async Task<IActionResult> EntryHistory(int page = 1)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
-            var userEntries = await _context.TimeEntries.Include(x => x.ModifiedBy).Where(x => x.UserId == user.Id).ToListAsync();
-            return View("EntryHistory", userEntries);
+            const int pageSize = 10;
+            var query = _context.TimeEntries
+                .Include(x => x.ModifiedBy).Where(x => x.UserId == user.Id)
+                .OrderByDescending(e => e.EntryDate);
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+            var entries = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            var model = new PaginationViewModel<TimeEntry>
+            {
+                Items = entries,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            return View("EntryHistory", model);
         }
 
         [Authorize(Roles = "Administrator,Kierownik")]
-        public async Task<IActionResult> ShowEntries(string id)
+        public async Task<IActionResult> ShowEntries(string id, int page = 1)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return RedirectToAction("Index");
             }
-            var entries = await _context.TimeEntries.Include(x => x.ModifiedBy).Where(x => x.UserId == id).ToListAsync();
-            var userEntriesViewModel = new UserEntriesViewModel(user, entries);
+            const int pageSize = 3;
+            var query = _context.TimeEntries
+                .Include(x => x.ModifiedBy).Where(x => x.UserId == id)
+                .OrderByDescending(e => e.EntryDate);
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+            var entries = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            var paginationModel = new PaginationViewModel<TimeEntry>
+            {
+                Items = entries,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            var userEntriesViewModel = new UserEntriesViewModel(user, paginationModel);
             return View("Manager/ShowEntries", userEntriesViewModel);
         }
 

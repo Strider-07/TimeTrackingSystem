@@ -8,9 +8,9 @@ namespace TimeTrackingSystem.Models.ViewModels
         [Required]
         public ApplicationUser User { get; set; }
         [Required]
-        public List<TimeEntry> TimeEntries { get; set; }
+        public PaginationViewModel<TimeEntry> TimeEntries { get; set; }
 
-        public UserEntriesViewModel(ApplicationUser user,  List<TimeEntry> timeEntries)
+        public UserEntriesViewModel(ApplicationUser user, PaginationViewModel<TimeEntry> timeEntries)
         {
             User = user;
             TimeEntries = timeEntries;

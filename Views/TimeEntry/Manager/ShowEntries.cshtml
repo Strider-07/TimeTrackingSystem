@@ -1,7 +1,7 @@
 ﻿@model TimeTrackingSystem.Models.ViewModels.UserEntriesViewModel
 
 @{
-    var totalWorkTime = Model.TimeEntries.Aggregate(
+    var totalWorkTime = Model.TimeEntries.Items.Aggregate(
         TimeSpan.Zero,
         (total, entry) => total + entry.WorkTime()
     );
@@ -39,16 +39,16 @@
             </h2>
 
             <span class="text-secondary">
-                Liczba wpisów: @Model.TimeEntries.Count
+                Liczba wpisów: @Model.TimeEntries.TotalItems
             </span>
 
         </div>
     </div>
 
     <h1>@Model.User.FirstName - wpisy</h1>
-    @if (Model.TimeEntries.Any())
+    @if (Model.TimeEntries.Items.Any())
     {
-        @foreach (var entry in Model.TimeEntries.OrderByDescending(x => x.StartTime))
+        @foreach (var entry in Model.TimeEntries.Items.OrderByDescending(x => x.StartTime))
         {
             <div class="card history-card">
 
@@ -146,6 +146,7 @@
                             </div>
                         </div>
                     }
+                    
                 </div>
 
 
@@ -161,6 +162,70 @@
                 </a>
 
             </div>
+        }
+        @if (Model.TimeEntries.TotalPages > 1)
+        {
+            <nav class="pagination-container" aria-label="Nawigacja stron">
+
+                @if (Model.TimeEntries.HasPreviousPage)
+                {
+                    <a asp-action="ShowEntries"
+                       asp-route-page="@(Model.TimeEntries.CurrentPage - 1)"
+                       class="pagination-arrow">
+                        <i class="bi bi-chevron-left"></i>
+
+                    </a>
+                }
+
+                <div class="pagination-pages">
+                    @{
+                        int startPage = Math.Max(1, Model.TimeEntries.CurrentPage - 1);
+                        int endPage = Math.Min(Model.TimeEntries.TotalPages, startPage + 2);
+                        startPage = Math.Max(1, endPage - 2);
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <a asp-action="ShowEntries"
+                           asp-route-page="@i"
+                           class="pagination-page @(i == Model.TimeEntries.CurrentPage ? "active" : "")"
+                           aria-current="@(i == Model.TimeEntries.CurrentPage ? "page" : null)">
+                            @i
+                        </a>
+                    }
+                </div>
+
+                @if (Model.TimeEntries.HasNextPage)
+                {
+                    <a asp-action="ShowEntries"
+                       asp-route-page="@(Model.TimeEntries.CurrentPage + 1)"
+                       class="pagination-arrow">
+
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                }
+
+                <form asp-action="ShowEntries"
+                      method="get"
+                      class="pagination-jump">
+
+                    <input type="number"
+                           name="page"
+                           min="1"
+                           max="@Model.TimeEntries.TotalPages"
+                           value="@Model.TimeEntries.CurrentPage"
+                           aria-label="Numer strony"
+                           required />
+
+                    <span>/ @Model.TimeEntries.TotalPages</span>
+
+                    <button type="submit" title="Przejdź do strony">
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+
+                </form>
+
+            </nav>
         }
     }
     else
