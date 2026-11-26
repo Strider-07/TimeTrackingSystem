@@ -352,6 +352,9 @@ namespace TimeTrackingSystem.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<decimal>("TotalHours")
+                        .HasColumnType("numeric");
+
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
