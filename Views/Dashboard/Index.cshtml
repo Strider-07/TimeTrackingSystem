@@ -1,0 +1,201 @@
+﻿@using System.Text.Json
+@model TimeTrackingSystem.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+<style>
+    .dash-card {
+        background: var(--surface);
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+    }
+
+        .dash-card h3, .dash-card h5 {
+            color: var(--text-primary);
+        }
+
+    .dash-label {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+</style>
+<section class="admin-page">
+
+    <div class="admin-header">
+        <div>
+            <span class="admin-eyebrow">ANALIZA DANYCH</span>
+            <h1>Dashboard</h1>
+            <p>Podsumowanie czasu pracy i wniosków urlopowych.</p>
+        </div>
+
+        <div class="admin-header-icon">
+            <i class="bi bi-graph-up-arrow"></i>
+        </div>
+    </div>
+
+    <form method="get" class="mb-3 d-flex gap-2">
+        <input type="month" name="month" value="@Model.Month" class="form-control w-auto" />
+        <button type="submit" class="btn btn-primary">Pokaż</button>
+    </form>
+
+    <!-- KARTY -->
+    <div class="row g-3 mb-3">
+        <div class="col-6 col-lg-3">
+            <div class="card dash-card h-100">
+                <div class="card-body">
+                    <div class="text-secondary small">Łączny czas pracy</div>
+                    <h3 class="mb-0">@Model.TotalHours h</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card dash-card h-100">
+                <div class="card-body">
+                    <div class="text-secondary small">Pracownicy w zestawieniu</div>
+                    <h3 class="mb-0">@Model.EmployeesCount</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card dash-card h-100">
+                <div class="card-body">
+                    <div class="text-secondary small">Teraz w pracy</div>
+                    <h3 class="mb-0">@Model.WorkingNow</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="card dash-card h-100">
+                <div class="card-body">
+                    <div class="text-secondary small">Wnioski oczekujące</div>
+                    <h3 class="mb-0">@Model.PendingLeaves</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WYKRESY -->
+    <div class="row g-3">
+        <div class="col-lg-8">
+            <div class="card dash-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Godziny pracy na pracownika</h5>
+                    <div style="position: relative; height: 320px;">
+                        <canvas id="employeeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card dash-card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Wnioski urlopowe wg statusu</h5>
+                    <div style="position: relative; height: 320px;">
+                        <canvas id="leaveChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card dash-card">
+                <div class="card-body">
+                    <h5 class="card-title">Godziny pracy w kolejnych dniach miesiąca</h5>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="dayChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="leave-back">
+        <a asp-controller="Home"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Powrót
+        </a>
+    </div>
+
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <script>
+        const data = @Html.Raw(JsonSerializer.Serialize(Model, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
+
+        
+        const css = getComputedStyle(document.documentElement);
+        Chart.defaults.color = css.getPropertyValue('--text-primary').trim();
+        Chart.defaults.borderColor = css.getPropertyValue('--border').trim();
+        Chart.defaults.font.size = 13;
+
+        const primary = css.getPropertyValue('--primary').trim();
+
+        const hoursAxis = {
+            beginAtZero: true,
+            title: { display: true, text: 'Godziny' }
+        };
+
+        new Chart(document.getElementById('employeeChart'), {
+            type: 'bar',
+            data: {
+                labels: data.employeeLabels,
+                datasets: [{
+                    label: 'Godziny',
+                    data: data.employeeHours,
+                    backgroundColor: '#1b6ec2',
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: hoursAxis }
+            }
+        });
+
+        new Chart(document.getElementById('leaveChart'), {
+            type: 'doughnut',
+            data: {
+                labels: data.leaveLabels,
+                datasets: [{
+                    data: data.leaveCounts,
+                    backgroundColor: ['#ffc107', '#198754', '#dc3545']
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        new Chart(document.getElementById('dayChart'), {
+            type: 'line',
+            data: {
+                labels: data.dayLabels,
+                datasets: [{
+                    label: 'Godziny',
+                    data: data.dayHours,
+                    borderColor: '#1b6ec2',
+                    backgroundColor: 'rgba(27, 110, 194, 0.15)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: hoursAxis,
+                    x: { title: { display: true, text: 'Dzień miesiąca' } }
+                }
+            }
+        });
+    </script>
+}
