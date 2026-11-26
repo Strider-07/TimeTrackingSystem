@@ -13,22 +13,6 @@
             <p>Zaloguj się, aby uzyskać dostęp do TimeTrackingSystem.</p>
         </div>
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="auth-alert auth-alert-success">
-                <i class="bi bi-check-circle-fill"></i>
-                <span>@TempData["Success"]</span>
-            </div>
-        }
-
-        @if (TempData["Error"] != null)
-        {
-            <div class="auth-alert auth-alert-danger">
-                <i class="bi bi-exclamation-circle-fill"></i>
-                <span>@TempData["Error"]</span>
-            </div>
-        }
-
         <form asp-controller="Account"
               asp-action="Login"
               method="post">

@@ -230,6 +230,7 @@ namespace TimeTrackingSystem.Controllers
                 await _userManager.RemoveFromRolesAsync(user, currentRoles);
                 await _userManager.AddToRoleAsync(user, model.Role);
             }
+            TempData["Success"] = "Zapisano zmiany użytkownika";
             return RedirectToAction("Index");
         }
 
@@ -243,6 +244,7 @@ namespace TimeTrackingSystem.Controllers
             }
             user.IsActive = !user.IsActive;
             await _userManager.UpdateAsync(user);
+            TempData["Success"] = user.IsActive ? "Konto zostało aktywowane" : "Konto zostało dezaktywowane";
             return RedirectToAction("Users");
         }
         // ---------------------- Users Management ----------------------
