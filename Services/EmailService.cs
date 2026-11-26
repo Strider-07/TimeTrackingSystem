@@ -4,6 +4,7 @@ using TimeTrackingSystem.Models.Entities;
 using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
+using System.Text.RegularExpressions;
 
 namespace TimeTrackingSystem.Services
 {
@@ -24,7 +25,7 @@ namespace TimeTrackingSystem.Services
         {
             
             
-            var log = new EmailLog() { RecipientEmail = recipientEmail, Subject = subject, Body = body, SentAt = DateTime.UtcNow};
+            var log = new EmailLog() { RecipientEmail = recipientEmail, Subject = subject, Body = MaskSensitive(body), SentAt = DateTime.UtcNow};
 
             try
             {
@@ -57,9 +58,20 @@ namespace TimeTrackingSystem.Services
             
         }
 
-        
+        private static string MaskSensitive(string body)
+        {
+            
+            body = Regex.Replace(body, @"(token=)[^&""'\s<]+", "$1***", RegexOptions.IgnoreCase);
 
-        
-      
+            
+            body = Regex.Replace(body, @"(Hasło:\s*)[^<\r\n]+", "$1********", RegexOptions.IgnoreCase);
+
+            return body;
+        }
+
+
+
+
+
     }
 }
