@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using iTextSharp.text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Org.BouncyCastle.Asn1.Ocsp;
 using System.Globalization;
 using System.Net;
 using System.Security.Claims;
@@ -25,16 +28,6 @@ namespace TimeTrackingSystem.Controllers
         private readonly RoleManager<IdentityRole> _roleManager = roleManager;
         private readonly IEmailService _emailService = emailService;
         private readonly IWebHostEnvironment _env = env;
-
-        /*
-        public AdminController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IEmailService emailService)
-        {
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _emailService = emailService;
-        }
-        */
-
         public async Task<IActionResult> Index()
         {
             var users = await _userManager.Users.ToListAsync();
@@ -43,7 +36,7 @@ namespace TimeTrackingSystem.Controllers
 
 
         // ---------------------- Users Management ----------------------
-        public async Task<IActionResult> Users()
+        public async Task<IActionResult> Users(int page = 1)
         {
             var users = await _userManager.Users.ToListAsync();
             var adminPanelUsers = new List<AdminPanelUserViewModel>();
@@ -67,7 +60,34 @@ namespace TimeTrackingSystem.Controllers
                 };
                 adminPanelUsers.Add(adminPanelUser);
             }
-            return View("Users", adminPanelUsers);
+            // Paginacja
+            const int pageSize = 2;
+            int totalItems = adminPanelUsers.Count;
+
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+
+            page = Math.Max(1, page);
+
+            if (totalPages > 0)
+            {
+                page = Math.Min(page, totalPages);
+            }
+
+            var paginatedUsers = adminPanelUsers
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var model = new PaginationViewModel<AdminPanelUserViewModel>
+            {
+                Items = paginatedUsers,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            return View("Users", model);
         }
 
         [HttpGet]
@@ -278,11 +298,38 @@ namespace TimeTrackingSystem.Controllers
             return (report, start);
         }
 
-        public async Task<IActionResult> WorkTimeReport(string? month)
+        public async Task<IActionResult> WorkTimeReport(string? month, int page = 1)
         {
             var (report, selected) = await BuildWorkTimeReport(month);
             ViewBag.Month = selected.ToString("yyyy-MM");
-            return View("Reports/WorkTimeReport", report);
+            // Paginacja
+            const int pageSize = 2;
+            int totalItems = report.Count;
+
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+
+            page = Math.Max(1, page);
+
+            if (totalPages > 0)
+            {
+                page = Math.Min(page, totalPages);
+            }
+
+            var paginatedReports = report
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var model = new PaginationViewModel<WorkTimeViewModel>
+            {
+                Items = paginatedReports,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            return View("Reports/WorkTimeReport", model);
         }
 
         public async Task<IActionResult> ExportWorkTimeReport(string? month)
@@ -307,10 +354,37 @@ namespace TimeTrackingSystem.Controllers
             return File(bytes, "text/csv", $"RaportCzasuPracy_{selected:yyyy-MM}.csv");
         }
 
-        public async Task<IActionResult> LeaveRequestReport()
+        public async Task<IActionResult> LeaveRequestReport(int page = 1)
         {
             var requests = await _context.LeaveRequests.Include(x => x.User).OrderByDescending(x => x.RequestDate).ToListAsync();
-            return View("Reports/LeaveRequestReport", requests);
+            // Paginacja
+            const int pageSize = 2;
+            int totalItems = requests.Count;
+
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+
+            page = Math.Max(1, page);
+
+            if (totalPages > 0)
+            {
+                page = Math.Min(page, totalPages);
+            }
+
+            var paginatedRequests = requests
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var model = new PaginationViewModel<LeaveRequest>
+            {
+                Items = paginatedRequests,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            return View("Reports/LeaveRequestReport", model);
         }
 
         public async Task<IActionResult> ExportLeaveRequestReport()

@@ -50,18 +50,23 @@ namespace TimeTrackingSystem.Controllers
         }
 
         [Authorize(Roles = "Administrator,Kierownik")]
-        public async Task<IActionResult> Users()
+        public async Task<IActionResult> Users(int page = 1)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
                 return NotFound();
             }
+
+            const int pageSize = 10;
+
             var allowedUsers = new List<ApplicationUser>();
+
             if (await _userManager.IsInRoleAsync(currentUser, "Administrator"))
             {
                 var managers = await _userManager.GetUsersInRoleAsync("Kierownik");
                 var employees = await _userManager.GetUsersInRoleAsync("Pracownik");
+
                 allowedUsers.AddRange(managers);
                 allowedUsers.AddRange(employees);
             }
@@ -75,15 +80,20 @@ namespace TimeTrackingSystem.Controllers
                 .Where(x => x.Id != currentUser.Id)
                 .DistinctBy(x => x.Id)
                 .ToList();
-            var adminPanelUsers = new List<AdminPanelUserViewModel>(); // NOTE maybe change the name of ViewModel beacuse it's universal
+
+            var adminPanelUsers = new List<AdminPanelUserViewModel>();
+
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
+
                 if (!roles.Any() || roles.Count > 1)
                 {
                     continue;
                 }
+
                 var role = roles[0];
+
                 var adminPanelUser = new AdminPanelUserViewModel
                 {
                     Id = user.Id,
@@ -94,9 +104,38 @@ namespace TimeTrackingSystem.Controllers
                     Department = user.Department,
                     IsActive = user.IsActive
                 };
+
                 adminPanelUsers.Add(adminPanelUser);
             }
-            return View("Manager/Users", adminPanelUsers);
+
+            // Paginacja
+            int totalItems = adminPanelUsers.Count;
+
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+
+            page = Math.Max(1, page);
+
+            if (totalPages > 0)
+            {
+                page = Math.Min(page, totalPages);
+            }
+
+            var paginatedUsers = adminPanelUsers
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var model = new PaginationViewModel<AdminPanelUserViewModel>
+            {
+                Items = paginatedUsers,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+
+            return View("Manager/Users", model);
         }
 
         [HttpPost]
@@ -199,7 +238,7 @@ namespace TimeTrackingSystem.Controllers
             {
                 return RedirectToAction("Index");
             }
-            const int pageSize = 3;
+            const int pageSize = 10;
             var query = _context.TimeEntries
                 .Include(x => x.ModifiedBy).Where(x => x.UserId == id)
                 .OrderByDescending(e => e.EntryDate);

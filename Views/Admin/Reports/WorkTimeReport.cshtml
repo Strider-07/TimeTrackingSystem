@@ -1,4 +1,4 @@
-﻿@model List<TimeTrackingSystem.Models.ViewModels.WorkTimeViewModel>
+﻿@model TimeTrackingSystem.Models.ViewModels.PaginationViewModel<TimeTrackingSystem.Models.ViewModels.WorkTimeViewModel>
 @{
     string Fmt(TimeSpan t) => $"{(int)t.TotalHours:D2}:{t.Minutes:D2}:{t.Seconds:D2}";
 }
@@ -9,7 +9,7 @@
 
     if (Model != null)
     {
-        foreach (var workTime in Model)
+        foreach (var workTime in Model.Items)
         {
             totalWorkTime += workTime.WorkTime;
         }
@@ -60,7 +60,7 @@
             <div>
                 <span class="report-summary-label">Pracownicy w raporcie</span>
 
-                <h2>@(Model?.Count ?? 0)</h2>
+                <h2>@(Model?.TotalItems ?? 0)</h2>
 
                 <span class="report-summary-caption">
                     Pozycje w zestawieniu
@@ -84,7 +84,7 @@
             </div>
         </div>
 
-        @if (Model != null && Model.Any())
+        @if (Model != null && Model.Items.Any())
         {
             <div class="table-responsive">
                 <table class="table admin-users-table report-work-table align-middle">
@@ -97,7 +97,7 @@
                     </thead>
 
                     <tbody>
-                        @foreach (var workTime in Model)
+                        @foreach (var workTime in Model.Items)
                         {
                             
 
@@ -129,6 +129,70 @@
                         }
                     </tbody>
                 </table>
+                @if (Model.TotalPages > 1)
+                {
+                    <nav class="pagination-container" aria-label="Nawigacja stron">
+
+                        @if (Model.HasPreviousPage)
+                        {
+                            <a asp-action="WorkTimeReport"
+                               asp-route-page="@(Model.CurrentPage - 1)"
+                               class="pagination-arrow">
+                                <i class="bi bi-chevron-left"></i>
+
+                            </a>
+                        }
+
+                        <div class="pagination-pages">
+                            @{
+                                int startPage = Math.Max(1, Model.CurrentPage - 1);
+                                int endPage = Math.Min(Model.TotalPages, startPage + 2);
+                                startPage = Math.Max(1, endPage - 2);
+                            }
+
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <a asp-action="WorkTimeReport"
+                                   asp-route-page="@i"
+                                   class="pagination-page @(i == Model.CurrentPage ? "active" : "")"
+                                   aria-current="@(i == Model.CurrentPage ? "page" : null)">
+                                    @i
+                                </a>
+                            }
+                        </div>
+
+                        @if (Model.HasNextPage)
+                        {
+                            <a asp-action="WorkTimeReport"
+                               asp-route-page="@(Model.CurrentPage + 1)"
+                               class="pagination-arrow">
+
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        }
+
+                        <form asp-action="WorkTimeReport"
+                              method="get"
+                              class="pagination-jump">
+
+                            <input type="number"
+                                   name="page"
+                                   min="1"
+                                   max="@Model.TotalPages"
+                                   value="@Model.CurrentPage"
+                                   aria-label="Numer strony"
+                                   required />
+
+                            <span>/ @Model.TotalPages</span>
+
+                            <button type="submit" title="Przejdź do strony">
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+
+                        </form>
+
+                    </nav>
+                }
             </div>
         }
         else
