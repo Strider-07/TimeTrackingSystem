@@ -29,6 +29,31 @@ namespace TimeTrackingSystem.Data
                 .OnDelete(DeleteBehavior.Restrict);
         }
 
+        public override int SaveChanges()
+        {
+            CalculateTimeEntries();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default)
+        {
+            CalculateTimeEntries();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void CalculateTimeEntries()
+        {
+            var entries = ChangeTracker.Entries<TimeEntry>()
+                .Where(e => e.State == EntityState.Added
+                         || e.State == EntityState.Modified);
+
+            foreach (var entry in entries)
+            {
+                entry.Entity.CalculateTotalHours();
+            }
+        }
+
         public DbSet<EmailLog> EmailLogs { get; set; }
         public DbSet<TimeEntry> TimeEntries { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }

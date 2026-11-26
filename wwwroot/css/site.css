@@ -4021,40 +4021,70 @@ button {
 
 .history-edited-info {
     display: flex;
-    align-items: center;
-    gap: .65rem;
-    margin-top: 1.25rem;
-    padding: .8rem 1rem;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 14px;
+    margin-top: 10px;
+    background: var(--surface-secondary);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background-color: var(--surface-secondary);
-    color: var(--text-secondary);
-    font-size: .85rem;
-    line-height: 1.5;
+    border-left: 3px solid var(--info);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: .9rem;
 }
 
-    .history-edited-info > i {
-        display: flex;
-        align-items: center;
-        justify-content: center;
+.history-edited-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+    .history-edited-header i {
+        color: var(--info);
+        margin-top: 2px;
         flex-shrink: 0;
-        width: 32px;
-        height: 32px;
-        border-radius: 9px;
-        background-color: rgba(59, 130, 246, .1);
-        color: var(--primary);
-        font-size: 1rem;
     }
 
-    .history-edited-info strong {
-        color: var(--text-primary);
+    .history-edited-header strong {
         font-weight: 600;
     }
 
+.history-edited-note {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px;
+    padding-left: 26px;
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+.history-note-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    flex-shrink: 0;
+}
+
+.history-note-content {
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
+/* Mobile */
+
 @media (max-width: 576px) {
     .history-edited-info {
-        align-items: flex-start;
-        padding: .7rem .8rem;
-        font-size: .8rem;
+        padding: 10px 12px;
+        gap: 7px;
+        font-size: .85rem;
+    }
+
+    .history-edited-header {
+        gap: 7px;
+    }
+
+    .history-edited-note {
+        padding-left: 23px;
+        gap: 4px;
     }
 }

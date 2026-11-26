@@ -140,12 +140,19 @@
                         @if (entry.ModifiedBy != null)
                         {
                             <div class="history-edited-info">
-                                <i class="bi bi-pencil-square"></i>
+                                <div class="history-edited-header">
+                                    <i class="bi bi-pencil-square"></i>
 
-                                <span>
-                                    Wpis został zmodyfikowany przez
-                                    <strong>@entry.ModifiedBy.FirstName @entry.ModifiedBy.LastName</strong>
-                                </span>
+                                    <span>
+                                        Wpis został zmodyfikowany przez:
+                                        <strong>@entry.ModifiedBy.FirstName @entry.ModifiedBy.LastName</strong>
+                                    </span>
+                                </div>
+
+                                <div class="history-edited-note">
+                                    <strong class="history-note-label">Opis:</strong>
+                                    <span class="history-note-content">@entry.Note</span>
+                                </div>
                             </div>
                         }
 

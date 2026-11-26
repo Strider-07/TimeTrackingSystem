@@ -114,8 +114,9 @@ namespace TimeTrackingSystem.Controllers
                 TempData["Error"] = "Masz już rozpoczętą pracę";
                 return RedirectToAction("Index"); 
             }
+            var today = DateOnly.FromDateTime(DateTime.Now);
             var todayTimeEntry = await _context.TimeEntries.FirstOrDefaultAsync(
-                x => x.UserId == user.Id && x.StartTime.Date == DateTime.UtcNow.Date);
+                x => x.UserId == user.Id && x.EntryDate == today);
             if (todayTimeEntry != null)
             {
 
@@ -123,12 +124,14 @@ namespace TimeTrackingSystem.Controllers
 
                 return RedirectToAction("Index");
             }
+            var now = DateTime.UtcNow;
+            var localNow = now.ToLocalTime();
             var TimeEntry = new TimeEntry
             {
                 UserId = user.Id,
-                StartTime = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow,
-                EntryDate = DateOnly.FromDateTime(DateTime.UtcNow)
+                StartTime = now,
+                CreatedAt = now,
+                EntryDate = DateOnly.FromDateTime(localNow)
             };
             _context.TimeEntries.Add(TimeEntry);
             await _context.SaveChangesAsync();
@@ -165,7 +168,7 @@ namespace TimeTrackingSystem.Controllers
             {
                 return Unauthorized();
             }
-            var userEntries = await _context.TimeEntries.Where(x => x.UserId == user.Id).ToListAsync();
+            var userEntries = await _context.TimeEntries.Include(x => x.ModifiedBy).Where(x => x.UserId == user.Id).ToListAsync();
             return View("EntryHistory", userEntries);
         }
 
@@ -177,7 +180,7 @@ namespace TimeTrackingSystem.Controllers
             {
                 return RedirectToAction("Index");
             }
-            var entries = await _context.TimeEntries.Where(x => x.UserId == id).ToListAsync();
+            var entries = await _context.TimeEntries.Include(x => x.ModifiedBy).Where(x => x.UserId == id).ToListAsync();
             var userEntriesViewModel = new UserEntriesViewModel(user, entries);
             return View("Manager/ShowEntries", userEntriesViewModel);
         }
@@ -205,7 +208,8 @@ namespace TimeTrackingSystem.Controllers
                 StartDate = DateOnly.FromDateTime(localStart),
                 StartHour = TimeOnly.FromDateTime(localStart),
                 EndDate = localEnd.HasValue ? DateOnly.FromDateTime(localEnd.Value) : null,
-                EndHour = localEnd.HasValue ? TimeOnly.FromDateTime(localEnd.Value) : null
+                EndHour = localEnd.HasValue ? TimeOnly.FromDateTime(localEnd.Value) : null,
+                Note = entry.Note
             };
             ViewBag.EmployeeName = $"{entry.User.FirstName} {entry.User.LastName}";
             ViewBag.UserId = entry.UserId;
@@ -234,6 +238,18 @@ namespace TimeTrackingSystem.Controllers
                 ModelState.AddModelError(
                     string.Empty,
                     "Podaj zarówno datę, jak i godzinę zakończenia albo pozostaw oba pola puste.");
+            }
+            if (!ModelState.IsValid)
+            {
+                var user = await _userManager.FindByIdAsync(entry.UserId);
+
+                ViewBag.EmployeeName = user != null
+                    ? $"{user.FirstName} {user.LastName}"
+                    : "Nieznany użytkownik";
+
+                ViewBag.UserId = entry.UserId;
+
+                return View("Manager/EditEntry", model);
             }
             DateTime? startTime = null;
             DateTime? endTime = null;
@@ -276,8 +292,11 @@ namespace TimeTrackingSystem.Controllers
                     DateTimeKind.Local
                 ).ToUniversalTime()
                 : null;
-            entry.Note = model.Reason;
+            entry.Note = !string.IsNullOrWhiteSpace(model.Note)
+                ? model.Note
+                : "Brak uwag";
             entry.ModifiedBy = await _userManager.GetUserAsync(User);
+            entry.EntryDate = model.StartDate!.Value;
             await _context.SaveChangesAsync();
             TempData["Success"] = "Zapisano zmiany wpisu";
             return RedirectToAction("ShowEntries", new { id = entry.UserId });
