@@ -125,6 +125,7 @@ namespace TimeTrackingSystem.Controllers
                 LeaveType = model.LeaveType,
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,
+                DaysCount = model.EndDate.DayNumber - model.StartDate.DayNumber + 1,
                 Reason = model.Reason != null ? model.Reason : "",
                 RequestDate = DateTime.UtcNow
             };
