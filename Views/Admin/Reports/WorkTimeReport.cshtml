@@ -9,7 +9,7 @@
 
     if (Model != null)
     {
-        foreach (var workTime in Model.Items)
+        foreach (var workTime in Model.AllItems)
         {
             totalWorkTime += workTime.WorkTime;
         }

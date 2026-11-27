@@ -61,7 +61,7 @@ namespace TimeTrackingSystem.Controllers
                 adminPanelUsers.Add(adminPanelUser);
             }
             // Paginacja
-            const int pageSize = 2;
+            const int pageSize = 10;
             int totalItems = adminPanelUsers.Count;
 
             int totalPages = (int)Math.Ceiling(
@@ -303,8 +303,9 @@ namespace TimeTrackingSystem.Controllers
             var (report, selected) = await BuildWorkTimeReport(month);
             ViewBag.Month = selected.ToString("yyyy-MM");
             // Paginacja
-            const int pageSize = 2;
+            const int pageSize = 10;
             int totalItems = report.Count;
+
 
             int totalPages = (int)Math.Ceiling(
                 totalItems / (double)pageSize);
@@ -324,6 +325,7 @@ namespace TimeTrackingSystem.Controllers
             var model = new PaginationViewModel<WorkTimeViewModel>
             {
                 Items = paginatedReports,
+                AllItems = report,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalItems = totalItems,
@@ -358,7 +360,7 @@ namespace TimeTrackingSystem.Controllers
         {
             var requests = await _context.LeaveRequests.Include(x => x.User).OrderByDescending(x => x.RequestDate).ToListAsync();
             // Paginacja
-            const int pageSize = 2;
+            const int pageSize = 10;
             int totalItems = requests.Count;
 
             int totalPages = (int)Math.Ceiling(
