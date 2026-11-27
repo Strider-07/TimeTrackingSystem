@@ -12,7 +12,7 @@ using TimeTrackingSystem.Data;
 namespace TimeTrackingSystem.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261125082652_InitialCreate")]
+    [Migration("20261127123606_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -285,6 +285,9 @@ namespace TimeTrackingSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("DaysCount")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("DecisionDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -354,6 +357,9 @@ namespace TimeTrackingSystem.Migrations
 
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("TotalHours")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("UserId")
                         .IsRequired()

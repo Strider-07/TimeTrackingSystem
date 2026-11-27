@@ -282,6 +282,9 @@ namespace TimeTrackingSystem.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("DaysCount")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("DecisionDate")
                         .HasColumnType("timestamp with time zone");
 
