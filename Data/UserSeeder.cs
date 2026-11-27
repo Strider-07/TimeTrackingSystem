@@ -1,4 +1,4 @@
-﻿
+﻿/*
 using Microsoft.AspNetCore.Identity;
 using TimeTrackingSystem.Models.Entities;
 
@@ -98,3 +98,4 @@ namespace TimeTrackingSystem.Data
         }
     }
 }
+*/

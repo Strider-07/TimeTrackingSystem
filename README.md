@@ -36,7 +36,7 @@ Hasła **nie są** w repozytorium. W katalogu projektu wykonaj:
 
 ```bash
 dotnet user-secrets init
-dotnet user-secrets set "ConnectionStrings:PostgreSQL" "Host=localhost;Port=5432;Database=TimeTrackingSystem;Username=postgres;Password=TWOJE_HASLO"
+dotnet user-secrets set "ConnectionStrings:PostgreSQL" "Host=localhost;Port=5440;Database=TimeTrackingSystem;Username=postgres;Password=TWOJE_HASLO"
 
 # SMTP (przykład: Gmail z hasłem aplikacji)
 dotnet user-secrets set "EmailSettings:SmtpServer" "smtp.gmail.com"
@@ -46,6 +46,9 @@ dotnet user-secrets set "EmailSettings:Username" "twoj-email@gmail.com"
 dotnet user-secrets set "EmailSettings:Password" "haslo-aplikacji"
 dotnet user-secrets set "EmailSettings:EnableSsl" "true"
 ```
+
+Skrypt SQL należy uruchomić z katalogu głównego projektu, po zastosowaniu migracji.
+Jeśli polecenie psql nie jest dostępne w terminalu, należy użyć pełnej ścieżki do psql.exe
 
 W Visual Studio: prawy klik na projekcie → **Manage User Secrets**.
 Alternatywa: zmienne środowiskowe, np. `ConnectionStrings__PostgreSQL`, `EmailSettings__Password`.
