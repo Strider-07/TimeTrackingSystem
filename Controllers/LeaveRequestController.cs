@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using iTextSharp.text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
 using TimeTrackingSystem.Models.ViewModels;
-using System.Net;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using TimeTrackingSystem.Services;
 
 
@@ -25,7 +27,7 @@ namespace TimeTrackingSystem.Controllers
         }
 
         [Authorize(Roles = "Administrator,Kierownik")]
-        public async Task<IActionResult> Manage()
+        public async Task<IActionResult> Manage(int page = 1)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
@@ -52,14 +54,39 @@ namespace TimeTrackingSystem.Controllers
                 .Where(x => x.Id != currentUser.Id)
                 .DistinctBy(x => x.Id)
                 .ToList();
-            List<LeaveRequest> allRequests = new List<LeaveRequest>();
-            foreach (var user in users)
+            var userIds = users.Select(x => x.Id).ToList();
+
+            var allRequests = await _context.LeaveRequests
+                .Where(x => userIds.Contains(x.UserId) && x.Status == "Oczekujący")
+                .ToListAsync();
+            // Paginacja
+            const int pageSize = 10;
+            int totalItems = allRequests.Count;
+
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+
+            page = Math.Max(1, page);
+
+            if (totalPages > 0)
             {
-                var requests = await _context.LeaveRequests.
-                    Where(x => x.UserId == user.Id && x.Status == "Oczekujący").ToListAsync();
-                allRequests.AddRange(requests);
+                page = Math.Min(page, totalPages);
             }
-            return View("Manager/Manage", allRequests);
+
+            var paginatedRequests = allRequests
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var model = new PaginationViewModel<LeaveRequest>
+            {
+                Items = paginatedRequests,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            return View("Manager/Manage", model);
         }
 
         [HttpGet]
@@ -120,7 +147,7 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> ShowLeaveRequests()
+        public async Task<IActionResult> ShowLeaveRequests(int page = 1)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -128,7 +155,34 @@ namespace TimeTrackingSystem.Controllers
                 return NotFound();
             }
             var requests = await _context.LeaveRequests.Where(x => x.UserId == user.Id).ToListAsync();
-            return View(requests);
+            // Paginacja
+            const int pageSize = 10;
+            int totalItems = requests.Count;
+
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+
+            page = Math.Max(1, page);
+
+            if (totalPages > 0)
+            {
+                page = Math.Min(page, totalPages);
+            }
+
+            var paginatedRequests = requests
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var model = new PaginationViewModel<LeaveRequest>
+            {
+                Items = paginatedRequests,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            return View(model);
         }
 
         

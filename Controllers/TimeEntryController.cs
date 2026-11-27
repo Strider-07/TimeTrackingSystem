@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
@@ -49,18 +50,23 @@ namespace TimeTrackingSystem.Controllers
         }
 
         [Authorize(Roles = "Administrator,Kierownik")]
-        public async Task<IActionResult> Users()
+        public async Task<IActionResult> Users(int page = 1)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null)
             {
                 return NotFound();
             }
+
+            const int pageSize = 10;
+
             var allowedUsers = new List<ApplicationUser>();
+
             if (await _userManager.IsInRoleAsync(currentUser, "Administrator"))
             {
                 var managers = await _userManager.GetUsersInRoleAsync("Kierownik");
                 var employees = await _userManager.GetUsersInRoleAsync("Pracownik");
+
                 allowedUsers.AddRange(managers);
                 allowedUsers.AddRange(employees);
             }
@@ -74,15 +80,20 @@ namespace TimeTrackingSystem.Controllers
                 .Where(x => x.Id != currentUser.Id)
                 .DistinctBy(x => x.Id)
                 .ToList();
-            var adminPanelUsers = new List<AdminPanelUserViewModel>(); // NOTE maybe change the name of ViewModel beacuse it's universal
+
+            var adminPanelUsers = new List<AdminPanelUserViewModel>();
+
             foreach (var user in users)
             {
                 var roles = await _userManager.GetRolesAsync(user);
+
                 if (!roles.Any() || roles.Count > 1)
                 {
                     continue;
                 }
+
                 var role = roles[0];
+
                 var adminPanelUser = new AdminPanelUserViewModel
                 {
                     Id = user.Id,
@@ -93,9 +104,38 @@ namespace TimeTrackingSystem.Controllers
                     Department = user.Department,
                     IsActive = user.IsActive
                 };
+
                 adminPanelUsers.Add(adminPanelUser);
             }
-            return View("Manager/Users", adminPanelUsers);
+
+            // Paginacja
+            int totalItems = adminPanelUsers.Count;
+
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+
+            page = Math.Max(1, page);
+
+            if (totalPages > 0)
+            {
+                page = Math.Min(page, totalPages);
+            }
+
+            var paginatedUsers = adminPanelUsers
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var model = new PaginationViewModel<AdminPanelUserViewModel>
+            {
+                Items = paginatedUsers,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+
+            return View("Manager/Users", model);
         }
 
         [HttpPost]
@@ -161,27 +201,63 @@ namespace TimeTrackingSystem.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> EntryHistory()
+        public async Task<IActionResult> EntryHistory(int page = 1)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
                 return Unauthorized();
             }
-            var userEntries = await _context.TimeEntries.Include(x => x.ModifiedBy).Where(x => x.UserId == user.Id).ToListAsync();
-            return View("EntryHistory", userEntries);
+            const int pageSize = 10;
+            var query = _context.TimeEntries
+                .Include(x => x.ModifiedBy).Where(x => x.UserId == user.Id)
+                .OrderByDescending(e => e.EntryDate);
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+            var entries = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            var model = new PaginationViewModel<TimeEntry>
+            {
+                Items = entries,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            return View("EntryHistory", model);
         }
 
         [Authorize(Roles = "Administrator,Kierownik")]
-        public async Task<IActionResult> ShowEntries(string id)
+        public async Task<IActionResult> ShowEntries(string id, int page = 1)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
             {
                 return RedirectToAction("Index");
             }
-            var entries = await _context.TimeEntries.Include(x => x.ModifiedBy).Where(x => x.UserId == id).ToListAsync();
-            var userEntriesViewModel = new UserEntriesViewModel(user, entries);
+            const int pageSize = 10;
+            var query = _context.TimeEntries
+                .Include(x => x.ModifiedBy).Where(x => x.UserId == id)
+                .OrderByDescending(e => e.EntryDate);
+            int totalItems = await query.CountAsync();
+            int totalPages = (int)Math.Ceiling(
+                totalItems / (double)pageSize);
+            var entries = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            var paginationModel = new PaginationViewModel<TimeEntry>
+            {
+                Items = entries,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems,
+                PageSize = pageSize
+            };
+            var userEntriesViewModel = new UserEntriesViewModel(user, paginationModel);
             return View("Manager/ShowEntries", userEntriesViewModel);
         }
 
