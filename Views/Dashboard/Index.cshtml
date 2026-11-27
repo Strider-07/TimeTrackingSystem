@@ -1,201 +1,144 @@
-﻿@using System.Text.Json
-@model TimeTrackingSystem.Models.ViewModels.DashboardViewModel
-
+﻿@model TimeTrackingSystem.Models.ViewModels.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
 }
-<style>
-    .dash-card {
-        background: var(--surface);
-        color: var(--text-primary);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-    }
 
-        .dash-card h3, .dash-card h5 {
-            color: var(--text-primary);
-        }
-
-    .dash-label {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-    }
-</style>
 <section class="admin-page">
-
     <div class="admin-header">
         <div>
-            <span class="admin-eyebrow">ANALIZA DANYCH</span>
+            <span class="admin-eyebrow">PRZEGLĄD</span>
             <h1>Dashboard</h1>
-            <p>Podsumowanie czasu pracy i wniosków urlopowych.</p>
+            <p>Podsumowanie czasu pracy i wniosków w bieżącym miesiącu.</p>
+            <p>Może być potrzebne odświeżenie strony do zaaktualizowania danych.</p>
         </div>
-
-        <div class="admin-header-icon">
-            <i class="bi bi-graph-up-arrow"></i>
-        </div>
+        <div class="admin-header-icon"><i class="bi bi-speedometer2"></i></div>
     </div>
 
-    <form method="get" class="mb-3 d-flex gap-2">
-        <input type="month" name="month" value="@Model.Month" class="form-control w-auto" />
-        <button type="submit" class="btn btn-primary">Pokaż</button>
-    </form>
-
-    <!-- KARTY -->
-    <div class="row g-3 mb-3">
-        <div class="col-6 col-lg-3">
-            <div class="card dash-card h-100">
-                <div class="card-body">
-                    <div class="text-secondary small">Łączny czas pracy</div>
-                    <h3 class="mb-0">@Model.TotalHours h</h3>
-                </div>
-            </div>
+    <div class="dashboard-stats">
+        <div class="report-summary-card">
+            <div class="report-summary-icon employee-count-icon"><i class="bi bi-people-fill"></i></div>
+            <div><span class="report-summary-label">Pracownicy</span><h2>@Model.EmployeesCount</h2></div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card dash-card h-100">
-                <div class="card-body">
-                    <div class="text-secondary small">Pracownicy w zestawieniu</div>
-                    <h3 class="mb-0">@Model.EmployeesCount</h3>
-                </div>
-            </div>
+        <div class="report-summary-card">
+            <div class="report-summary-icon total-time-icon"><i class="bi bi-play-circle-fill"></i></div>
+            <div><span class="report-summary-label">Teraz w pracy</span><h2>@Model.WorkingNowCount</h2></div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card dash-card h-100">
-                <div class="card-body">
-                    <div class="text-secondary small">Teraz w pracy</div>
-                    <h3 class="mb-0">@Model.WorkingNow</h3>
-                </div>
-            </div>
+        <div class="report-summary-card">
+            <div class="report-summary-icon employee-count-icon"><i class="bi bi-sun-fill"></i></div>
+            <div><span class="report-summary-label">Na urlopie dziś</span><h2>@Model.OnLeaveTodayCount</h2></div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="card dash-card h-100">
-                <div class="card-body">
-                    <div class="text-secondary small">Wnioski oczekujące</div>
-                    <h3 class="mb-0">@Model.PendingLeaves</h3>
-                </div>
+        <div class="report-summary-card">
+            <div class="report-summary-icon total-time-icon"><i class="bi bi-hourglass-split"></i></div>
+            <div>
+                <span class="report-summary-label">Oczekujące wnioski</span>
+                <h2>@Model.PendingRequestsCount</h2>
             </div>
         </div>
     </div>
 
-    <!-- WYKRESY -->
-    <div class="row g-3">
-        <div class="col-lg-8">
-            <div class="card dash-card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Godziny pracy na pracownika</h5>
-                    <div style="position: relative; height: 320px;">
-                        <canvas id="employeeChart"></canvas>
-                    </div>
+    <div class="dashboard-charts">
+        <div class="admin-table-card dashboard-chart-card wide">
+            <div class="admin-table-header">
+                <div>
+                    <h3>Godziny pracy w miesiącu</h3>
+                    <p>Łącznie: @((int)Model.MonthWorkTime.TotalHours)h @Model.MonthWorkTime.Minutes min</p>
                 </div>
             </div>
+            <div class="dashboard-chart-body"><canvas id="hoursChart"></canvas></div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card dash-card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Wnioski urlopowe wg statusu</h5>
-                    <div style="position: relative; height: 320px;">
-                        <canvas id="leaveChart"></canvas>
-                    </div>
-                </div>
-            </div>
+        <div class="admin-table-card dashboard-chart-card">
+            <div class="admin-table-header"><div><h3>Wnioski wg statusu</h3></div></div>
+            <div class="dashboard-chart-body"><canvas id="leaveChart"></canvas></div>
         </div>
 
-        <div class="col-12">
-            <div class="card dash-card">
-                <div class="card-body">
-                    <h5 class="card-title">Godziny pracy w kolejnych dniach miesiąca</h5>
-                    <div style="position: relative; height: 300px;">
-                        <canvas id="dayChart"></canvas>
-                    </div>
-                </div>
-            </div>
+        <div class="admin-table-card dashboard-chart-card">
+            <div class="admin-table-header"><div><h3>Top 5 – godziny w miesiącu</h3></div></div>
+            <div class="dashboard-chart-body"><canvas id="topChart"></canvas></div>
         </div>
     </div>
 
     <div class="leave-back">
-        <a asp-controller="Home"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i>
-            Powrót
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Powrót
         </a>
     </div>
-
 </section>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-
     <script>
-        const data = @Html.Raw(JsonSerializer.Serialize(Model, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
-
-        
         const css = getComputedStyle(document.documentElement);
-        Chart.defaults.color = css.getPropertyValue('--text-primary').trim();
+        Chart.defaults.color = css.getPropertyValue('--text-secondary').trim();
         Chart.defaults.borderColor = css.getPropertyValue('--border').trim();
-        Chart.defaults.font.size = 13;
 
-        const primary = css.getPropertyValue('--primary').trim();
+        function fmtHours(value) {
+            const totalMinutes = Math.round(value * 60);
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
 
-        const hoursAxis = {
-            beginAtZero: true,
-            title: { display: true, text: 'Godziny' }
+        const hoursTooltip = {
+            callbacks: {
+                label: ctx => {
+                    const value = ctx.chart.options.indexAxis === 'y'
+                        ? ctx.parsed.x
+                        : ctx.parsed.y;
+                    return 'Czas pracy: ' + fmtHours(value);
+                }
+            }
         };
 
-        new Chart(document.getElementById('employeeChart'), {
+        new Chart(document.getElementById('hoursChart'), {
             type: 'bar',
             data: {
-                labels: data.employeeLabels,
+                labels: @Html.Raw(Json.Serialize(Model.DayLabels)),
                 datasets: [{
                     label: 'Godziny',
-                    data: data.employeeHours,
-                    backgroundColor: '#1b6ec2',
+                    data: @Html.Raw(Json.Serialize(Model.DayHours)),
+                    backgroundColor: '#3b82f6',
                     borderRadius: 6
                 }]
             },
             options: {
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: hoursAxis }
+                plugins: { legend: { display: false }, tooltip: hoursTooltip },
+                scales: { y: { ticks: { callback: v => fmtHours(v) } } }
             }
         });
 
         new Chart(document.getElementById('leaveChart'), {
             type: 'doughnut',
             data: {
-                labels: data.leaveLabels,
+                labels: ['Zaakceptowane', 'Oczekujące', 'Odrzucone'],
                 datasets: [{
-                    data: data.leaveCounts,
-                    backgroundColor: ['#ffc107', '#198754', '#dc3545']
+                    data: [@Model.ApprovedCount, @Model.PendingCount, @Model.RejectedCount],
+                    backgroundColor: ['#16a34a', '#d97706', '#dc2626'],
+                    borderWidth: 0
                 }]
             },
-            options: {
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
-            }
+            options: { maintainAspectRatio: false }
         });
 
-        new Chart(document.getElementById('dayChart'), {
-            type: 'line',
+        new Chart(document.getElementById('topChart'), {
+            type: 'bar',
             data: {
-                labels: data.dayLabels,
+                labels: @Html.Raw(Json.Serialize(Model.TopNames)),
                 datasets: [{
                     label: 'Godziny',
-                    data: data.dayHours,
-                    borderColor: '#1b6ec2',
-                    backgroundColor: 'rgba(27, 110, 194, 0.15)',
-                    fill: true,
-                    tension: 0.3
+                    data: @Html.Raw(Json.Serialize(Model.TopHours)),
+                    backgroundColor: '#10b981',
+                    borderRadius: 6
                 }]
             },
             options: {
+                indexAxis: 'y',
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: hoursAxis,
-                    x: { title: { display: true, text: 'Dzień miesiąca' } }
-                }
+                plugins: { legend: { display: false }, tooltip: hoursTooltip },
+                scales: { x: { ticks: { callback: v => fmtHours(v) } } }
             }
         });
     </script>
+
 }

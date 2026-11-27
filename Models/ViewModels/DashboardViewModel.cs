@@ -2,22 +2,20 @@
 {
     public class DashboardViewModel
     {
-        public string Month { get; set; } = string.Empty;
-
-        
-        public double TotalHours { get; set; }
         public int EmployeesCount { get; set; }
-        public int WorkingNow { get; set; }
-        public int PendingLeaves { get; set; }
-
-
-        public List<string> EmployeeLabels { get; set; } = new();
-        public List<double> EmployeeHours { get; set; } = new();
+        public int WorkingNowCount { get; set; }
+        public int OnLeaveTodayCount { get; set; }
+        public int PendingRequestsCount { get; set; }
+        public TimeSpan MonthWorkTime { get; set; }
 
         public List<string> DayLabels { get; set; } = new();
         public List<double> DayHours { get; set; } = new();
 
-        public List<string> LeaveLabels { get; set; } = new();
-        public List<int> LeaveCounts { get; set; } = new();
+        public int ApprovedCount { get; set; }
+        public int PendingCount { get; set; }
+        public int RejectedCount { get; set; }
+
+        public List<string> TopNames { get; set; } = new();
+        public List<double> TopHours { get; set; } = new();
     }
 }

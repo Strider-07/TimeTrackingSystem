@@ -82,6 +82,15 @@
                                 </a>
                             </li>
                         }
+                        @if (User.IsInRole("Administrator") || User.IsInRole("Kierownik"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link app-nav-link" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="bi bi-speedometer2"></i>
+                                    Dashboard
+                                </a>
+                            </li>
+                        }
 
                     </ul>
 
@@ -146,6 +155,15 @@
                                            asp-action="Manage">
                                             <i class="bi bi-calendar2-check"></i>
                                             <span>Wnioski pracowników</span>
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item quick-nav-item management-item"
+                                           asp-controller="Dashboard"
+                                           asp-action="Index">
+                                            <i class="bi bi-speedometer2"></i>
+                                            <span>Dashboard</span>
                                         </a>
                                     </li>
 

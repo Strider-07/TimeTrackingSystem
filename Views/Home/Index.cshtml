@@ -154,7 +154,6 @@
 
             <div class="home-navigation-grid">
 
-                
                 <a asp-controller="TimeEntry" asp-action="Users"
                    class="home-navigation-card">
 
@@ -173,7 +172,6 @@
                     </div>
                 </a>
 
-                
                 <a asp-controller="LeaveRequest" asp-action="Manage"
                    class="home-navigation-card">
 
@@ -192,20 +190,23 @@
                     </div>
                 </a>
 
-
                 <a asp-controller="Dashboard" asp-action="Index"
                    class="home-navigation-card">
 
-                    
+                    <div class="home-navigation-icon dashboard">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
 
                     <div class="home-navigation-content">
                         <h3>Dashboard</h3>
-                        <p>Przeglądaj wykresy</p>
+                        <p>Podsumowanie czasu pracy, obecności i wniosków w formie wykresów.</p>
                     </div>
 
-                    
+                    <div class="home-navigation-footer">
+                        <span>Przejdź do dashboardu</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
                 </a>
-
 
             </div>
         </div>
