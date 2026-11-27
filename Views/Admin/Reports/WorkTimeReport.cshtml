@@ -206,28 +206,26 @@
 
     </div>
 
-    <div class="report-page-actions">
+    <div class="work-report-actions">
         <a asp-controller="Admin"
            asp-action="Reports"
            class="btn admin-secondary-btn">
             <i class="bi bi-arrow-left"></i>
             Powrót
         </a>
-    </div>
 
-    <div class="report-page-actions">
         <a asp-action="ExportWorkTimeReport"
            asp-route-month="@ViewBag.Month"
            class="btn admin-secondary-btn">
-            Wyeksportuj do csv
+            <i class="bi bi-filetype-csv"></i>
+            Wyeksportuj do CSV
         </a>
-    </div>
 
-    <div class="report-page-actions">
         <a asp-action="ExportWorkTimeReportPdf"
            asp-route-month="@ViewBag.Month"
            class="btn admin-secondary-btn">
-            <i class="bi bi-file-earmark-pdf"></i> Wyeksportuj do PDF
+            <i class="bi bi-file-earmark-pdf"></i>
+            Wyeksportuj do PDF
         </a>
     </div>
 

@@ -81,6 +81,7 @@ namespace TimeTrackingSystem.Controllers
             var model = new PaginationViewModel<LeaveRequest>
             {
                 Items = paginatedRequests,
+                AllItems = allRequests,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalItems = totalItems,
@@ -177,6 +178,7 @@ namespace TimeTrackingSystem.Controllers
             var model = new PaginationViewModel<LeaveRequest>
             {
                 Items = paginatedRequests,
+                AllItems = requests,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalItems = totalItems,

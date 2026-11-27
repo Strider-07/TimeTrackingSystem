@@ -1,6 +1,352 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Polityka prywatności";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="privacy-page">
+
+    <!-- HEADER -->
+    <div class="privacy-header">
+        <div class="privacy-header-content">
+            <div class="privacy-header-icon">
+                <i class="bi bi-shield-lock"></i>
+            </div>
+
+            <div>
+                <h1>Polityka prywatności</h1>
+                <p>Informacje dotyczące przetwarzania danych w systemie.</p>
+            </div>
+        </div>
+
+        <div class="privacy-updated">
+            <i class="bi bi-file-earmark-text"></i>
+            <span>Informacje o danych</span>
+        </div>
+    </div>
+
+    <!-- INTRO -->
+    <section class="privacy-card">
+        <div class="privacy-section-title">
+            <i class="bi bi-info-circle"></i>
+            <h2>Informacje ogólne</h2>
+        </div>
+
+        <p>
+            Niniejsza polityka prywatności opisuje zasady przetwarzania
+            danych użytkowników korzystających z Systemu Ewidencji Czasu Pracy.
+        </p>
+
+        <p>
+            Aplikacja została opracowana w ramach projektu praktycznego
+            i służy do zarządzania użytkownikami, ewidencjonowania czasu pracy
+            oraz obsługi wniosków urlopowych.
+        </p>
+
+        <p>
+            Dokument przedstawia informacje o rodzaju przetwarzanych danych,
+            celach ich wykorzystania, stosowanych mechanizmach bezpieczeństwa
+            oraz podstawowych prawach związanych z ochroną danych osobowych.
+        </p>
+    </section>
+
+    <!-- DATA -->
+    <section class="privacy-card">
+        <div class="privacy-section-title">
+            <i class="bi bi-database"></i>
+            <h2>Zakres przetwarzanych danych</h2>
+        </div>
+
+        <p>
+            W ramach funkcjonalności systemu mogą być przetwarzane
+            następujące dane:
+        </p>
+
+        <div class="privacy-data-list">
+
+            <div class="privacy-data-item">
+                <i class="bi bi-person-vcard"></i>
+                <div>
+                    <h3>Dane użytkowników</h3>
+                    <p>
+                        Imię, nazwisko, adres email, stanowisko,
+                        dział oraz informacje dotyczące konta.
+                    </p>
+                </div>
+            </div>
+
+            <div class="privacy-data-item">
+                <i class="bi bi-clock"></i>
+                <div>
+                    <h3>Dane dotyczące czasu pracy</h3>
+                    <p>
+                        Daty, godziny rozpoczęcia i zakończenia pracy,
+                        informacje o przepracowanym czasie oraz uwagi
+                        dotyczące poszczególnych wpisów.
+                    </p>
+                </div>
+            </div>
+
+            <div class="privacy-data-item">
+                <i class="bi bi-calendar2-check"></i>
+                <div>
+                    <h3>Dane dotyczące wniosków urlopowych</h3>
+                    <p>
+                        Rodzaj urlopu, daty jego rozpoczęcia i zakończenia,
+                        uzasadnienie, status wniosku oraz komentarze
+                        związane z jego rozpatrzeniem.
+                    </p>
+                </div>
+            </div>
+
+            <div class="privacy-data-item">
+                <i class="bi bi-envelope"></i>
+                <div>
+                    <h3>Dane związane z powiadomieniami email</h3>
+                    <p>
+                        Adres odbiorcy, temat i treść wiadomości,
+                        data wysyłki, status wysyłania oraz informacje
+                        o ewentualnych błędach.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PURPOSE -->
+    <section class="privacy-card">
+        <div class="privacy-section-title">
+            <i class="bi bi-bullseye"></i>
+            <h2>Cel przetwarzania danych</h2>
+        </div>
+
+        <p>Dane przetwarzane w systemie mogą być wykorzystywane w celu:</p>
+
+        <ul class="privacy-list">
+            <li>Uwierzytelniania użytkowników i zarządzania kontami.</li>
+            <li>Przypisywania uprawnień wynikających z ról użytkowników.</li>
+            <li>Rejestrowania i zestawiania czasu pracy.</li>
+            <li>Składania, przeglądania i rozpatrywania wniosków urlopowych.</li>
+            <li>Generowania raportów i zestawień.</li>
+            <li>Wysyłania powiadomień email związanych z funkcjonowaniem systemu.</li>
+            <li>Monitorowania poprawności działania wybranych funkcjonalności.</li>
+        </ul>
+    </section>
+
+    <!-- ACCESS -->
+    <section class="privacy-card">
+        <div class="privacy-section-title">
+            <i class="bi bi-person-lock"></i>
+            <h2>Dostęp do danych</h2>
+        </div>
+
+        <p>
+            Dostęp do poszczególnych funkcjonalności oraz danych
+            jest uzależniony od roli przypisanej użytkownikowi.
+        </p>
+
+        <div class="privacy-access-list">
+
+            <div class="privacy-access-item">
+                <span class="privacy-access-icon admin">
+                    <i class="bi bi-shield-check"></i>
+                </span>
+
+                <div>
+                    <h3>Administrator</h3>
+                    <p>
+                        Posiada uprawnienia administracyjne umożliwiające
+                        zarządzanie użytkownikami, rolami i raportami
+                        zgodnie z funkcjonalnościami systemu.
+                    </p>
+                </div>
+            </div>
+
+            <div class="privacy-access-item">
+                <span class="privacy-access-icon manager">
+                    <i class="bi bi-person-gear"></i>
+                </span>
+
+                <div>
+                    <h3>Kierownik</h3>
+                    <p>
+                        Uzyskuje dostęp do danych podległych pracowników
+                        w zakresie funkcjonalności związanych z zarządzaniem
+                        zespołem, ewidencją czasu pracy i rozpatrywaniem
+                        wniosków urlopowych.
+                    </p>
+                </div>
+            </div>
+
+            <div class="privacy-access-item">
+                <span class="privacy-access-icon employee">
+                    <i class="bi bi-person"></i>
+                </span>
+
+                <div>
+                    <h3>Pracownik</h3>
+                    <p>
+                        Uzyskuje dostęp do własnych wpisów czasu pracy
+                        i wniosków urlopowych oraz funkcjonalności
+                        udostępnionych dla jego roli.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECURITY -->
+    <section class="privacy-card">
+        <div class="privacy-section-title">
+            <i class="bi bi-shield-check"></i>
+            <h2>Bezpieczeństwo danych</h2>
+        </div>
+
+        <p>
+            System wykorzystuje wybrane mechanizmy techniczne
+            wspierające ochronę przetwarzanych danych, w tym:
+        </p>
+
+        <ul class="privacy-list">
+            <li>
+                Hashowanie haseł za pomocą mechanizmów
+                ASP.NET Core Identity.
+            </li>
+
+            <li>
+                Kontrolę dostępu opartą na rolach użytkowników.
+            </li>
+
+            <li>
+                Mechanizmy autoryzacji i uwierzytelniania.
+            </li>
+
+            <li>
+                Walidację danych wprowadzanych do formularzy.
+            </li>
+
+            <li>
+                Ochronę formularzy przed atakami CSRF.
+            </li>
+
+            <li>
+                Wykorzystanie Entity Framework Core do komunikacji
+                z bazą danych.
+            </li>
+
+            <li>
+                Automatyczne wylogowywanie użytkownika
+                po określonym okresie bezczynności.
+            </li>
+        </ul>
+
+        <p class="privacy-note">
+            Zastosowanie wymienionych mechanizmów nie stanowi gwarancji
+            pełnego bezpieczeństwa systemu. Poziom ochrony zależy również
+            od konfiguracji, środowiska wdrożeniowego i sposobu użytkowania.
+        </p>
+    </section>
+
+    <!-- EMAIL -->
+    <section class="privacy-card">
+        <div class="privacy-section-title">
+            <i class="bi bi-send"></i>
+            <h2>Powiadomienia email</h2>
+        </div>
+
+        <p>
+            System może wykorzystywać pocztę elektroniczną do przesyłania
+            informacji związanych z kontami użytkowników oraz wnioskami
+            urlopowymi.
+        </p>
+
+        <p>
+            Wiadomości mogą obejmować informacje o utworzeniu konta,
+            zmianie lub resetowaniu hasła, złożeniu wniosku urlopowego
+            oraz jego akceptacji lub odrzuceniu.
+        </p>
+
+        <p>
+            W systemie mogą być przechowywane logi dotyczące wysyłanych
+            wiadomości, obejmujące między innymi adres odbiorcy,
+            temat, datę wysyłki i status operacji.
+        </p>
+    </section>
+
+    <!-- RIGHTS -->
+    <section class="privacy-card">
+        <div class="privacy-section-title">
+            <i class="bi bi-person-check"></i>
+            <h2>Prawa osób, których dane dotyczą</h2>
+        </div>
+
+        <p>
+            W przypadku rzeczywistego przetwarzania danych osobowych
+            zastosowanie mogą mieć prawa wynikające z przepisów
+            o ochronie danych osobowych, w szczególności:
+        </p>
+
+        <ul class="privacy-list">
+            <li>Prawo dostępu do danych osobowych.</li>
+            <li>Prawo do sprostowania danych.</li>
+            <li>Prawo do usunięcia danych, w przypadkach przewidzianych przepisami.</li>
+            <li>Prawo do ograniczenia przetwarzania.</li>
+            <li>Prawo do wniesienia sprzeciwu, gdy ma zastosowanie.</li>
+            <li>Prawo do wniesienia skargi do właściwego organu nadzorczego.</li>
+        </ul>
+
+        <p class="privacy-note">
+            Zakres przysługujących praw zależy od podstawy prawnej
+            i okoliczności przetwarzania danych.
+        </p>
+    </section>
+
+    <!-- STORAGE -->
+    <section class="privacy-card">
+        <div class="privacy-section-title">
+            <i class="bi bi-server"></i>
+            <h2>Przechowywanie danych</h2>
+        </div>
+
+        <p>
+            Dane systemowe są przechowywane w bazie danych PostgreSQL.
+            Okres przechowywania danych w rzeczywistym środowisku
+            powinien być ustalany zgodnie z obowiązującymi przepisami,
+            celami przetwarzania oraz zasadami przyjętymi przez
+            administratora danych.
+        </p>
+
+        <p>
+            W środowisku demonstracyjnym dane mogą mieć charakter
+            testowy i być wykorzystywane wyłącznie do prezentacji
+            oraz weryfikacji funkcjonalności aplikacji.
+        </p>
+    </section>
+
+    <!-- FINAL -->
+    <section class="privacy-card privacy-final">
+        <div class="privacy-section-title">
+            <i class="bi bi-file-earmark-lock"></i>
+            <h2>Charakter projektu</h2>
+        </div>
+
+        <p>
+            System Ewidencji Czasu Pracy jest projektem praktycznym
+            o charakterze edukacyjnym. Opisane funkcjonalności,
+            mechanizmy i zasady mają na celu przedstawienie sposobu
+            działania aplikacji.
+        </p>
+
+        <p>
+            Niniejszy dokument ma charakter informacyjny i nie stanowi
+            kompletnej polityki prywatności dla rzeczywistego wdrożenia
+            systemu w organizacji.
+        </p>
+    </section>
+
+    <div class="privacy-footer">
+        <i class="bi bi-shield-lock"></i>
+        <span>Polityka prywatności – System Ewidencji Czasu Pracy</span>
+    </div>
+
+</div>

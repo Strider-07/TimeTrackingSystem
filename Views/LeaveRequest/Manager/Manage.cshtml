@@ -3,13 +3,20 @@
 <section class="leave-page">
 
     <div class="leave-header">
-        <div>
+        <div class="leave-header-content">
             <h1>Wnioski do rozpatrzenia</h1>
             <p>Przeglądaj i podejmuj decyzje dotyczące wniosków urlopowych.</p>
         </div>
 
-        <div class="leave-header-icon">
-            <i class="bi bi-clipboard-check"></i>
+        <div class="leave-header-count">
+            <div class="leave-header-count-icon">
+                <i class="bi bi-files"></i>
+            </div>
+
+            <div class="leave-header-count-content">
+                <span>Łącznie wniosków</span>
+                <strong>@Model.AllItems.Count</strong>
+            </div>
         </div>
     </div>
 
