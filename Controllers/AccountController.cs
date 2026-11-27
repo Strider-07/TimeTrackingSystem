@@ -14,21 +14,14 @@ namespace TimeTrackingSystem.Controllers
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IEmailService _emailService = emailService;
         
-        /*
-        public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IEmailService emailService)
-        {
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _emailService = emailService;
-        }
-        */
+        
 
 
         [HttpGet, AllowAnonymous]
         public IActionResult Login()
         {
-            //return View();
-            return View("~/Views/Account/Login.cshtml"); //TODO: Temporary fix
+            
+            return View("~/Views/Account/Login.cshtml");
         }
 
         [HttpPost, AllowAnonymous, ValidateAntiForgeryToken]
@@ -39,7 +32,7 @@ namespace TimeTrackingSystem.Controllers
             if (!ModelState.IsValid)
             {
                 ModelState.AddModelError("Login", "Nie poprawne hasło lub / i mail");
-                return View("~/Views/Account/Login.cshtml", model); //TODO: Temporary fix
+                return View("~/Views/Account/Login.cshtml", model);
             }
             var currentUser = await _userManager.FindByEmailAsync(model.Email);
             if (currentUser == null || currentUser.IsActive == false)

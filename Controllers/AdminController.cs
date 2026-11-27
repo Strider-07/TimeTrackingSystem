@@ -1,21 +1,15 @@
-﻿using iTextSharp.text;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Org.BouncyCastle.Asn1.Ocsp;
 using System.Globalization;
 using System.Net;
-using System.Security.Claims;
 using System.Text;
 using TimeTrackingSystem.Data;
 using TimeTrackingSystem.Models.Entities;
 using TimeTrackingSystem.Models.ViewModels;
 using TimeTrackingSystem.Services;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 
 
 namespace TimeTrackingSystem.Controllers
@@ -170,7 +164,7 @@ namespace TimeTrackingSystem.Controllers
             var roles = await _userManager.GetRolesAsync(user);
             if (!roles.Any() || roles.Count() > 1)
             {
-                return NotFound(); // TODO: fix to smth better
+                return NotFound();
             }
             var viewModel = new EditUserViewModel
             {
@@ -180,7 +174,7 @@ namespace TimeTrackingSystem.Controllers
                 LastName = user.LastName,
                 Position = user.Position,
                 Department = user.Department,
-                Email = user.Email != null ? user.Email : user.FirstName + "@example.com" // idk about this
+                Email = user.Email != null ? user.Email : user.FirstName + "@example.com"
             };
             return View(viewModel);
         }
@@ -236,7 +230,7 @@ namespace TimeTrackingSystem.Controllers
             user.Position = model.Position;
             user.Department = model.Department;
             var result = await _userManager.UpdateAsync(user);
-            // NOTE: beacuse it's copied from above, idk if this is 100% correct way for this.
+
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)

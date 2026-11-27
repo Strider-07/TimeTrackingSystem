@@ -30,7 +30,7 @@ builder.Services.ConfigureApplicationCookie(option =>
     option.ExpireTimeSpan = TimeSpan.FromMinutes(15);
     option.SlidingExpiration = true;
     option.LoginPath = "/Account/Login";
-    // option.AccessDeniedPath = "/"; TODO: Add after roles
+    option.AccessDeniedPath = "/";
     option.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     option.Cookie.HttpOnly = true;
 
@@ -54,6 +54,11 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
+    scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Database.Migrate();
+}
+
+using (var scope = app.Services.CreateScope())
+{
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     await DbInitializer.InitializeRolesAsync(roleManager);
 }
@@ -69,33 +74,6 @@ if (app.Environment.IsDevelopment())
         .GetRequiredService<RoleManager<IdentityRole>>();
 
     await UserSeeder.SeedAsync(userManager);
-}
-
-using (var scope = app.Services.CreateScope())
-{
-    
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var existingUser = await userManager.FindByEmailAsync("test@example.com");
-    if(existingUser == null)
-    {
-        var testUser = new ApplicationUser
-        {
-            UserName = "test@example.com",
-            Email = "test@example.com"
-            
-        };
-
-        var result = await userManager.CreateAsync(testUser, "Test123!");
-
-        if (!result.Succeeded)
-        {
-            throw new Exception(
-                string.Join("; ", result.Errors.Select(e => e.Description))
-            );
-        }
-
-    }
-
 }
 
 

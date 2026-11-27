@@ -1,5 +1,4 @@
 ﻿function changeTheme() {
-    console.log("Elo");
     const html = document.documentElement;
     const currentTheme = html.getAttribute("data-theme");
     const newTheme = currentTheme === "light" ? "dark" : "light";
